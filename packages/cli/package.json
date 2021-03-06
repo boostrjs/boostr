@@ -1,0 +1,47 @@
+{
+  "name": "boostr",
+  "version": "0.1.72",
+  "description": "Build and deploy your Layr applications",
+  "keywords": [
+    "layr",
+    "create",
+    "build",
+    "develop",
+    "test",
+    "deploy",
+    "deployment",
+    "tool",
+    "framework"
+  ],
+  "author": "Manuel Vila <hi@mvila.me>",
+  "license": "MIT",
+  "repository": "https://github.com/boostrjs/boostr/tree/master/packages/cli",
+  "files": [
+    "./dist"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "exports": "./dist/index.js",
+  "bin": {
+    "boostr": "./dist/cli.js"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "scripts": {
+    "build": "dev-tools build:ts-library",
+    "prepare": "npm run build",
+    "publish:package": "dev-tools publish:package",
+    "update": "dev-tools update:dependencies"
+  },
+  "dependencies": {
+    "mri": "^1.1.6",
+    "tslib": "^2.1.0"
+  },
+  "devDependencies": {
+    "@mvila/dev-tools": "^1.0.28",
+    "@mvila/tsconfig": "^1.0.5",
+    "@types/mri": "^1.1.0",
+    "@types/node": "^14.14.31"
+  }
+}

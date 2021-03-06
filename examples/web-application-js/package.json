@@ -1,0 +1,7 @@
+{
+  "name": "web-application-js",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "devDependencies": {}
+}
