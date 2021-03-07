@@ -1,7 +1,7 @@
 import process from 'process';
 
 import {getCommand} from './commands/index.js';
-import {loadRootConfigFile} from './config.js';
+import {loadRootConfig, loadComponentConfig} from './config.js';
 
 export async function runCLI(
   args: string[],
@@ -9,15 +9,25 @@ export async function runCLI(
 ) {
   let componentNames: string[] | undefined;
 
-  const config = await loadRootConfigFile(currentDirectory);
+  let config = await loadRootConfig(currentDirectory);
 
   if (config?.components !== undefined) {
     componentNames = Object.keys(config.components);
   }
 
-  const {commandHandler, commandArguments, commandOptions, componentName} = getCommand(args, {
-    componentNames
-  });
+  const {
+    componentName,
+    globalOptions,
+    commandHandler,
+    commandArguments,
+    commandOptions
+  } = getCommand(args, {componentNames});
 
-  await commandHandler(commandArguments, commandOptions, {componentName});
+  if (componentName !== undefined) {
+    config = await loadComponentConfig(config, componentName, {stage: globalOptions?.stage});
+  }
+
+  const directory = config !== undefined ? config.__directory : currentDirectory;
+
+  await commandHandler(commandArguments, commandOptions, {directory, config, componentName});
 }

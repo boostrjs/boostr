@@ -2,10 +2,17 @@ import mri from 'mri';
 
 import main from './main.js';
 import init from './init.js';
+import npm from './npm.js';
 import {throwError} from '../util.js';
+
+const COMMANDS = [main, init, npm];
+const BUILT_IN_STAGES = ['development', 'staging', 'production'];
 
 export type Command = {
   name: string;
+  minimumArguments?: number;
+  maximumArguments?: number;
+  useRawArguments?: boolean;
   options?: {
     [name: string]: {
       aliases?: string[];
@@ -14,65 +21,121 @@ export type Command = {
   handler: (
     commandArguments: readonly string[],
     commandOptions: any,
-    {componentName}: {componentName: string | undefined}
+    {
+      directory,
+      config,
+      componentName
+    }: {directory: string; config: any; componentName: string | undefined}
   ) => Promise<void>;
 };
 
-const commands = [main, init];
-
 export function getCommand(
-  args: string[],
+  rawArguments: string[],
   {componentNames = []}: {componentNames?: string[]} = {}
 ) {
   let componentName: string | undefined;
   let commandName: string;
 
-  let {_: commandArguments, ...rawCommandOptions} = mri(args);
-
-  const componentNameOrCommandName = commandArguments[0];
-
   if (
-    componentNameOrCommandName !== undefined &&
-    componentNames.includes(componentNameOrCommandName)
+    rawArguments.length > 0 &&
+    !rawArguments[0].startsWith('-') &&
+    componentNames.includes(rawArguments[0])
   ) {
-    componentName = componentNameOrCommandName;
-    commandArguments = commandArguments.slice(1);
+    componentName = rawArguments[0];
+    rawArguments = rawArguments.slice(1);
   }
 
-  if (commandArguments.length > 0) {
-    commandName = commandArguments[0];
-    commandArguments = commandArguments.slice(1);
+  if (rawArguments.length > 0 && !rawArguments[0].startsWith('-')) {
+    commandName = rawArguments[0];
+    rawArguments = rawArguments.slice(1);
   } else {
     commandName = main.name;
   }
 
-  const command = commands.find((command) => command.name === commandName);
+  const command = COMMANDS.find((command) => command.name === commandName);
 
   if (command === undefined) {
-    throwError(`Unknown command: ${commandName}`);
+    throwError(`The specified command is unknown: ${commandName}`);
   }
 
-  const {options: availableCommandOptions = {}, handler: commandHandler} = command;
+  let globalOptions: any;
+  let commandArguments: readonly string[];
+  let commandOptions: any;
 
-  let commandOptions: any = {};
+  const {
+    minimumArguments = 0,
+    maximumArguments = 0,
+    useRawArguments = false,
+    options: availableCommandOptions = {},
+    handler: commandHandler
+  } = command;
 
-  for (const [rawName, value] of Object.entries(rawCommandOptions)) {
+  if (useRawArguments) {
+    commandArguments = [...rawArguments];
+  } else {
+    let {_: parsedArguments, ...parsedOptions} = mri(rawArguments);
+
+    if (parsedArguments.length < minimumArguments) {
+      throwError(`A required argument is missing`);
+    }
+
+    if (parsedArguments.length > maximumArguments) {
+      throwError(`The specified argument is unexpected: ${parsedArguments[maximumArguments]}`);
+    }
+
+    commandArguments = parsedArguments;
+    globalOptions = pullGlobalOptions(parsedOptions);
+    commandOptions = getCommandOptions(parsedOptions, availableCommandOptions);
+  }
+
+  return {componentName, globalOptions, commandHandler, commandArguments, commandOptions};
+}
+
+function pullGlobalOptions(parsedOptions: any) {
+  const globalOptions: any = {};
+
+  if (parsedOptions.stage !== undefined) {
+    if (typeof parsedOptions.stage !== 'string') {
+      throwError(`The value of the --stage option should be a string`);
+    }
+
+    globalOptions.stage = parsedOptions.stage;
+    delete parsedOptions.stage;
+  }
+
+  for (const stage of BUILT_IN_STAGES) {
+    if (parsedOptions[stage]) {
+      globalOptions.stage = stage;
+      delete parsedOptions[stage];
+    }
+  }
+
+  return globalOptions;
+}
+
+function getCommandOptions(
+  parsedOptions: any,
+  availableCommandOptions: NonNullable<Command['options']>
+) {
+  const commandOptions: any = {};
+
+  for (const [parsedName, value] of Object.entries(parsedOptions)) {
     let actualName: string | undefined;
 
     for (const [name, {aliases = []}] of Object.entries(availableCommandOptions)) {
-      if (rawName === name || aliases.includes(rawName)) {
+      if (parsedName === name || aliases.includes(parsedName)) {
         actualName = name;
         break;
       }
     }
 
     if (actualName === undefined) {
-      const formattedName = rawName.length === 1 ? `-${rawName}` : `--${rawName}`;
-      throwError(`Unknown option: ${formattedName}`);
+      const formattedName = parsedName.length === 1 ? `-${parsedName}` : `--${parsedName}`;
+      throwError(`The specified option is unknown: ${formattedName}`);
     }
 
     commandOptions[actualName] = value;
   }
 
-  return {commandHandler, commandArguments, commandOptions, componentName};
+  return commandOptions;
 }
