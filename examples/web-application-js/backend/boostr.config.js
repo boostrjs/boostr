@@ -1,5 +1,10 @@
-export default () => ({
+export default ({components}) => ({
   type: 'backend',
+
+  environment: {
+    FRONTEND_URL: components.frontend.url,
+    MONGODB_STORE_CONNECTION_STRING: components.database.url
+  },
 
   stages: {
     development: {

@@ -8,11 +8,19 @@ const CONFIG_FILE_NAME = 'boostr.config.js';
 const PRIVATE_CONFIG_FILE_NAME = 'boostr.config.private.js';
 const DEFAULT_STAGE = 'development';
 
+const COMPONENT_MOCK: any = new Proxy(Object.create(null), {
+  get: () => COMPONENT_MOCK
+});
+
 export async function loadRootConfig(directory: string) {
   while (true) {
     const config = await loadConfig(directory);
 
     if (config !== undefined && config.type === 'application') {
+      if (config.components === undefined) {
+        config.components = {};
+      }
+
       return config;
     }
 
@@ -28,13 +36,35 @@ export async function loadRootConfig(directory: string) {
   return undefined;
 }
 
+async function preloadComponentConfigs(rootConfig: any, {stage}: {stage: string}) {
+  if (rootConfig.__preloadedComponentConfigs !== undefined) {
+    return;
+  }
+
+  Object.defineProperty(rootConfig, '__preloadedComponentConfigs', {value: {}});
+
+  for (const componentName of Object.keys(rootConfig.components)) {
+    rootConfig.__preloadedComponentConfigs[componentName] = COMPONENT_MOCK;
+  }
+
+  for (const componentName of Object.keys(rootConfig.components)) {
+    rootConfig.__preloadedComponentConfigs[componentName] = await loadComponentConfig(
+      rootConfig,
+      componentName,
+      {stage}
+    );
+  }
+}
+
 export async function loadComponentConfig(
   rootConfig: any,
   componentName: string,
   {stage = DEFAULT_STAGE}: {stage?: string} = {}
 ) {
+  await preloadComponentConfigs(rootConfig, {stage});
+
   const rootDirectory = rootConfig.__directory;
-  const componentDirectoryRelative = rootConfig?.components?.[componentName];
+  const componentDirectoryRelative = rootConfig?.components[componentName];
 
   if (componentDirectoryRelative === undefined) {
     throwError(`The specified component is unknown: '${componentName}'`);
@@ -48,7 +78,9 @@ export async function loadComponentConfig(
     );
   }
 
-  const componentConfig = await loadConfig(componentDirectory);
+  const componentConfig = await loadConfig(componentDirectory, {
+    preloadedComponentConfigs: rootConfig.__preloadedComponentConfigs
+  });
 
   if (componentConfig === undefined) {
     throwError(`Couldn't find a configuration file for the '${componentName}' component`);
@@ -64,10 +96,15 @@ export async function loadComponentConfig(
   return componentConfig;
 }
 
-async function loadConfig(directory: string): Promise<any> {
-  let config = await _loadConfig(directory, CONFIG_FILE_NAME);
+async function loadConfig(
+  directory: string,
+  {preloadedComponentConfigs}: {preloadedComponentConfigs?: any} = {}
+): Promise<any> {
+  let config = await _loadConfig(directory, CONFIG_FILE_NAME, {preloadedComponentConfigs});
 
-  const privateConfig = await _loadConfig(directory, PRIVATE_CONFIG_FILE_NAME);
+  const privateConfig = await _loadConfig(directory, PRIVATE_CONFIG_FILE_NAME, {
+    preloadedComponentConfigs
+  });
 
   if (privateConfig !== undefined) {
     if (config !== undefined) {
@@ -80,7 +117,11 @@ async function loadConfig(directory: string): Promise<any> {
   return config;
 }
 
-async function _loadConfig(directory: string, configFileName: string): Promise<any> {
+async function _loadConfig(
+  directory: string,
+  configFileName: string,
+  {preloadedComponentConfigs}: {preloadedComponentConfigs: any}
+): Promise<any> {
   const file = join(directory, configFileName);
 
   if (!existsSync(file)) {
@@ -89,9 +130,9 @@ async function _loadConfig(directory: string, configFileName: string): Promise<a
 
   const {default: configBuilder} = await import(file);
 
-  const config = await configBuilder();
+  const config = await configBuilder({components: preloadedComponentConfigs});
 
-  config.__directory = directory;
+  Object.defineProperty(config, '__directory', {value: directory});
 
   if (config.environment === undefined) {
     config.environment = {};

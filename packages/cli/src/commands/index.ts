@@ -55,7 +55,11 @@ export function getCommand(
   const command = COMMANDS.find((command) => command.name === commandName);
 
   if (command === undefined) {
-    throwError(`The specified command is unknown: ${commandName}`);
+    if (componentName !== undefined) {
+      throwError(`The specified command is unknown: ${commandName}`);
+    } else {
+      throwError(`The specified component or command is unknown: ${commandName}`);
+    }
   }
 
   let globalOptions: any;
