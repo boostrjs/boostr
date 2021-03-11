@@ -7,9 +7,9 @@
   "author": "Manuel Vila <hi@mvila.me>",
   "license": "MIT",
   "repository": "https://github.com/boostrjs/boostr",
-  "prettier": "@mvila/prettierrc",
+  "prettier": "@boostr/prettierrc",
   "devDependencies": {
-    "@mvila/prettierrc": "^1.1.0",
+    "@boostr/prettierrc": "^1.0.0",
     "prettier": "^2.2.1"
   }
 }
