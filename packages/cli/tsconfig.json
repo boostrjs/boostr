@@ -1,7 +1,4 @@
 {
-  "extends": "@mvila/tsconfig",
-  "include": ["src/**/*"],
-  "compilerOptions": {
-    "module": "es2020"
-  }
+  "extends": "@boostr/tsconfig",
+  "include": ["src/**/*"]
 }

@@ -1,6 +1,6 @@
 {
   "name": "boostr",
-  "version": "0.1.95",
+  "version": "0.1.96",
   "description": "Build and deploy your Layr applications",
   "keywords": [
     "layr",
@@ -40,8 +40,8 @@
     "tslib": "^2.1.0"
   },
   "devDependencies": {
+    "@boostr/tsconfig": "^1.0.0",
     "@mvila/dev-tools": "^1.0.28",
-    "@mvila/tsconfig": "^1.0.5",
     "@types/lodash": "^4.14.168",
     "@types/mri": "^1.1.0",
     "@types/node": "^14.14.31"
