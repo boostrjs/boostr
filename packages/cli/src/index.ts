@@ -1,5 +1,3 @@
-import process from 'process';
-
 import {getCommand} from './commands/index.js';
 import {loadRootConfig, loadComponentConfig} from './config.js';
 

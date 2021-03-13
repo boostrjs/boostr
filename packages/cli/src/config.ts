@@ -1,5 +1,5 @@
 import {existsSync} from 'fs';
-import {join} from 'path';
+import {join, resolve} from 'path';
 import merge from 'lodash/merge.js';
 
 import {throwError} from './util.js';
@@ -70,7 +70,7 @@ export async function loadComponentConfig(
     throwError(`The specified component is unknown: '${componentName}'`);
   }
 
-  const componentDirectory = join(rootDirectory, componentDirectoryRelative);
+  const componentDirectory = resolve(rootDirectory, componentDirectoryRelative);
 
   if (!existsSync(componentDirectory)) {
     throwError(

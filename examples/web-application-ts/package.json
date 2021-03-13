@@ -1,0 +1,10 @@
+{
+  "name": "web-application-ts",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "prettier": "@boostr/prettierrc",
+  "devDependencies": {
+    "@boostr/prettierrc": "^1.0.0"
+  }
+}

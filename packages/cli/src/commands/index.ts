@@ -1,21 +1,24 @@
 import mri from 'mri';
 
 import main from './main.js';
-import init from './init.js';
+import initialize from './initialize.js';
+import install from './install.js';
 import config from './config.js';
 import npm from './npm.js';
 import {throwError} from '../util.js';
 
-const COMMANDS = [main, init, config, npm];
+const COMMANDS = [main, initialize, install, config, npm];
 const BUILT_IN_STAGES = ['development', 'staging', 'production'];
 
 export type Command = {
   name: string;
+  aliases?: string[];
   minimumArguments?: number;
   maximumArguments?: number;
   useRawArguments?: boolean;
   options?: {
     [name: string]: {
+      type?: string;
       aliases?: string[];
     };
   };
@@ -53,7 +56,9 @@ export function getCommand(
     commandName = main.name;
   }
 
-  const command = COMMANDS.find((command) => command.name === commandName);
+  const command = COMMANDS.find(
+    (command) => command.name === commandName || command.aliases?.includes(commandName)
+  );
 
   if (command === undefined) {
     if (componentName !== undefined) {
@@ -127,15 +132,21 @@ function getCommandOptions(
   for (const [parsedName, value] of Object.entries(parsedOptions)) {
     let actualName: string | undefined;
 
-    for (const [name, {aliases = []}] of Object.entries(availableCommandOptions)) {
+    const formattedName = parsedName.length === 1 ? `-${parsedName}` : `--${parsedName}`;
+
+    for (const [name, {type, aliases = []}] of Object.entries(availableCommandOptions)) {
       if (parsedName === name || aliases.includes(parsedName)) {
+        if (type === 'string' && typeof value !== 'string') {
+          throwError(`A string value should be specified for the ${formattedName} option`);
+        }
+
         actualName = name;
+
         break;
       }
     }
 
     if (actualName === undefined) {
-      const formattedName = parsedName.length === 1 ? `-${parsedName}` : `--${parsedName}`;
       throwError(`The specified option is unknown: ${formattedName}`);
     }
 

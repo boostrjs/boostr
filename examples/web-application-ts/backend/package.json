@@ -1,0 +1,14 @@
+{
+  "name": "web-application-ts-backend",
+  "version": "1.0.0",
+  "private": true,
+  "author": "Manuel Vila <hi@mvila.me>",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "@layr/component": "^1.1.3"
+  },
+  "devDependencies": {
+    "@boostr/tsconfig": "^1.0.0"
+  }
+}

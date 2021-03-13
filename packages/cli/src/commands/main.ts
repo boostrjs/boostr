@@ -11,7 +11,7 @@ export default {
       aliases: ['h']
     }
   },
-  async handler([], {version}: {version: boolean}) {
+  async handler([], {version}: {version?: boolean}) {
     if (version) {
       console.log(`v${programVersion}`);
       return;
