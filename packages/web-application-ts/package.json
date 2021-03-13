@@ -1,0 +1,23 @@
+{
+  "name": "@boostr/web-application-ts",
+  "version": "1.0.6",
+  "description": "A Boostr template for building a full-stack web application in TypeScript",
+  "keywords": [
+    "boostr",
+    "template",
+    "full-stack",
+    "web-application",
+    "web-app",
+    "typescript",
+    "ts"
+  ],
+  "author": "Manuel Vila <hi@mvila.me>",
+  "license": "MIT",
+  "repository": "https://github.com/boostrjs/boostr/tree/master/packages/web-application-ts",
+  "files": [
+    "template"
+  ],
+  "engines": {
+    "node": ">=10.0.0"
+  }
+}
