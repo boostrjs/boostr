@@ -8,7 +8,7 @@ export class ProcessController {
   _arguments!: string[];
   _currentDirectory?: string;
   _environment?: any;
-  _componentName?: string;
+  _serviceName?: string;
 
   constructor(
     name: string,
@@ -16,14 +16,14 @@ export class ProcessController {
     {
       currentDirectory,
       environment,
-      componentName
-    }: {currentDirectory?: string; environment?: any; componentName?: string} = {}
+      serviceName
+    }: {currentDirectory?: string; environment?: any; serviceName?: string} = {}
   ) {
     this._name = name;
     this._arguments = args;
     this._currentDirectory = currentDirectory;
     this._environment = environment;
-    this._componentName = componentName;
+    this._serviceName = serviceName;
   }
 
   _childProcess: ChildProcess | undefined;
@@ -44,13 +44,13 @@ export class ProcessController {
     const stdout = readline.createInterface({input: this._childProcess.stdout!});
 
     stdout.on('line', (line) => {
-      logMessage(line, {componentName: this._componentName});
+      logMessage(line, {serviceName: this._serviceName});
     });
 
     const stderr = readline.createInterface({input: this._childProcess.stderr!});
 
     stderr.on('line', (line) => {
-      logError(line, {componentName: this._componentName});
+      logError(line, {serviceName: this._serviceName});
     });
 
     this._childProcess.once('exit', (code) => {
@@ -60,7 +60,7 @@ export class ProcessController {
       this._childProcess = undefined;
 
       if (code !== null) {
-        logMessage('Waiting 10 seconds before restarting...', {componentName: this._componentName});
+        logMessage('Waiting 10 seconds before restarting...', {serviceName: this._serviceName});
         setTimeout(() => this.start(), 10 * 1000);
       } else {
         this.start();

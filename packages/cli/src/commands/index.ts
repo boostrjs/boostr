@@ -29,24 +29,24 @@ export type Command = {
     {
       directory,
       config,
-      componentName
-    }: {directory: string; config: any; componentName: string | undefined}
+      serviceName
+    }: {directory: string; config: any; serviceName: string | undefined}
   ) => Promise<void>;
 };
 
 export function getCommand(
   rawArguments: string[],
-  {componentNames = []}: {componentNames?: string[]} = {}
+  {serviceNames = []}: {serviceNames?: string[]} = {}
 ) {
-  let componentName: string | undefined;
+  let serviceName: string | undefined;
   let commandName: string;
 
   if (
     rawArguments.length > 0 &&
     !rawArguments[0].startsWith('-') &&
-    componentNames.includes(rawArguments[0])
+    serviceNames.includes(rawArguments[0])
   ) {
-    componentName = rawArguments[0];
+    serviceName = rawArguments[0];
     rawArguments = rawArguments.slice(1);
   }
 
@@ -62,10 +62,10 @@ export function getCommand(
   );
 
   if (command === undefined) {
-    if (componentName !== undefined) {
+    if (serviceName !== undefined) {
       throwError(`The specified command is unknown: ${commandName}`);
     } else {
-      throwError(`The specified component or command is unknown: ${commandName}`);
+      throwError(`The specified service or command is unknown: ${commandName}`);
     }
   }
 
@@ -99,7 +99,7 @@ export function getCommand(
     commandOptions = getCommandOptions(parsedOptions, availableCommandOptions);
   }
 
-  return {componentName, globalOptions, commandHandler, commandArguments, commandOptions};
+  return {serviceName, globalOptions, commandHandler, commandArguments, commandOptions};
 }
 
 function pullGlobalOptions(parsedOptions: any) {

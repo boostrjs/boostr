@@ -1,9 +1,9 @@
-export default ({components}) => ({
+export default ({services}) => ({
   type: 'backend',
 
   environment: {
-    FRONTEND_URL: components.frontend.url,
-    DATABASE_URL: components.database.url
+    FRONTEND_URL: services.frontend.url,
+    DATABASE_URL: services.database.url
   },
 
   stages: {

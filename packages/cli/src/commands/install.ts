@@ -30,9 +30,9 @@ export async function install({directory, config}: {directory: string; config: a
   await runNPMInstall(directory);
 
   if (config.type === 'application') {
-    for (const componentDirectoryRelative of Object.values<string>(config.components)) {
-      const componentDirectory = resolve(directory, componentDirectoryRelative);
-      await runNPMInstall(componentDirectory);
+    for (const serviceDirectoryRelative of Object.values<string>(config.services)) {
+      const serviceDirectory = resolve(directory, serviceDirectoryRelative);
+      await runNPMInstall(serviceDirectory);
     }
   }
 }

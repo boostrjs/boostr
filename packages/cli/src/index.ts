@@ -1,31 +1,31 @@
 import {getCommand} from './commands/index.js';
-import {loadRootConfig, loadComponentConfig} from './config.js';
+import {loadRootConfig, loadServiceConfig} from './config.js';
 
 export async function runCLI(
   args: string[],
   {currentDirectory = process.cwd()}: {currentDirectory?: string} = {}
 ) {
-  let componentNames: string[] | undefined;
+  let serviceNames: string[] | undefined;
 
   let config = await loadRootConfig(currentDirectory);
 
-  if (config?.components !== undefined) {
-    componentNames = Object.keys(config.components);
+  if (config?.services !== undefined) {
+    serviceNames = Object.keys(config.services);
   }
 
   const {
-    componentName,
+    serviceName,
     globalOptions,
     commandHandler,
     commandArguments,
     commandOptions
-  } = getCommand(args, {componentNames});
+  } = getCommand(args, {serviceNames});
 
-  if (componentName !== undefined) {
-    config = await loadComponentConfig(config, componentName, {stage: globalOptions?.stage});
+  if (serviceName !== undefined) {
+    config = await loadServiceConfig(config, serviceName, {stage: globalOptions?.stage});
   }
 
   const directory = config !== undefined ? config.__directory : currentDirectory;
 
-  await commandHandler(commandArguments, commandOptions, {directory, config, componentName});
+  await commandHandler(commandArguments, commandOptions, {directory, config, serviceName});
 }

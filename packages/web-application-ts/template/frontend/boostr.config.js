@@ -1,8 +1,8 @@
-export default ({components}) => ({
+export default ({services}) => ({
   type: 'web-frontend',
 
   environment: {
-    BACKEND_URL: components.backend.url
+    BACKEND_URL: services.backend.url
   },
 
   stages: {

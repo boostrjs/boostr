@@ -1,7 +1,7 @@
 export default () => ({
   type: 'application',
 
-  components: {
+  services: {
     frontend: './frontend',
     backend: './backend',
     database: './database'

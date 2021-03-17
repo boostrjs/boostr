@@ -8,8 +8,8 @@ const CONFIG_FILE_NAME = 'boostr.config.js';
 const PRIVATE_CONFIG_FILE_NAME = 'boostr.config.private.js';
 const DEFAULT_STAGE = 'development';
 
-const COMPONENT_MOCK: any = new Proxy(Object.create(null), {
-  get: () => COMPONENT_MOCK
+const SERVICE_MOCK: any = new Proxy(Object.create(null), {
+  get: () => SERVICE_MOCK
 });
 
 export async function loadRootConfig(directory: string) {
@@ -17,8 +17,8 @@ export async function loadRootConfig(directory: string) {
     const config = await loadConfig(directory);
 
     if (config !== undefined && config.type === 'application') {
-      if (config.components === undefined) {
-        config.components = {};
+      if (config.services === undefined) {
+        config.services = {};
       }
 
       return config;
@@ -36,74 +36,74 @@ export async function loadRootConfig(directory: string) {
   return undefined;
 }
 
-async function preloadComponentConfigs(rootConfig: any, {stage}: {stage: string}) {
-  if (rootConfig.__preloadedComponentConfigs !== undefined) {
+async function preloadServiceConfigs(rootConfig: any, {stage}: {stage: string}) {
+  if (rootConfig.__preloadedServiceConfigs !== undefined) {
     return;
   }
 
-  Object.defineProperty(rootConfig, '__preloadedComponentConfigs', {value: {}});
+  Object.defineProperty(rootConfig, '__preloadedServiceConfigs', {value: {}});
 
-  for (const componentName of Object.keys(rootConfig.components)) {
-    rootConfig.__preloadedComponentConfigs[componentName] = COMPONENT_MOCK;
+  for (const serviceName of Object.keys(rootConfig.services)) {
+    rootConfig.__preloadedServiceConfigs[serviceName] = SERVICE_MOCK;
   }
 
-  for (const componentName of Object.keys(rootConfig.components)) {
-    rootConfig.__preloadedComponentConfigs[componentName] = await loadComponentConfig(
+  for (const serviceName of Object.keys(rootConfig.services)) {
+    rootConfig.__preloadedServiceConfigs[serviceName] = await loadServiceConfig(
       rootConfig,
-      componentName,
+      serviceName,
       {stage}
     );
   }
 }
 
-export async function loadComponentConfig(
+export async function loadServiceConfig(
   rootConfig: any,
-  componentName: string,
+  serviceName: string,
   {stage = DEFAULT_STAGE}: {stage?: string} = {}
 ) {
-  await preloadComponentConfigs(rootConfig, {stage});
+  await preloadServiceConfigs(rootConfig, {stage});
 
   const rootDirectory = rootConfig.__directory;
-  const componentDirectoryRelative = rootConfig?.components[componentName];
+  const serviceDirectoryRelative = rootConfig?.services[serviceName];
 
-  if (componentDirectoryRelative === undefined) {
-    throwError(`The specified component is unknown: '${componentName}'`);
+  if (serviceDirectoryRelative === undefined) {
+    throwError(`The specified service is unknown: '${serviceName}'`);
   }
 
-  const componentDirectory = resolve(rootDirectory, componentDirectoryRelative);
+  const serviceDirectory = resolve(rootDirectory, serviceDirectoryRelative);
 
-  if (!existsSync(componentDirectory)) {
+  if (!existsSync(serviceDirectory)) {
     throwError(
-      `The '${componentName}' component references a directory that doesn't exist: ${componentDirectory}`
+      `The '${serviceName}' service references a directory that doesn't exist: ${serviceDirectory}`
     );
   }
 
-  const componentConfig = await loadConfig(componentDirectory, {
-    preloadedComponentConfigs: rootConfig.__preloadedComponentConfigs
+  const serviceConfig = await loadConfig(serviceDirectory, {
+    preloadedServiceConfigs: rootConfig.__preloadedServiceConfigs
   });
 
-  if (componentConfig === undefined) {
-    throwError(`Couldn't find a configuration file for the '${componentName}' component`);
+  if (serviceConfig === undefined) {
+    throwError(`Couldn't find a configuration file for the '${serviceName}' service`);
   }
 
-  componentConfig.environment = {...rootConfig.environment, ...componentConfig.environment};
+  serviceConfig.environment = {...rootConfig.environment, ...serviceConfig.environment};
 
-  if (componentConfig.stages !== undefined) {
-    merge(componentConfig, componentConfig.stages[stage]);
-    delete componentConfig.stages;
+  if (serviceConfig.stages !== undefined) {
+    merge(serviceConfig, serviceConfig.stages[stage]);
+    delete serviceConfig.stages;
   }
 
-  return componentConfig;
+  return serviceConfig;
 }
 
 async function loadConfig(
   directory: string,
-  {preloadedComponentConfigs}: {preloadedComponentConfigs?: any} = {}
+  {preloadedServiceConfigs}: {preloadedServiceConfigs?: any} = {}
 ): Promise<any> {
-  let config = await _loadConfig(directory, CONFIG_FILE_NAME, {preloadedComponentConfigs});
+  let config = await _loadConfig(directory, CONFIG_FILE_NAME, {preloadedServiceConfigs});
 
   const privateConfig = await _loadConfig(directory, PRIVATE_CONFIG_FILE_NAME, {
-    preloadedComponentConfigs
+    preloadedServiceConfigs
   });
 
   if (privateConfig !== undefined) {
@@ -120,7 +120,7 @@ async function loadConfig(
 async function _loadConfig(
   directory: string,
   configFileName: string,
-  {preloadedComponentConfigs}: {preloadedComponentConfigs: any}
+  {preloadedServiceConfigs}: {preloadedServiceConfigs: any}
 ): Promise<any> {
   const file = join(directory, configFileName);
 
@@ -139,7 +139,7 @@ async function _loadConfig(
   let config;
 
   try {
-    config = await configBuilder({components: preloadedComponentConfigs});
+    config = await configBuilder({services: preloadedServiceConfigs});
   } catch (error) {
     throwError(`An error occurred while evaluating a configuration file\n${error.stack}`);
   }

@@ -13,7 +13,7 @@ export default {
       aliases: ['h']
     }
   },
-  async handler([], {help}: {help?: boolean}, {directory, config, componentName}) {
+  async handler([], {help}: {help?: boolean}, {directory, config, serviceName}) {
     if (help) {
       console.log('Start help...'); // TODO
       return;
@@ -23,18 +23,18 @@ export default {
       throwError(`Couldn't find a Boostr configuration file`);
     }
 
-    await start({directory, config, componentName});
+    await start({directory, config, serviceName});
   }
 } as Command;
 
 export async function start({
   directory,
   config,
-  componentName
+  serviceName
 }: {
   directory: string;
   config: any;
-  componentName?: string;
+  serviceName?: string;
 }) {
   if (config.type !== 'backend') {
     throwError(`The '${config.type}' configuration type is not yet supported`);
@@ -71,7 +71,7 @@ export async function start({
   const processController = new ProcessController(
     'start-backend',
     ['--componentGetterFile', bundleFile, '--port', String(port)],
-    {currentDirectory: directory, environment: config.environment, componentName}
+    {currentDirectory: directory, environment: config.environment, serviceName}
   );
 
   try {
@@ -87,19 +87,19 @@ export async function start({
       watch: {
         onRebuild(error, _result) {
           if (error) {
-            logError('Rebuild failed', {componentName});
+            logError('Rebuild failed', {serviceName});
           } else {
-            logMessage('Rebuild succeeded', {componentName});
+            logMessage('Rebuild succeeded', {serviceName});
             processController.restart();
           }
         }
       }
     });
   } catch {
-    throwError('Build failed', {componentName});
+    throwError('Build failed', {serviceName});
   }
 
-  logMessage('Build succeeded', {componentName});
+  logMessage('Build succeeded', {serviceName});
 
   processController.start();
 }
