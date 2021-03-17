@@ -2,7 +2,7 @@ import {existsSync} from 'fs';
 import {join, resolve} from 'path';
 
 import type {Command} from './index.js';
-import {runNPM} from './npm.js';
+import {runNPM} from '../npm.js';
 import {throwError} from '../util.js';
 
 export default {

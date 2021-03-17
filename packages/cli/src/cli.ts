@@ -43,7 +43,7 @@ function findEntryPoint(directory: string) {
 
 main().catch((error: any) => {
   if (error?.displayMessage !== undefined) {
-    logError(error.displayMessage);
+    logError(error.displayMessage, {componentName: error?.componentName});
   } else {
     console.error(error);
   }

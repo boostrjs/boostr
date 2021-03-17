@@ -1,6 +1,6 @@
 {
   "name": "@boostr/tsconfig",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Default TypeScript configuration used by Boostr",
   "keywords": [
     "boostr",

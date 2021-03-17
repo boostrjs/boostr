@@ -3,11 +3,12 @@ import mri from 'mri';
 import main from './main.js';
 import initialize from './initialize.js';
 import install from './install.js';
+import start from './start.js';
 import config from './config.js';
 import npm from './npm.js';
 import {throwError} from '../util.js';
 
-const COMMANDS = [main, initialize, install, config, npm];
+const COMMANDS = [main, initialize, install, start, config, npm];
 const BUILT_IN_STAGES = ['development', 'staging', 'production'];
 
 export type Command = {

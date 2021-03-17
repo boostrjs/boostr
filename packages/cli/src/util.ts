@@ -8,16 +8,25 @@ const {name: programName, version: programVersion} = JSON.parse(
 
 export {programName, programVersion};
 
-export function logMessage(message: string) {
-  console.log(`${programName}: ${message}`);
+export function logMessage(message: string, {componentName}: {componentName?: string} = {}) {
+  console.log(prefixMessageWithComponentName(message, componentName));
 }
 
-export function logError(message: string) {
-  console.error(`${programName}: ${message}`);
+export function logError(message: string, {componentName}: {componentName?: string} = {}) {
+  console.error(prefixMessageWithComponentName(message, componentName));
 }
 
-export function throwError(message: string): never {
+export function throwError(message: string, {componentName}: {componentName?: string} = {}): never {
   throw Object.assign(new Error('Error'), {
-    displayMessage: message
+    displayMessage: message,
+    componentName
   });
+}
+
+export function prefixMessageWithComponentName(message: string, componentName?: string) {
+  if (componentName !== undefined) {
+    message = `[${componentName}] ${message}`;
+  }
+
+  return message;
 }

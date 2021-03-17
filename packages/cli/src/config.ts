@@ -128,9 +128,21 @@ async function _loadConfig(
     return undefined;
   }
 
-  const {default: configBuilder} = await import(file);
+  let configBuilder;
 
-  const config = await configBuilder({components: preloadedComponentConfigs});
+  try {
+    configBuilder = (await import(file)).default;
+  } catch (error) {
+    throwError(`An error occurred while loading a configuration file\n${error.message}`);
+  }
+
+  let config;
+
+  try {
+    config = await configBuilder({components: preloadedComponentConfigs});
+  } catch (error) {
+    throwError(`An error occurred while evaluating a configuration file\n${error.stack}`);
+  }
 
   Object.defineProperty(config, '__directory', {value: directory});
 

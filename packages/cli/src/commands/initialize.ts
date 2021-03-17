@@ -85,7 +85,9 @@ async function initializeProject({
   const config = await loadRootConfig(directory);
   await install({directory, config});
 
-  console.log('Done! Run `boostr start` to start the development environment.');
+  console.log(
+    'Application successfully initialized. Run `boostr start` to start the development environment.'
+  );
 }
 
 async function fetchTemplate(name: string, directory: string) {
