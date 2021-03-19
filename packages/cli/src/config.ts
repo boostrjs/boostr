@@ -4,8 +4,8 @@ import merge from 'lodash/merge.js';
 
 import {throwError} from './util.js';
 
-const CONFIG_FILE_NAME = 'boostr.config.js';
-const PRIVATE_CONFIG_FILE_NAME = 'boostr.config.private.js';
+const CONFIG_FILE_NAME = 'boostr.config.mjs';
+const PRIVATE_CONFIG_FILE_NAME = 'boostr.config.private.mjs';
 
 const BLACK_HOLE: any = new Proxy(Object.create(null), {
   get: () => BLACK_HOLE
@@ -129,7 +129,9 @@ async function _loadConfig(
   try {
     configBuilder = (await import(file)).default;
   } catch (error) {
-    throwError(`An error occurred while loading a configuration file\n${error.message}`);
+    throwError(
+      `An error occurred while loading a configuration file (path: '${file}')\n${error.message}`
+    );
   }
 
   let config;
@@ -139,7 +141,9 @@ async function _loadConfig(
       services: applicationConfig?.__preloadedServiceConfigs ?? BLACK_HOLE
     });
   } catch (error) {
-    throwError(`An error occurred while evaluating a configuration file\n${error.stack}`);
+    throwError(
+      `An error occurred while evaluating a configuration file (path: '${file}')\n${error.stack}`
+    );
   }
 
   Object.defineProperty(config, '__directory', {value: directory});

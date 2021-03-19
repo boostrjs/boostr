@@ -3,7 +3,7 @@ export default () => ({
 
   stages: {
     development: {
-      url: 'mongodb://dev:dev@localhost:{{databasePort}}/dev',
+      url: 'mongodb://localhost:{{databasePort}}/dev',
       platform: 'local'
     }
   }

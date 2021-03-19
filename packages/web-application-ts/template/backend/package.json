@@ -2,7 +2,6 @@
   "name": "{{projectName}}-backend",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
   "main": "./src/index.ts",
   "dependencies": {
     "@layr/component": "^1.1.8",
