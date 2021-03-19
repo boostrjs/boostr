@@ -43,6 +43,8 @@ export class BaseService {
     return this._stage;
   }
 
+  // === Utilities ===
+
   logMessage(message: string) {
     logMessage(message);
   }
@@ -150,7 +152,11 @@ export class BaseService {
     await runNPMInstallIfThereIsAPackage(this.getDirectory());
   }
 
-  async start() {}
+  _hasBeenStarted = false;
+
+  async start() {
+    this._hasBeenStarted = true;
+  }
 
   async showConfig() {
     console.log(JSON.stringify(this.getConfig(), undefined, 2));

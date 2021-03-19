@@ -1,6 +1,8 @@
 export default ({services}) => ({
   type: 'web-frontend',
 
+  dependsOn: 'backend',
+
   environment: {
     BACKEND_URL: services.backend.url
   },

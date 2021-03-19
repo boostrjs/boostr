@@ -25,6 +25,24 @@ export class Subservice extends BaseService {
     return this._applicationService;
   }
 
+  _dependencies: Subservice[] = [];
+  _dependents: Subservice[] = [];
+
+  registerDependency(service: Subservice) {
+    this._dependencies.push(service);
+    service._dependents.push(this);
+  }
+
+  getDependencies() {
+    return this._dependencies;
+  }
+
+  getDependents() {
+    return this._dependents;
+  }
+
+  // === Utilities ===
+
   logMessage(message: string) {
     logMessage(message, {serviceName: this.getName()});
   }
@@ -35,5 +53,17 @@ export class Subservice extends BaseService {
 
   throwError(message: string): never {
     throwError(message, {serviceName: this.getName()});
+  }
+
+  // === Commands ===
+
+  async start() {
+    await super.start();
+
+    for (const service of this.getDependencies()) {
+      if (!service._hasBeenStarted) {
+        await service.start();
+      }
+    }
   }
 }

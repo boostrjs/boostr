@@ -26,6 +26,22 @@ export async function createApplicationServiceFromDirectory(
     applicationService.registerService(service);
   }
 
+  for (const service of applicationService.getServices()) {
+    const dependsOn = service.getConfig().dependsOn ?? [];
+
+    const dependencyNames: string[] = Array.isArray(dependsOn) ? dependsOn : [dependsOn];
+
+    for (const dependencyName of dependencyNames) {
+      if (!applicationService.hasService(dependencyName)) {
+        throwError(
+          `Unknown service '${dependencyName}' encountered in the 'dependsOn' property of a configuration (directory: '${service.getDirectory()}')`
+        );
+      }
+
+      service.registerDependency(applicationService.getService(dependencyName));
+    }
+  }
+
   return applicationService;
 }
 

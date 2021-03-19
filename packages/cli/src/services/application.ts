@@ -40,6 +40,10 @@ export class ApplicationService extends BaseService {
     return this._services;
   }
 
+  getRootServices() {
+    return this._services.filter((service) => service.getDependents().length === 0);
+  }
+
   // === Commands ===
 
   static commands: Record<string, Command> = {
@@ -51,6 +55,14 @@ export class ApplicationService extends BaseService {
 
     for (const service of this.getServices()) {
       await service.install();
+    }
+  }
+
+  async start() {
+    await super.start();
+
+    for (const service of this.getRootServices()) {
+      await service.start();
     }
   }
 }
