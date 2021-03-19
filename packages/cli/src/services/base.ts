@@ -67,6 +67,13 @@ export class BaseService {
       help: 'Install help...'
     },
 
+    build: {
+      async handler(this: BaseService) {
+        await this.build();
+      },
+      help: 'Build help...'
+    },
+
     start: {
       async handler(this: BaseService) {
         await this.start();
@@ -150,6 +157,10 @@ export class BaseService {
 
   async install() {
     await runNPMInstallIfThereIsAPackage(this.getDirectory());
+  }
+
+  async build() {
+    return ''; // Should return the path of the build
   }
 
   _hasBeenStarted = false;

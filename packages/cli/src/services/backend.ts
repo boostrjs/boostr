@@ -12,6 +12,59 @@ export class BackendService extends Subservice {
 
   // === Commands ===
 
+  async build({watch = false}: {watch?: {afterRebuild?: () => void} | boolean} = {}) {
+    await super.build();
+
+    const directory = this.getDirectory();
+    const stage = this.getStage();
+
+    const pkg = loadNPMPackage(directory);
+
+    const entryPoint = pkg.main;
+
+    if (entryPoint === undefined) {
+      this.throwError(
+        `A 'main' property is missing in a 'package.json' file (directory: '${directory}')`
+      );
+    }
+
+    const bundleFile = join(directory, 'build', stage, 'bundle.cjs');
+
+    try {
+      await esbuild.build({
+        absWorkingDir: directory,
+        entryPoints: [entryPoint],
+        outfile: bundleFile,
+        target: 'node12',
+        platform: 'node',
+        mainFields: ['module', 'main'],
+        bundle: true,
+        sourcemap: true,
+        ...(watch !== false && {
+          watch: {
+            onRebuild: (error) => {
+              if (error) {
+                this.logError('Rebuild failed');
+              } else {
+                this.logMessage('Rebuild succeeded');
+
+                if (typeof watch === 'object' && watch.afterRebuild !== undefined) {
+                  watch.afterRebuild();
+                }
+              }
+            }
+          }
+        })
+      });
+    } catch {
+      this.throwError('Build failed');
+    }
+
+    this.logMessage('Build succeeded');
+
+    return bundleFile;
+  }
+
   async start() {
     await super.start();
 
@@ -61,50 +114,21 @@ export class BackendService extends Subservice {
       );
     }
 
-    const pkg = loadNPMPackage(directory);
+    let processController: ProcessController;
 
-    const entryPoint = pkg.main;
+    const bundleFile = await this.build({
+      watch: {
+        afterRebuild() {
+          processController.restart();
+        }
+      }
+    });
 
-    if (entryPoint === undefined) {
-      this.throwError(
-        `A 'main' property is missing in a 'package.json' file (directory: '${directory}')`
-      );
-    }
-
-    const bundleFile = join(directory, 'build', 'bundle.cjs');
-
-    const processController = new ProcessController(
+    processController = new ProcessController(
       'start-backend',
       ['--componentGetterFile', bundleFile, '--port', String(port)],
       {currentDirectory: directory, environment: config.environment, serviceName}
     );
-
-    try {
-      await esbuild.build({
-        absWorkingDir: directory,
-        entryPoints: [entryPoint],
-        outfile: bundleFile,
-        target: 'node12',
-        platform: 'node',
-        mainFields: ['module', 'main'],
-        bundle: true,
-        sourcemap: true,
-        watch: {
-          onRebuild: (error) => {
-            if (error) {
-              this.logError('Rebuild failed');
-            } else {
-              this.logMessage('Rebuild succeeded');
-              processController.restart();
-            }
-          }
-        }
-      });
-    } catch {
-      this.throwError('Build failed');
-    }
-
-    this.logMessage('Build succeeded');
 
     processController.start();
   }
