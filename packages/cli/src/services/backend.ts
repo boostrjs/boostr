@@ -23,25 +23,41 @@ export class BackendService extends Subservice {
       return;
     }
 
-    const url: string = config.url;
-
-    if (!url) {
+    if (!config.url) {
       this.throwError(
-        `A 'url' property is required to start a local server (directory: '${directory}')`
+        `A 'url' property is required in the configuration to start a local server (directory: '${directory}')`
       );
     }
 
-    let port: number;
+    let url: URL;
 
     try {
-      port = Number(new URL(url).port);
-
-      if (!port) {
-        throw new Error(`'port' is missing`);
-      }
-    } catch (error) {
+      url = new URL(config.url);
+    } catch {
       this.throwError(
-        `Couldn't determine the port where to start the local server {url: '${url}'}`
+        `An error occurred while parsing the 'url' property in the configuration (directory: '${directory}')`
+      );
+    }
+
+    const {protocol, hostname, port: portString} = url;
+
+    if (protocol !== 'http:') {
+      this.throwError(
+        `The 'url' property in the configuration should start with 'http://' (directory: '${directory}')`
+      );
+    }
+
+    if (hostname !== 'localhost') {
+      this.throwError(
+        `The host of the 'url' property in the configuration should be 'localhost' (directory: '${directory}')`
+      );
+    }
+
+    const port = Number(portString);
+
+    if (!port) {
+      this.throwError(
+        `The 'url' property in the configuration should specify a port (directory: '${directory}')`
       );
     }
 

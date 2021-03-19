@@ -1,6 +1,6 @@
 {
   "name": "boostr",
-  "version": "1.0.127",
+  "version": "1.0.148",
   "description": "Build and deploy your Layr applications",
   "keywords": [
     "layr",
@@ -41,6 +41,7 @@
     "esbuild": "^0.9.2",
     "fs-extra": "^9.1.0",
     "lodash": "^4.17.21",
+    "mongodb-memory-server-global": "^6.9.6",
     "mri": "^1.1.6",
     "source-map-support": "^0.5.19",
     "tar": "^6.1.0",
