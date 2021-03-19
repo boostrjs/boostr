@@ -8,7 +8,8 @@ export default ({services}) => ({
 
   stages: {
     development: {
-      url: 'http://localhost:{{backendPort}}/'
+      url: 'http://localhost:{{backendPort}}/',
+      platform: 'local'
     },
     production: {
       url: 'https://backend.example.com/',

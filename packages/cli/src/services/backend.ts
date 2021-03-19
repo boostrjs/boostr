@@ -19,6 +19,10 @@ export class BackendService extends Subservice {
     const config = this.getConfig();
     const serviceName = this.getName();
 
+    if (config.platform !== 'local') {
+      return;
+    }
+
     const url: string = config.url;
 
     if (!url) {

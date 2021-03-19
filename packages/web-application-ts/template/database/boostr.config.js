@@ -4,7 +4,7 @@ export default () => ({
   stages: {
     development: {
       url: 'mongodb://dev:dev@localhost:{{databasePort}}/dev',
-      createLocalDatabase: true
+      platform: 'local'
     }
   }
 });
