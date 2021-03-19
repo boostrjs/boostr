@@ -7,85 +7,50 @@ import tar from 'tar';
 import walkSync from 'walk-sync';
 import kebabCase from 'lodash/kebabCase.js';
 
-import type {Command} from './index.js';
-import {install} from './install.js';
-import {loadRootConfig} from '../config.js';
-import {throwError} from '../util.js';
+import {createApplicationServiceFromDirectory} from './services/index.js';
+import {logMessage, throwError} from './util.js';
 
 const POPULATABLE_TEMPLATE_FILE_EXTENSIONS = ['.js', '.mjs', '.jsx', '.ts', 'tsx', '.json', '.md'];
 
-export default {
-  name: 'initialize',
-  aliases: ['init'],
-  options: {
-    template: {
-      type: 'string'
-    },
-    name: {
-      type: 'string'
-    },
-    help: {
-      aliases: ['h']
-    }
-  },
-  async handler(
-    [],
-    {template, name, help}: {template?: string; name?: string; help?: boolean},
-    {directory, config}
-  ) {
-    if (help) {
-      console.log('Initialize help...'); // TODO
-      return;
-    }
-
-    if (config !== undefined) {
-      throwError(
-        `Sorry, it seems that this project has already been initialized (a configuration file was found here: ${directory})`
-      );
-    }
-
-    if (!directoryIsEmpty(directory)) {
-      throwError(`Sorry, the 'initialize' command can only be used within an empty directory`);
-    }
-
-    if (template === undefined) {
-      throwError(
-        `Please specify a template with the --template option (example: \`boostr initialize --template=@boostr/web-application-js\`)`
-      );
-    }
-
-    let projectName: string;
-
-    if (name !== undefined) {
-      projectName = name;
-    } else {
-      projectName = kebabCase(basename(directory));
-    }
-
-    await initializeProject({directory, template, projectName});
+export async function initialize(
+  directory: string,
+  {template, name}: {template?: string; name?: string} = {},
+  {stage, showHelp = false}: {stage: string; showHelp?: boolean}
+) {
+  if (showHelp) {
+    console.log('Initialize help...');
+    return;
   }
-} as Command;
 
-async function initializeProject({
-  directory,
-  template,
-  projectName
-}: {
-  directory: string;
-  template: string;
-  projectName: string;
-}) {
-  console.log(`Fetching template...`);
+  if (!directoryIsEmpty(directory)) {
+    throwError(`Sorry, the 'initialize' command can only be used within an empty directory`);
+  }
+
+  if (template === undefined) {
+    throwError(
+      `Please specify a template with the --template option (example: \`boostr initialize --template=@boostr/web-application-js\`)`
+    );
+  }
+
+  let projectName: string;
+
+  if (name !== undefined) {
+    projectName = name;
+  } else {
+    projectName = kebabCase(basename(directory));
+  }
+
+  logMessage('Fetching template...');
 
   await fetchTemplate(template, directory);
   await populateVariables(directory, {projectName});
 
-  console.log('Installing npm dependencies...');
+  logMessage('Installing npm dependencies...');
 
-  const config = await loadRootConfig(directory);
-  await install({directory, config});
+  const applicationService = await createApplicationServiceFromDirectory(directory, {stage});
+  await applicationService!.install();
 
-  console.log(
+  logMessage(
     'Application successfully initialized. Run `boostr start` to start the development environment.'
   );
 }

@@ -29,7 +29,7 @@ export async function runNPM({
   arguments: args
 }: {
   directory: string;
-  arguments: readonly string[];
+  arguments: string[];
 }) {
   try {
     execFileSync('npm', args, {cwd: directory, stdio: 'inherit'});
@@ -37,4 +37,14 @@ export async function runNPM({
     console.log();
     throwError(`An error occurred while executing npm`);
   }
+}
+
+export async function runNPMInstallIfThereIsAPackage(directory: string) {
+  const packageFile = join(directory, 'package.json');
+
+  if (!existsSync(packageFile)) {
+    return;
+  }
+
+  await runNPM({directory, arguments: ['install']});
 }
