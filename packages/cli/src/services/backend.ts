@@ -1,9 +1,6 @@
-import esbuild from 'esbuild';
-import {join} from 'path';
-
 import {Subservice} from './sub.js';
+import {bundle} from '../bundler.js';
 import {ProcessController} from '../processes/index.js';
-import {loadNPMPackage} from '../npm.js';
 
 export class BackendService extends Subservice {
   static type = 'backend';
@@ -15,52 +12,23 @@ export class BackendService extends Subservice {
   async build({watch = false}: {watch?: {afterRebuild?: () => void} | boolean} = {}) {
     await super.build();
 
-    const directory = this.getDirectory();
-    const stage = this.getStage();
+    const {environment, platform, build: buildConfig} = this.getConfig();
 
-    const pkg = loadNPMPackage(directory);
-
-    const entryPoint = pkg.main;
-
-    if (entryPoint === undefined) {
-      this.throwError(
-        `A 'main' property is missing in a 'package.json' file (directory: '${directory}')`
-      );
-    }
-
-    const bundleFile = join(directory, 'build', stage, 'bundle.cjs');
-
-    try {
-      await esbuild.build({
-        absWorkingDir: directory,
-        entryPoints: [entryPoint],
-        outfile: bundleFile,
+    const bundleFile = await bundle({
+      directory: this.getDirectory(),
+      serviceName: this.getName(),
+      stage: this.getStage(),
+      environment: environment,
+      bundleFileName: 'bundle.cjs',
+      sourceMap: buildConfig?.sourceMap ?? platform === 'local',
+      minify: buildConfig?.minify ?? platform !== 'local',
+      watch,
+      esbuildOptions: {
         target: 'node12',
         platform: 'node',
-        mainFields: ['module', 'main'],
-        bundle: true,
-        sourcemap: true,
-        ...(watch !== false && {
-          watch: {
-            onRebuild: (error) => {
-              if (error) {
-                this.logError('Rebuild failed');
-              } else {
-                this.logMessage('Rebuild succeeded');
-
-                if (typeof watch === 'object' && watch.afterRebuild !== undefined) {
-                  watch.afterRebuild();
-                }
-              }
-            }
-          }
-        })
-      });
-    } catch {
-      this.throwError('Build failed');
-    }
-
-    this.logMessage('Build succeeded');
+        mainFields: ['browser', 'module', 'main']
+      }
+    });
 
     return bundleFile;
   }
@@ -92,7 +60,7 @@ export class BackendService extends Subservice {
       );
     }
 
-    const {protocol, hostname, port: portString} = url;
+    const {protocol, hostname, port: portString, pathname} = url;
 
     if (protocol !== 'http:') {
       this.throwError(
@@ -111,6 +79,12 @@ export class BackendService extends Subservice {
     if (!port) {
       this.throwError(
         `The 'url' property in the configuration should specify a port (directory: '${directory}')`
+      );
+    }
+
+    if (pathname !== '/') {
+      this.throwError(
+        `The path of the 'url' property in the configuration should be '/' (directory: '${directory}')`
       );
     }
 

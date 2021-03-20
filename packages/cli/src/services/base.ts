@@ -159,9 +159,7 @@ export class BaseService {
     await runNPMInstallIfThereIsAPackage(this.getDirectory());
   }
 
-  async build() {
-    return ''; // Should return the path of the build
-  }
+  async build(..._: any[]): Promise<any> {}
 
   _hasBeenStarted = false;
 

@@ -1,4 +1,4 @@
-import {readFileSync} from 'fs';
+import {readFileSync, statSync} from 'fs';
 
 const packageURL = new URL('../package.json', import.meta.url);
 
@@ -29,4 +29,16 @@ export function prefixMessageWithServiceName(message: string, serviceName?: stri
   }
 
   return message;
+}
+
+export function resolveVariables(string: string, variables: Record<string, any>) {
+  for (const [name, value] of Object.entries(variables)) {
+    string = string.replace(new RegExp(`\\{\\{${name}\\}\\}`, 'g'), String(value));
+  }
+
+  return string;
+}
+
+export function getFileSize(file: string) {
+  return statSync(file).size;
 }

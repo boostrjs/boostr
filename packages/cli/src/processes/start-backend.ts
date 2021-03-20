@@ -19,7 +19,7 @@ async function main() {
   const httpServer = new ComponentHTTPServer(server, {port: Number(portString)});
   await httpServer.start();
 
-  console.log(`Component HTTP server started at http://localhost:${portString}`);
+  console.log(`Component HTTP server started at http://localhost:${portString}/`);
 }
 
 main().catch((error) => {

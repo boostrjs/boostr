@@ -8,7 +8,7 @@ import walkSync from 'walk-sync';
 import kebabCase from 'lodash/kebabCase.js';
 
 import {createApplicationServiceFromDirectory} from './services/index.js';
-import {logMessage, throwError} from './util.js';
+import {logMessage, throwError, resolveVariables} from './util.js';
 
 const POPULATABLE_TEMPLATE_FILE_EXTENSIONS = ['.js', '.mjs', '.jsx', '.ts', 'tsx', '.json', '.md'];
 
@@ -99,15 +99,7 @@ async function populateVariables(directory: string, {projectName}: {projectName:
     }
 
     const originalContent = readFileSync(file, 'utf-8');
-
-    let populatedContent = originalContent;
-
-    for (const [name, value] of Object.entries(variables)) {
-      populatedContent = populatedContent.replace(
-        new RegExp(`\\{\\{${name}\\}\\}`, 'g'),
-        String(value)
-      );
-    }
+    const populatedContent = resolveVariables(originalContent, variables);
 
     if (populatedContent !== originalContent) {
       writeFileSync(file, populatedContent);

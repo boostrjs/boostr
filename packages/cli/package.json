@@ -1,6 +1,6 @@
 {
   "name": "boostr",
-  "version": "1.0.156",
+  "version": "1.0.185",
   "description": "Build and deploy your Layr applications",
   "keywords": [
     "layr",
@@ -38,8 +38,11 @@
     "@layr/component": "^1.1.11",
     "@layr/component-http-server": "^1.1.10",
     "@layr/component-server": "^1.1.10",
+    "bytes": "^3.1.0",
     "esbuild": "^0.9.2",
     "fs-extra": "^9.1.0",
+    "koa": "^2.13.1",
+    "koa-send": "^5.0.1",
     "lodash": "^4.17.21",
     "mongodb-memory-server-global": "^6.9.6",
     "mri": "^1.1.6",
@@ -52,7 +55,10 @@
   "devDependencies": {
     "@boostr/tsconfig": "^1.0.0",
     "@mvila/dev-tools": "^1.0.28",
+    "@types/bytes": "^3.1.0",
     "@types/fs-extra": "^9.0.8",
+    "@types/koa": "^2.13.1",
+    "@types/koa-send": "^4.1.2",
     "@types/lodash": "^4.14.168",
     "@types/mri": "^1.1.0",
     "@types/node": "^14.14.31",
