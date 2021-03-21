@@ -1,6 +1,6 @@
 import {Routable, route} from '@layr/routable';
 import React from 'react';
-import {view} from '@layr/react-integration';
+import {view, useAsyncMemo} from '@layr/react-integration';
 
 import type {Application as BackendApplication} from '../../../backend/src/components/application';
 
@@ -9,7 +9,18 @@ export const getApplication = (Base: typeof BackendApplication) => {
     ['constructor']!: typeof Application;
 
     @route('/') @view() static HomePage() {
-      return <h1>Hello, Boostr!</h1>;
+      const [isHealthy, isLoading] = useAsyncMemo(async () => await this.isHealthy());
+
+      if (isLoading) {
+        return null;
+      }
+
+      return (
+        <div>
+          <h1>{process.env.APPLICATION_NAME}</h1>
+          <div>The application is {isHealthy ? 'healthy' : 'unhealthy'}.</div>
+        </div>
+      );
     }
   }
 

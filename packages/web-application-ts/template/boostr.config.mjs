@@ -8,6 +8,6 @@ export default () => ({
   },
 
   environment: {
-    // Put global environment variables here
+    APPLICATION_NAME: 'Boostr Application'
   }
 });
