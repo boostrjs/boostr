@@ -24,14 +24,45 @@ const HTML_TEMPLATE = `<!DOCTYPE html>
 </html>
 `;
 
-const BOOTSTRAP_TEMPLATE = `import componentGetter from '{{entryPoint}}';
+const BOOTSTRAP_TEMPLATE = `import React from 'react';
+import ReactDOM from 'react-dom';
+import {useBrowserRouter} from '@layr/react-integration';
+
+import componentGetter from '{{entryPoint}}';
 
 async function main() {
-  const Component = await componentGetter();
-  console.log(Component);
+  let content;
+
+  try {
+    const Component = await componentGetter();
+
+    const RootView = () => {
+      const [router, isReady] = useBrowserRouter(Component);
+
+      if (!isReady) {
+        return null;
+      }
+
+      const content = router.callCurrentRoute({
+        fallback: () => 'Route not found'
+      });
+
+      return content;
+    }
+
+    content = React.createElement(RootView);
+  } catch (err) {
+    console.error(err);
+
+    content = React.createElement('pre', undefined, err.stack);
+  }
+
+  ReactDOM.render(content, document.getElementById('root'));
 }
 
-main();
+main().catch((error) => {
+  console.error(error);
+});
 `;
 
 const PUBLIC_DIRECTORY_NAME = 'public';
