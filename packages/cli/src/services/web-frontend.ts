@@ -1,10 +1,11 @@
 import fsExtra from 'fs-extra';
-import {join} from 'path';
+import {join, dirname, basename, extname} from 'path';
+import walkSync from 'walk-sync';
 
 import {Subservice} from './sub.js';
 import {bundle} from '../bundler.js';
 import {SinglePageApplicationServer} from '../spa-server.js';
-import {resolveVariables} from '../util.js';
+import {resolveVariables, generateHashFromFile} from '../util.js';
 
 const HTML_TEMPLATE = `<!DOCTYPE html>
 <html lang="en">
@@ -13,11 +14,12 @@ const HTML_TEMPLATE = `<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <title>Hello, Boostr!</title>
+    <link rel="icon" href="{{iconURL}}" />
   </head>
   <body>
     <noscript><p>Sorry, this site requires JavaScript to be enabled.</p></noscript>
     <div id="root"></div>
-    <script src="/{{bundleFileName}}"></script>
+    <script src="{{bundleURL}}"></script>
   </body>
 </html>
 `;
@@ -32,6 +34,9 @@ async function main() {
 main();
 `;
 
+const PUBLIC_DIRECTORY_NAME = 'public';
+const IMMUTABLE_EXTENSION = '.immutable';
+
 export class WebFrontendService extends Subservice {
   static type = 'web-frontend';
 
@@ -39,26 +44,48 @@ export class WebFrontendService extends Subservice {
 
   // === Commands ===
 
+  static commands = {
+    ...Subservice.commands,
+
+    freeze: {
+      async handler(this: WebFrontendService) {
+        await this.freeze();
+      },
+      help: 'Freeze help...'
+    }
+  };
+
   async build({watch = false}: {watch?: {afterRebuild?: () => void} | boolean} = {}) {
     await super.build();
 
     const directory = this.getDirectory();
     const serviceName = this.getName();
     const stage = this.getStage();
-    const {environment, platform, build: buildConfig} = this.getConfig();
+    const {environment, iconURL, platform, build: buildConfig} = this.getConfig();
 
-    const bundleFileName = 'bundle.js';
+    if (!iconURL) {
+      this.throwError(
+        `Couldn't find an 'iconURL' property in the configuration (directory: '${directory}')`
+      );
+    }
 
-    await bundle({
-      directory,
+    const buildDirectory = join(directory, 'build', stage);
+
+    fsExtra.emptyDirSync(buildDirectory);
+
+    const isLocal = platform === 'local';
+
+    const bundleFile = await bundle({
+      rootDirectory: directory,
+      buildDirectory,
+      bootstrapTemplate: BOOTSTRAP_TEMPLATE,
       serviceName,
       stage,
       environment,
-      bootstrapTemplate: BOOTSTRAP_TEMPLATE,
-      bundleFileName,
-      sourceMap: buildConfig?.sourceMap ?? platform === 'local',
-      minify: buildConfig?.minify ?? platform !== 'local',
+      sourceMap: buildConfig?.sourceMap ?? isLocal,
+      minify: buildConfig?.minify ?? !isLocal,
       watch,
+      freeze: !isLocal,
       esbuildOptions: {
         target: 'es2017',
         platform: 'browser',
@@ -66,11 +93,13 @@ export class WebFrontendService extends Subservice {
       }
     });
 
-    const buildDirectory = join(directory, 'build', stage);
-
     const htmlFile = join(buildDirectory, 'index.html');
-    const htmlContent = resolveVariables(HTML_TEMPLATE, {bundleFileName});
+    const bundleFileName = basename(bundleFile);
+    const htmlContent = resolveVariables(HTML_TEMPLATE, {iconURL, bundleURL: `/${bundleFileName}`});
     fsExtra.outputFileSync(htmlFile, htmlContent);
+
+    const publicDirectory = join(directory, PUBLIC_DIRECTORY_NAME);
+    fsExtra.copySync(publicDirectory, buildDirectory);
 
     return buildDirectory;
   }
@@ -133,7 +162,7 @@ export class WebFrontendService extends Subservice {
     const buildDirectory = await this.build({
       watch: {
         afterRebuild() {
-          // TODO
+          // TODO: Automatically refresh browser
         }
       }
     });
@@ -141,5 +170,30 @@ export class WebFrontendService extends Subservice {
     const server = new SinglePageApplicationServer({directory: buildDirectory, serviceName, port});
 
     await server.start();
+  }
+
+  async freeze() {
+    const publicDirectory = join(this.getDirectory(), PUBLIC_DIRECTORY_NAME);
+
+    const files = walkSync(publicDirectory, {directories: false, includeBasePath: true});
+
+    for (const file of files) {
+      const directory = dirname(file);
+      const fileName = basename(file);
+      const extension = extname(fileName);
+      const fileNameWithoutExtension = fileName.slice(0, -extension.length);
+
+      if (fileName.endsWith(IMMUTABLE_EXTENSION + extension)) {
+        continue;
+      }
+
+      const hash = generateHashFromFile(file);
+      const newFileName = fileNameWithoutExtension + '-' + hash + IMMUTABLE_EXTENSION + extension;
+      const newFile = join(directory, newFileName);
+
+      fsExtra.moveSync(file, newFile, {overwrite: true});
+
+      this.logMessage(`File frozen ('${fileName}' -> '${newFileName}')`);
+    }
   }
 }

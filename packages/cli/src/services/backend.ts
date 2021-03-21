@@ -1,6 +1,11 @@
+import fsExtra from 'fs-extra';
+import {join} from 'path';
+
 import {Subservice} from './sub.js';
 import {bundle} from '../bundler.js';
 import {ProcessController} from '../processes/index.js';
+
+const BOOTSTRAP_TEMPLATE = `export {default} from '{{entryPoint}}';`;
 
 export class BackendService extends Subservice {
   static type = 'backend';
@@ -9,19 +14,33 @@ export class BackendService extends Subservice {
 
   // === Commands ===
 
+  static commands = {
+    ...Subservice.commands
+  };
+
   async build({watch = false}: {watch?: {afterRebuild?: () => void} | boolean} = {}) {
     await super.build();
 
+    const directory = this.getDirectory();
+    const serviceName = this.getName();
+    const stage = this.getStage();
     const {environment, platform, build: buildConfig} = this.getConfig();
 
+    const buildDirectory = join(directory, 'build', stage);
+
+    fsExtra.emptyDirSync(buildDirectory);
+
+    const isLocal = platform === 'local';
+
     const bundleFile = await bundle({
-      directory: this.getDirectory(),
-      serviceName: this.getName(),
-      stage: this.getStage(),
-      environment: environment,
-      bundleFileName: 'bundle.cjs',
-      sourceMap: buildConfig?.sourceMap ?? platform === 'local',
-      minify: buildConfig?.minify ?? platform !== 'local',
+      rootDirectory: directory,
+      buildDirectory,
+      bootstrapTemplate: BOOTSTRAP_TEMPLATE,
+      serviceName,
+      stage,
+      environment,
+      sourceMap: buildConfig?.sourceMap ?? isLocal,
+      minify: buildConfig?.minify ?? !isLocal,
       watch,
       esbuildOptions: {
         target: 'node12',

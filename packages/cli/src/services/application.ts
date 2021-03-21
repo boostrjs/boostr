@@ -1,6 +1,5 @@
 import {BaseService} from './base.js';
 import type {Subservice} from './sub.js';
-import type {Command} from '../command.js';
 
 export class ApplicationService extends BaseService {
   static type = 'application';
@@ -46,7 +45,7 @@ export class ApplicationService extends BaseService {
 
   // === Commands ===
 
-  static commands: Record<string, Command> = {
+  static commands = {
     ...BaseService.commands
   };
 

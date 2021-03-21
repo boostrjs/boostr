@@ -1,4 +1,8 @@
 import {readFileSync, statSync} from 'fs';
+import hasha from 'hasha';
+import baseX from 'base-x';
+
+const base62 = baseX('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
 
 const packageURL = new URL('../package.json', import.meta.url);
 
@@ -41,4 +45,9 @@ export function resolveVariables(string: string, variables: Record<string, any>)
 
 export function getFileSize(file: string) {
   return statSync(file).size;
+}
+
+export function generateHashFromFile(file: string) {
+  const md5 = hasha.fromFileSync(file, {encoding: 'buffer', algorithm: 'md5'});
+  return base62.encode(md5);
 }

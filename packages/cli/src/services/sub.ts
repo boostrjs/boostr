@@ -57,6 +57,10 @@ export class Subservice extends BaseService {
 
   // === Commands ===
 
+  static commands = {
+    ...BaseService.commands
+  };
+
   async start() {
     await super.start();
 

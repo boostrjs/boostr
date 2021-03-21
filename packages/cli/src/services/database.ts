@@ -13,6 +13,10 @@ export class DatabaseService extends Subservice {
 
   // === Commands ===
 
+  static commands = {
+    ...Subservice.commands
+  };
+
   async start() {
     await super.start();
 
