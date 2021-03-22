@@ -1,5 +1,6 @@
 import Koa from 'koa';
-import send from 'koa-send';
+import koaSend from 'koa-send';
+import WebSocket, {Server as WebSocketServer} from 'ws';
 import {existsSync} from 'fs';
 import {join} from 'path';
 import type {Server} from 'http';
@@ -28,14 +29,9 @@ export class SinglePageApplicationServer {
   }
 
   _server?: Server;
+  _webSocketServer?: WebSocketServer;
 
   start() {
-    if (this._server !== undefined) {
-      throwError('The single-page application server is already started', {
-        serviceName: this.serviceName
-      });
-    }
-
     const koa = new Koa();
 
     koa.use(async (ctx) => {
@@ -55,7 +51,7 @@ export class SinglePageApplicationServer {
 
       const path = '/' + fileRelative;
 
-      await send(ctx, path, {
+      await koaSend(ctx, path, {
         root: this.directory,
         index: INDEX_PAGE,
         gzip: false,
@@ -65,7 +61,15 @@ export class SinglePageApplicationServer {
     });
 
     return new Promise<void>((resolve) => {
+      if (this._server !== undefined) {
+        throwError('The single-page application server is already started', {
+          serviceName: this.serviceName
+        });
+      }
+
       this._server = koa.listen(this.port, () => {
+        this._webSocketServer = new WebSocket.Server({server: this._server});
+
         logMessage(`Single-page application server started at http://localhost:${this.port}/`, {
           serviceName: this.serviceName
         });
@@ -75,25 +79,11 @@ export class SinglePageApplicationServer {
     });
   }
 
-  stop() {
-    const server = this._server;
-
-    if (server === undefined) {
-      throwError('The single-page application server is not started', {
-        serviceName: this.serviceName
-      });
+  restartClients() {
+    if (this._webSocketServer !== undefined) {
+      for (const webSocket of this._webSocketServer.clients) {
+        webSocket.send('restart');
+      }
     }
-
-    return new Promise<void>((resolve) => {
-      server.close(() => {
-        this._server = undefined;
-
-        logMessage(`Single-page application server stopped`, {
-          serviceName: this.serviceName
-        });
-
-        resolve();
-      });
-    });
   }
 }

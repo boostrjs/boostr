@@ -24,7 +24,8 @@ const HTML_TEMPLATE = `<!DOCTYPE html>
 </html>
 `;
 
-const BOOTSTRAP_TEMPLATE = `import React from 'react';
+const BOOTSTRAP_TEMPLATE = `
+import React from 'react';
 import ReactDOM from 'react-dom';
 import {useBrowserRouter} from '@layr/react-integration';
 
@@ -63,6 +64,30 @@ async function main() {
 main().catch((error) => {
   console.error(error);
 });
+`;
+
+const BOOTSTRAP_LOCAL = `
+function openWebSocket(isFirstTime = true) {
+  const webSocket = new WebSocket('ws://' + window.location.host);
+
+  webSocket.addEventListener('open', () => {
+    if (!isFirstTime) {
+      window.location.reload();
+    }
+  });
+
+  webSocket.addEventListener('message', (event) => {
+    if (event.data === 'restart') {
+      window.location.reload();
+    }
+  });
+
+  webSocket.addEventListener('close', () => {
+    setTimeout(() => { openWebSocket(false); }, 10000); // 10 seconds
+  });
+}
+
+openWebSocket();
 `;
 
 const PUBLIC_DIRECTORY_NAME = 'public';
@@ -106,10 +131,16 @@ export class WebFrontendService extends Subservice {
 
     const isLocal = platform === 'local';
 
+    let bootstrapTemplate = BOOTSTRAP_TEMPLATE;
+
+    if (isLocal) {
+      bootstrapTemplate += BOOTSTRAP_LOCAL;
+    }
+
     const bundleFile = await bundle({
       rootDirectory: directory,
       buildDirectory,
-      bootstrapTemplate: BOOTSTRAP_TEMPLATE,
+      bootstrapTemplate,
       serviceName,
       stage,
       environment,
@@ -190,15 +221,17 @@ export class WebFrontendService extends Subservice {
       );
     }
 
+    let server: SinglePageApplicationServer;
+
     const buildDirectory = await this.build({
       watch: {
         afterRebuild() {
-          // TODO: Automatically refresh browser
+          server.restartClients();
         }
       }
     });
 
-    const server = new SinglePageApplicationServer({directory: buildDirectory, serviceName, port});
+    server = new SinglePageApplicationServer({directory: buildDirectory, serviceName, port});
 
     await server.start();
   }
