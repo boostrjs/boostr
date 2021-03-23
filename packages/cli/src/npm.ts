@@ -48,3 +48,13 @@ export async function runNPMInstallIfThereIsAPackage(directory: string) {
 
   await runNPM({directory, arguments: ['install']});
 }
+
+export async function runNPMUpdateIfThereIsAPackage(directory: string) {
+  const packageFile = join(directory, 'package.json');
+
+  if (!existsSync(packageFile)) {
+    return;
+  }
+
+  await runNPM({directory, arguments: ['update']});
+}

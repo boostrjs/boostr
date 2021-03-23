@@ -72,4 +72,12 @@ export class ApplicationService extends BaseService {
       await service.start();
     }
   }
+
+  async update() {
+    await super.update();
+
+    for (const service of this.getServices()) {
+      await service.update();
+    }
+  }
 }

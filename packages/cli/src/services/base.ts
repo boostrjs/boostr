@@ -1,5 +1,5 @@
 import {Command, getCommandOptions} from '../command.js';
-import {runNPMInstallIfThereIsAPackage} from '../npm.js';
+import {runNPMInstallIfThereIsAPackage, runNPMUpdateIfThereIsAPackage} from '../npm.js';
 import {parseRawArguments, pullGlobalOptions} from '../argument-parser.js';
 import {runNPM} from '../npm.js';
 import {logMessage, logError, throwError} from '../util.js';
@@ -79,6 +79,13 @@ export class BaseService {
         await this.start();
       },
       help: 'Start help...'
+    },
+
+    update: {
+      async handler(this: BaseService) {
+        await this.update();
+      },
+      help: 'Update help...'
     },
 
     config: {
@@ -165,6 +172,10 @@ export class BaseService {
 
   async start() {
     this._hasBeenStarted = true;
+  }
+
+  async update() {
+    await runNPMUpdateIfThereIsAPackage(this.getDirectory());
   }
 
   async showConfig() {
