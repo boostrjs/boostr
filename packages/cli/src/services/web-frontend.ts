@@ -14,9 +14,12 @@ const HTML_TEMPLATE = `<!DOCTYPE html>
     <title>{{headTitle}}</title>
     {{headMetas}}
     {{headLinks}}
+    {{headStyle}}
+    {{headScripts}}
   </head>
   <body>
     <noscript><p>Sorry, this site requires JavaScript to be enabled.</p></noscript>
+    {{bodyScripts}}
     <div id="root"></div>
     <script src="{{bundleURL}}"></script>
   </body>
@@ -262,34 +265,94 @@ function buildHTMLFile({
   htmlConfig: Record<string, any>;
 }) {
   const language = escape(htmlConfig.language ?? '');
+
   const headConfig = htmlConfig.head ?? {};
   const headTitle = escape(headConfig.title ?? '');
   const headMetas = buildTags('meta', headConfig.metas);
   const headLinks = buildTags('link', headConfig.links);
+  const headStyle =
+    headConfig.style !== undefined ? `<style>\n${headConfig.style}\n    </style>` : '';
+  const headScripts = buildTags('script', headConfig.scripts);
+
+  const bodyConfig = htmlConfig.body ?? {};
+  const bodyScripts = buildTags('script', bodyConfig.scripts);
+
   const bundleURL = `/${basename(bundleFile)}`;
 
-  const htmlContent = resolveVariables(HTML_TEMPLATE, {
-    language,
-    headTitle,
-    headMetas,
-    headLinks,
-    bundleURL
-  });
+  const htmlContent = removeEmptyLines(
+    resolveVariables(HTML_TEMPLATE, {
+      language,
+      headTitle,
+      headMetas,
+      headLinks,
+      headStyle,
+      headScripts,
+      bodyScripts,
+      bundleURL
+    })
+  );
 
   const htmlFile = join(buildDirectory, 'index.html');
 
   fsExtra.outputFileSync(htmlFile, htmlContent);
 }
 
-function buildTags(tagName: string, attributesArray: Record<string, string>[] = []) {
+type Spec = Attributes | string | [Attributes, string];
+type Attributes = Record<string, string | boolean>;
+
+function buildTags(tagName: string, specOrSpecs: Spec[] | Spec = []) {
+  const specs = Array.isArray(specOrSpecs) ? specOrSpecs : [specOrSpecs];
+
   let tags = '';
 
-  for (const attributes of attributesArray) {
-    const tag = `<${tagName} ${Object.entries(attributes)
-      .map(([name, value]) => `${name}="${escape(value)}"`)
-      .join(' ')} />`;
+  for (const spec of specs) {
+    let attributes: Attributes;
+    let content: string;
+
+    if (Array.isArray(spec)) {
+      attributes = spec[0] ?? {};
+      content = spec[1] ?? '';
+    } else if (typeof spec === 'object') {
+      attributes = spec;
+      content = '';
+    } else {
+      attributes = {};
+      content = spec;
+    }
+
+    const formattedAttributes = [];
+
+    for (const [name, value] of Object.entries(attributes)) {
+      if (typeof value === 'boolean') {
+        if (value) {
+          formattedAttributes.push(name);
+        }
+      } else {
+        formattedAttributes.push(`${name}="${escape(value)}"`);
+      }
+    }
+
+    let tag = `<${tagName}`;
+
+    if (formattedAttributes.length > 0) {
+      tag += ` ${formattedAttributes.join(' ')}`;
+    }
+
+    if (content !== '' || tagName === 'script') {
+      tag += `>${content !== '' ? `\n${content}\n    ` : ''}</${tagName}>`;
+    } else {
+      tag += ' />';
+    }
+
     tags += `${tags === '' ? tag : `\n    ${tag}`}`;
   }
 
   return tags;
+}
+
+function removeEmptyLines(text: string) {
+  return text
+    .split('\n')
+    .filter((line) => line.trim().length > 0)
+    .join('\n');
 }
