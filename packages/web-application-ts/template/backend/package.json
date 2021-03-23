@@ -5,7 +5,8 @@
   "main": "./src/index.ts",
   "dependencies": {
     "@layr/component": "^1.1.8",
-    "@layr/mongodb-store": "^1.1.30"
+    "@layr/mongodb-store": "^1.1.30",
+    "@layr/storable": "^1.1.9"
   },
   "devDependencies": {
     "@boostr/tsconfig": "^1.0.0",

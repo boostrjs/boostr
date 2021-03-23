@@ -3,6 +3,7 @@ import fsExtra from 'fs-extra';
 import {MongoMemoryServer} from 'mongodb-memory-server-global';
 
 import {Subservice} from './sub.js';
+import {BackendService} from './backend.js';
 
 const LOCAL_DATA_DIRECTORY_NAME = 'data';
 
@@ -14,8 +15,17 @@ export class DatabaseService extends Subservice {
   // === Commands ===
 
   static commands = {
-    ...Subservice.commands
+    ...Subservice.commands,
+
+    migrate: {
+      async handler(this: DatabaseService) {
+        await this.migrate();
+      },
+      help: 'Migrate help...'
+    }
   };
+
+  _localServer?: MongoMemoryServer;
 
   async start() {
     await super.start();
@@ -77,7 +87,7 @@ export class DatabaseService extends Subservice {
 
     fsExtra.ensureDirSync(dataDirectory);
 
-    const server = new MongoMemoryServer({
+    this._localServer = new MongoMemoryServer({
       instance: {
         port,
         dbName: databaseName,
@@ -86,7 +96,7 @@ export class DatabaseService extends Subservice {
       }
     });
 
-    let connectionString = await server.getUri();
+    let connectionString = await this._localServer.getUri();
 
     connectionString = connectionString.replace('127.0.0.1', 'localhost');
 
@@ -95,5 +105,34 @@ export class DatabaseService extends Subservice {
     }
 
     this.logMessage(`MongoDB server started at ${connectionString}`);
+  }
+
+  async stop() {
+    if (this._localServer !== undefined) {
+      await this._localServer.stop();
+
+      this.logMessage(`MongoDB server stopped`);
+    }
+  }
+
+  async migrate() {
+    const directory = this.getDirectory();
+    const {url} = this.getConfig();
+
+    if (!url) {
+      this.throwError(
+        `A 'url' property is required in the configuration to migrate a database (directory: '${directory}')`
+      );
+    }
+
+    await this.start();
+
+    for (const service of this.getDependents()) {
+      if (service instanceof BackendService) {
+        await service.migrateDatabase(url);
+      }
+    }
+
+    await this.stop();
   }
 }

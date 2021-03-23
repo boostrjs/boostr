@@ -125,4 +125,20 @@ export class BackendService extends Subservice {
 
     processController.start();
   }
+
+  async migrateDatabase(databaseURL: string) {
+    const directory = this.getDirectory();
+    const config = this.getConfig();
+    const serviceName = this.getName();
+
+    const bundleFile = await this.build();
+
+    const processController = new ProcessController(
+      'migrate-database',
+      ['--componentGetterFile', bundleFile, '--databaseURL', databaseURL],
+      {currentDirectory: directory, environment: config.environment, serviceName}
+    );
+
+    await processController.run();
+  }
 }

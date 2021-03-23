@@ -17,7 +17,11 @@ export class ProcessController {
       currentDirectory,
       environment,
       serviceName
-    }: {currentDirectory?: string; environment?: any; serviceName?: string} = {}
+    }: {
+      currentDirectory?: string;
+      environment?: any;
+      serviceName?: string;
+    } = {}
   ) {
     this._name = name;
     this._arguments = args;
@@ -28,7 +32,7 @@ export class ProcessController {
 
   _childProcess: ChildProcess | undefined;
 
-  start() {
+  start({onExit}: {onExit?: () => void} = {}) {
     if (this._childProcess !== undefined) {
       return;
     }
@@ -59,6 +63,11 @@ export class ProcessController {
 
       this._childProcess = undefined;
 
+      if (onExit) {
+        onExit();
+        return;
+      }
+
       if (code !== null) {
         logMessage('Waiting 10 seconds before restarting...', {serviceName: this._serviceName});
         setTimeout(() => this.start(), 10 * 1000);
@@ -74,5 +83,11 @@ export class ProcessController {
     }
 
     this._childProcess.kill();
+  }
+
+  run() {
+    return new Promise<void>((resolve) => {
+      this.start({onExit: resolve});
+    });
   }
 }
