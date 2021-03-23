@@ -1,6 +1,9 @@
 export default () => ({
   type: 'application',
 
+  name: 'Boostr Application',
+  description: 'An example application built with Boostr',
+
   services: {
     frontend: './frontend',
     backend: './backend',
@@ -8,6 +11,6 @@ export default () => ({
   },
 
   environment: {
-    APPLICATION_NAME: 'Boostr Application'
+    // Put global environment variables here
   }
 });

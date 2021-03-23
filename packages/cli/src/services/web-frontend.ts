@@ -1,6 +1,7 @@
 import fsExtra from 'fs-extra';
 import {join, dirname, basename, extname} from 'path';
 import walkSync from 'walk-sync';
+import escape from 'lodash/escape.js';
 
 import {Subservice} from './sub.js';
 import {bundle} from '../bundler.js';
@@ -8,13 +9,11 @@ import {SinglePageApplicationServer} from '../spa-server.js';
 import {resolveVariables, generateHashFromFile} from '../util.js';
 
 const HTML_TEMPLATE = `<!DOCTYPE html>
-<html lang="en">
+<html lang="{{language}}">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <title>Hello, Boostr!</title>
-    <link rel="icon" href="{{iconURL}}" />
+    <title>{{headTitle}}</title>
+    {{headMetas}}
+    {{headLinks}}
   </head>
   <body>
     <noscript><p>Sorry, this site requires JavaScript to be enabled.</p></noscript>
@@ -117,13 +116,7 @@ export class WebFrontendService extends Subservice {
     const directory = this.getDirectory();
     const serviceName = this.getName();
     const stage = this.getStage();
-    const {environment, iconURL, platform, build: buildConfig} = this.getConfig();
-
-    if (!iconURL) {
-      this.throwError(
-        `Couldn't find an 'iconURL' property in the configuration (directory: '${directory}')`
-      );
-    }
+    const {environment, platform, build: buildConfig, html: htmlConfig} = this.getConfig();
 
     const buildDirectory = join(directory, 'build', stage);
 
@@ -155,10 +148,7 @@ export class WebFrontendService extends Subservice {
       }
     });
 
-    const htmlFile = join(buildDirectory, 'index.html');
-    const bundleFileName = basename(bundleFile);
-    const htmlContent = resolveVariables(HTML_TEMPLATE, {iconURL, bundleURL: `/${bundleFileName}`});
-    fsExtra.outputFileSync(htmlFile, htmlContent);
+    buildHTMLFile({buildDirectory, bundleFile, htmlConfig});
 
     const publicDirectory = join(directory, PUBLIC_DIRECTORY_NAME);
     fsExtra.copySync(publicDirectory, buildDirectory);
@@ -260,4 +250,46 @@ export class WebFrontendService extends Subservice {
       this.logMessage(`File frozen ('${fileName}' -> '${newFileName}')`);
     }
   }
+}
+
+function buildHTMLFile({
+  buildDirectory,
+  bundleFile,
+  htmlConfig = {}
+}: {
+  buildDirectory: string;
+  bundleFile: string;
+  htmlConfig: Record<string, any>;
+}) {
+  const language = escape(htmlConfig.language ?? '');
+  const headConfig = htmlConfig.head ?? {};
+  const headTitle = escape(headConfig.title ?? '');
+  const headMetas = buildTags('meta', headConfig.metas);
+  const headLinks = buildTags('link', headConfig.links);
+  const bundleURL = `/${basename(bundleFile)}`;
+
+  const htmlContent = resolveVariables(HTML_TEMPLATE, {
+    language,
+    headTitle,
+    headMetas,
+    headLinks,
+    bundleURL
+  });
+
+  const htmlFile = join(buildDirectory, 'index.html');
+
+  fsExtra.outputFileSync(htmlFile, htmlContent);
+}
+
+function buildTags(tagName: string, attributesArray: Record<string, string>[] = []) {
+  let tags = '';
+
+  for (const attributes of attributesArray) {
+    const tag = `<${tagName} ${Object.entries(attributes)
+      .map(([name, value]) => `${name}="${escape(value)}"`)
+      .join(' ')} />`;
+    tags += `${tags === '' ? tag : `\n    ${tag}`}`;
+  }
+
+  return tags;
 }

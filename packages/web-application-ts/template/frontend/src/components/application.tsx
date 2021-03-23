@@ -17,7 +17,7 @@ export const getApplication = (Base: typeof BackendApplication) => {
 
       return (
         <div>
-          <h1>{process.env.APPLICATION_NAME}</h1>
+          <h1>Boostr Application</h1>
           <div>The application is {isHealthy ? 'healthy' : 'unhealthy'}.</div>
         </div>
       );

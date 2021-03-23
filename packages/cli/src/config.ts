@@ -138,6 +138,7 @@ async function _loadConfig(
 
   try {
     config = await configBuilder({
+      application: applicationConfig,
       services: applicationConfig?.__preloadedServiceConfigs ?? BLACK_HOLE
     });
   } catch (error) {
