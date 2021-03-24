@@ -116,12 +116,12 @@ export class WebFrontendService extends Subservice {
   async build({watch = false}: {watch?: {afterRebuild?: () => void} | boolean} = {}) {
     await super.build();
 
-    const directory = this.getDirectory();
+    const serviceDirectory = this.getDirectory();
     const serviceName = this.getName();
     const stage = this.getStage();
     const {environment, platform, build: buildConfig, html: htmlConfig} = this.getConfig();
 
-    const buildDirectory = join(directory, 'build', stage);
+    const buildDirectory = join(serviceDirectory, 'build', stage);
 
     fsExtra.emptyDirSync(buildDirectory);
 
@@ -134,7 +134,7 @@ export class WebFrontendService extends Subservice {
     }
 
     const bundleFile = await bundle({
-      rootDirectory: directory,
+      serviceDirectory,
       buildDirectory,
       bootstrapTemplate,
       serviceName,
@@ -153,7 +153,7 @@ export class WebFrontendService extends Subservice {
 
     buildHTMLFile({buildDirectory, bundleFile, htmlConfig});
 
-    const publicDirectory = join(directory, PUBLIC_DIRECTORY_NAME);
+    const publicDirectory = join(serviceDirectory, PUBLIC_DIRECTORY_NAME);
     fsExtra.copySync(publicDirectory, buildDirectory);
 
     return buildDirectory;

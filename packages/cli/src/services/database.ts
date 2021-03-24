@@ -1,9 +1,10 @@
+import type {MongoMemoryServer} from 'mongodb-memory-server-global';
 import {join} from 'path';
 import fsExtra from 'fs-extra';
-import {MongoMemoryServer} from 'mongodb-memory-server-global';
 
 import {Subservice} from './sub.js';
 import {BackendService} from './backend.js';
+import {requireGlobalPackage} from '../npm.js';
 
 const LOCAL_DATA_DIRECTORY_NAME = 'data';
 
@@ -32,6 +33,7 @@ export class DatabaseService extends Subservice {
 
     const directory = this.getDirectory();
     const config = this.getConfig();
+    const serviceName = this.getName();
 
     if (config.platform !== 'local') {
       return;
@@ -87,6 +89,12 @@ export class DatabaseService extends Subservice {
 
     fsExtra.ensureDirSync(dataDirectory);
 
+    const {MongoMemoryServer} = await requireGlobalPackage(
+      'mongodb-memory-server-global',
+      '6.9.6',
+      {serviceName}
+    );
+
     this._localServer = new MongoMemoryServer({
       instance: {
         port,
@@ -94,7 +102,7 @@ export class DatabaseService extends Subservice {
         dbPath: dataDirectory,
         storageEngine: 'wiredTiger'
       }
-    });
+    }) as MongoMemoryServer;
 
     let connectionString = await this._localServer.getUri();
 

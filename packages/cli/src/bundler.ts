@@ -1,12 +1,12 @@
-import esbuild, {BuildOptions, BuildResult} from 'esbuild';
+import type {build as buildFunction, BuildOptions, BuildResult} from 'esbuild';
 import {join} from 'path';
 import bytes from 'bytes';
 
-import {loadNPMPackage} from './npm.js';
+import {loadNPMPackage, requireGlobalPackage} from './npm.js';
 import {logMessage, logError, throwError, resolveVariables, getFileSize} from './util.js';
 
 export async function bundle({
-  rootDirectory,
+  serviceDirectory,
   buildDirectory,
   bootstrapTemplate,
   serviceName,
@@ -18,7 +18,7 @@ export async function bundle({
   watch = false,
   esbuildOptions
 }: {
-  rootDirectory: string;
+  serviceDirectory: string;
   buildDirectory: string;
   bootstrapTemplate: string;
   serviceName?: string;
@@ -34,13 +34,13 @@ export async function bundle({
     throw Error("You cannot use both 'freeze' and 'watch'");
   }
 
-  const pkg = loadNPMPackage(rootDirectory);
+  const pkg = loadNPMPackage(serviceDirectory);
 
   const entryPoint = pkg.main;
 
   if (entryPoint === undefined) {
     throwError(
-      `A 'main' property is missing in a 'package.json' file (directory: '${rootDirectory}')`,
+      `A 'main' property is missing in a 'package.json' file (directory: '${serviceDirectory}')`,
       {serviceName}
     );
   }
@@ -53,16 +53,20 @@ export async function bundle({
     definedIdentifers[`process.env.${name}`] = `"${value}"`;
   }
 
+  const {build}: {build: typeof buildFunction} = await requireGlobalPackage('esbuild', '0.9.6', {
+    serviceName
+  });
+
   let bundleFile: string;
   let result: BuildResult;
 
   try {
-    result = await esbuild.build({
-      absWorkingDir: rootDirectory,
+    result = await build({
+      absWorkingDir: serviceDirectory,
       outdir: buildDirectory,
       stdin: {
         contents: bootstrapCode,
-        resolveDir: rootDirectory,
+        resolveDir: serviceDirectory,
         sourcefile: 'bootstrap.js'
       },
       bundle: true,
@@ -107,7 +111,7 @@ export async function bundle({
     throwError('Build failed', {serviceName});
   }
 
-  bundleFile = determineBundleFileFromBuildResult(result, {rootDirectory, serviceName});
+  bundleFile = determineBundleFileFromBuildResult(result, {serviceDirectory, serviceName});
 
   logMessage(`Build succeeded (bundle size: ${bytes(getFileSize(bundleFile))})`, {serviceName});
 
@@ -116,7 +120,7 @@ export async function bundle({
 
 function determineBundleFileFromBuildResult(
   result: BuildResult,
-  {rootDirectory, serviceName}: {rootDirectory: string; serviceName?: string}
+  {serviceDirectory, serviceName}: {serviceDirectory: string; serviceName?: string}
 ) {
   let bundleFile: string | undefined;
 
@@ -124,7 +128,7 @@ function determineBundleFileFromBuildResult(
 
   for (const [file, output] of Object.entries(outputs)) {
     if (output.entryPoint === 'bootstrap.js') {
-      bundleFile = join(rootDirectory, file);
+      bundleFile = join(serviceDirectory, file);
     }
   }
 

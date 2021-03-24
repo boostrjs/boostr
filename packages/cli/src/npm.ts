@@ -1,8 +1,12 @@
 import {existsSync, readFileSync} from 'fs';
-import {join} from 'path';
+import fsExtra from 'fs-extra';
+import {join, sep} from 'path';
+import {homedir} from 'os';
 import {execFileSync} from 'child_process';
+import {createRequire} from 'module';
+import memoize from 'lodash/memoize.js';
 
-import {throwError} from './util.js';
+import {logMessage, throwError} from './util.js';
 
 export function loadNPMPackage(directory: string) {
   const packageFile = join(directory, 'package.json');
@@ -33,7 +37,7 @@ export async function runNPM({
 }) {
   try {
     execFileSync('npm', args, {cwd: directory, stdio: 'inherit'});
-  } catch (error) {
+  } catch {
     console.log();
     throwError(`An error occurred while executing npm`);
   }
@@ -57,4 +61,49 @@ export async function runNPMUpdateIfThereIsAPackage(directory: string) {
   }
 
   await runNPM({directory, arguments: ['update']});
+}
+
+const memoizedCreateRequire = memoize(createRequire);
+
+// A way to lazily install npm packages while turning around an issue where packages
+// containing binary (e.g. esbuild) cannot be installed with `npm --global`
+export async function requireGlobalPackage(
+  packageName: string,
+  packageVersion: string,
+  {serviceName}: {serviceName?: string} = {}
+) {
+  const packageDirectory = join(
+    homedir(),
+    '.cache',
+    'boostr',
+    'dependencies',
+    packageName,
+    packageVersion
+  );
+
+  if (!existsSync(packageDirectory)) {
+    logMessage(`Installing '${packageName}@${packageVersion}'...`, {serviceName});
+
+    try {
+      fsExtra.outputJsonSync(join(packageDirectory, 'package.json'), {
+        name: 'unknown',
+        description: 'unknown',
+        license: 'MIT',
+        repository: 'unknown',
+        dependencies: {
+          [packageName]: packageVersion
+        }
+      });
+
+      await runNPM({directory: packageDirectory, arguments: ['install']});
+    } catch (error) {
+      fsExtra.removeSync(packageDirectory);
+
+      throw error;
+    }
+  }
+
+  const require = memoizedCreateRequire(packageDirectory + sep);
+
+  return require(packageName);
 }

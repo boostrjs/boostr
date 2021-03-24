@@ -21,19 +21,19 @@ export class BackendService extends Subservice {
   async build({watch = false}: {watch?: {afterRebuild?: () => void} | boolean} = {}) {
     await super.build();
 
-    const directory = this.getDirectory();
+    const serviceDirectory = this.getDirectory();
     const serviceName = this.getName();
     const stage = this.getStage();
     const {environment, platform, build: buildConfig} = this.getConfig();
 
-    const buildDirectory = join(directory, 'build', stage);
+    const buildDirectory = join(serviceDirectory, 'build', stage);
 
     fsExtra.emptyDirSync(buildDirectory);
 
     const isLocal = platform === 'local';
 
     const bundleFile = await bundle({
-      rootDirectory: directory,
+      serviceDirectory,
       buildDirectory,
       bootstrapTemplate: BOOTSTRAP_TEMPLATE,
       serviceName,
