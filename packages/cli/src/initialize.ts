@@ -5,6 +5,7 @@ import tempy from 'tempy';
 import fsExtra from 'fs-extra';
 import tar from 'tar';
 import walkSync from 'walk-sync';
+import without from 'lodash/without.js';
 import kebabCase from 'lodash/kebabCase.js';
 
 import {createApplicationServiceFromDirectory} from './services/index.js';
@@ -22,7 +23,7 @@ export async function initialize(
     return;
   }
 
-  if (!directoryIsEmpty(directory)) {
+  if (!directoryIsEmpty(directory, {ignoreDirectoryNames: ['.git', '.DS_Store']})) {
     throwError(`Sorry, the 'initialize' command can only be used within an empty directory`);
   }
 
@@ -107,8 +108,11 @@ async function populateVariables(directory: string, {projectName}: {projectName:
   }
 }
 
-function directoryIsEmpty(directory: string) {
-  const entries = readdirSync(directory);
+function directoryIsEmpty(
+  directory: string,
+  {ignoreDirectoryNames = []}: {ignoreDirectoryNames?: string[]} = {}
+) {
+  const entries = without(readdirSync(directory), ...ignoreDirectoryNames);
 
   return entries.length === 0;
 }
