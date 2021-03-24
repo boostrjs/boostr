@@ -30,9 +30,15 @@ export class ProcessController {
     this._serviceName = serviceName;
   }
 
+  start() {
+    return new Promise<void>((resolve) => {
+      this._start({onStarted: resolve});
+    });
+  }
+
   _childProcess: ChildProcess | undefined;
 
-  start({onExit}: {onExit?: () => void} = {}) {
+  _start({onStarted, onExited}: {onStarted?: () => void; onExited?: () => void} = {}) {
     if (this._childProcess !== undefined) {
       return;
     }
@@ -57,24 +63,40 @@ export class ProcessController {
       logError(line, {serviceName: this._serviceName});
     });
 
-    this._childProcess.once('exit', (code) => {
+    const messageHandler = (message: string) => {
+      if (message === 'started') {
+        if (onStarted !== undefined) {
+          const _onStarted = onStarted;
+          onStarted = undefined;
+          _onStarted();
+        }
+      }
+    };
+
+    const exitHandler = (code: number | null) => {
       stdout.close();
       stderr.close();
-
+      this._childProcess?.off('message', messageHandler);
+      this._childProcess?.off('exit', exitHandler);
       this._childProcess = undefined;
 
-      if (onExit) {
-        onExit();
+      if (onExited !== undefined) {
+        const _onExited = onExited;
+        onExited = undefined;
+        _onExited();
         return;
       }
 
       if (code !== null) {
         logMessage('Waiting 10 seconds before restarting...', {serviceName: this._serviceName});
-        setTimeout(() => this.start(), 10 * 1000);
+        setTimeout(() => this._start({onStarted}), 10 * 1000);
       } else {
-        this.start();
+        this._start({onStarted});
       }
-    });
+    };
+
+    this._childProcess.on('message', messageHandler);
+    this._childProcess.on('exit', exitHandler);
   }
 
   restart() {
@@ -87,7 +109,7 @@ export class ProcessController {
 
   run() {
     return new Promise<void>((resolve) => {
-      this.start({onExit: resolve});
+      this._start({onExited: resolve});
     });
   }
 }

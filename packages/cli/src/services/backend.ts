@@ -123,7 +123,7 @@ export class BackendService extends Subservice {
       {currentDirectory: directory, environment: config.environment, serviceName}
     );
 
-    processController.start();
+    await processController.start();
   }
 
   async migrateDatabase(databaseURL: string) {

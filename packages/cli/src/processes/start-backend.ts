@@ -20,6 +20,8 @@ async function main() {
   await httpServer.start();
 
   console.log(`Component HTTP server started at http://localhost:${portString}/`);
+
+  process.send!('started');
 }
 
 main().catch((error) => {
