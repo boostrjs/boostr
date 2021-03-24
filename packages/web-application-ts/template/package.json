@@ -4,6 +4,7 @@
   "private": true,
   "prettier": "@boostr/prettierrc",
   "devDependencies": {
-    "@boostr/prettierrc": "^1.0.0"
+    "@boostr/prettierrc": "^1.0.0",
+    "boostr": "^1.0.0"
   }
 }
