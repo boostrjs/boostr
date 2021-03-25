@@ -86,10 +86,7 @@ export async function requireGlobalPackage(
 
     try {
       fsExtra.outputJsonSync(join(packageDirectory, 'package.json'), {
-        name: 'unknown',
-        description: 'unknown',
-        license: 'MIT',
-        repository: 'unknown',
+        private: true,
         dependencies: {
           [packageName]: packageVersion
         }

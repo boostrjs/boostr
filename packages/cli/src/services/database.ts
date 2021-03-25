@@ -16,14 +16,7 @@ export class DatabaseService extends Subservice {
   // === Commands ===
 
   static commands = {
-    ...Subservice.commands,
-
-    migrate: {
-      async handler(this: DatabaseService) {
-        await this.migrate();
-      },
-      help: 'Migrate help...'
-    }
+    ...Subservice.commands
   };
 
   _localServer?: MongoMemoryServer;

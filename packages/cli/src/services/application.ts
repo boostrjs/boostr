@@ -73,6 +73,14 @@ export class ApplicationService extends BaseService {
     }
   }
 
+  async migrate() {
+    await super.migrate();
+
+    for (const service of this.getServices()) {
+      await service.migrate();
+    }
+  }
+
   async update() {
     await super.update();
 

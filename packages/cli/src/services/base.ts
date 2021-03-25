@@ -81,6 +81,13 @@ export class BaseService {
       help: 'Start help...'
     },
 
+    migrate: {
+      async handler(this: BaseService) {
+        await this.migrate();
+      },
+      help: 'Migrate help...'
+    },
+
     update: {
       async handler(this: BaseService) {
         await this.update();
@@ -173,6 +180,8 @@ export class BaseService {
   async start() {
     this._hasBeenStarted = true;
   }
+
+  async migrate() {}
 
   async update() {
     await runNPMUpdateIfThereIsAPackage(this.getDirectory());
