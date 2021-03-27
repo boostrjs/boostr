@@ -70,4 +70,14 @@ export class Subservice extends BaseService {
       }
     }
   }
+
+  async deploy() {
+    await super.deploy();
+
+    for (const service of this.getDependencies()) {
+      if (!service._hasBeenDeployed) {
+        await service.deploy();
+      }
+    }
+  }
 }

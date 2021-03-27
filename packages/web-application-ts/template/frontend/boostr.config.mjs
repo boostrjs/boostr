@@ -29,9 +29,11 @@ export default ({application, services}) => ({
     production: {
       url: 'https://example.com/',
       platform: 'aws',
-      region: 'us-east-1',
-      cloudFront: {
-        priceClass: 'PriceClass_100'
+      aws: {
+        region: 'us-east-1',
+        cloudFront: {
+          priceClass: 'PriceClass_100'
+        }
       }
     }
   }

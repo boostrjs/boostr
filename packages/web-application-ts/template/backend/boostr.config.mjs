@@ -16,10 +16,12 @@ export default ({services}) => ({
     production: {
       url: 'https://backend.example.com/',
       platform: 'aws',
-      region: 'us-east-1',
-      lambda: {
-        memorySize: 1024,
-        timeout: 15
+      aws: {
+        region: 'us-east-1',
+        lambda: {
+          memorySize: 1024,
+          timeout: 15
+        }
       }
     }
   }

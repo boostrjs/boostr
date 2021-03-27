@@ -100,6 +100,13 @@ export class WebFrontendService extends Subservice {
 
   static help = 'Web frontend help...';
 
+  getBuildDirectory() {
+    const serviceDirectory = this.getDirectory();
+    const stage = this.getStage();
+
+    return join(serviceDirectory, 'build', stage);
+  }
+
   // === Commands ===
 
   static commands = {
@@ -121,7 +128,7 @@ export class WebFrontendService extends Subservice {
     const stage = this.getStage();
     const {environment, platform, build: buildConfig, html: htmlConfig} = this.getConfig();
 
-    const buildDirectory = join(serviceDirectory, 'build', stage);
+    const buildDirectory = this.getBuildDirectory();
 
     fsExtra.emptyDirSync(buildDirectory);
 

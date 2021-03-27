@@ -1,6 +1,9 @@
-import {readFileSync, statSync} from 'fs';
+import {readFileSync, statSync, readdirSync} from 'fs';
+import tempy from 'tempy';
+import fsExtra from 'fs-extra';
 import hasha from 'hasha';
 import baseX from 'base-x';
+import without from 'lodash/without.js';
 
 const base62 = baseX('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
 
@@ -50,4 +53,25 @@ export function getFileSize(file: string) {
 export function generateHashFromFile(file: string) {
   const md5 = hasha.fromFileSync(file, {encoding: 'buffer', algorithm: 'md5'});
   return base62.encode(md5);
+}
+
+export function directoryIsEmpty(
+  directory: string,
+  {ignoreDirectoryNames = []}: {ignoreDirectoryNames?: string[]} = {}
+) {
+  const entries = without(readdirSync(directory), ...ignoreDirectoryNames);
+
+  return entries.length === 0;
+}
+
+export async function withTemporaryDirectory<ReturnValue extends unknown>(
+  task: (temporaryDirectory: string) => Promise<ReturnValue>
+) {
+  const temporaryDirectory = tempy.directory();
+
+  try {
+    return await task(temporaryDirectory);
+  } finally {
+    fsExtra.removeSync(temporaryDirectory);
+  }
 }

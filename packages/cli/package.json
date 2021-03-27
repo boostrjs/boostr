@@ -1,6 +1,6 @@
 {
   "name": "boostr",
-  "version": "1.0.345",
+  "version": "1.0.374",
   "description": "Build and deploy your Layr applications",
   "keywords": [
     "layr",
@@ -35,38 +35,42 @@
     "update": "dev-tools update:dependencies"
   },
   "dependencies": {
+    "@layr/aws-integration": "^1.1.12",
     "@layr/component": "^1.1.11",
     "@layr/component-http-server": "^1.1.10",
     "@layr/component-server": "^1.1.10",
     "@layr/storable": "^1.1.20",
+    "aws-sdk": "^2.874.0",
     "base-x": "^3.0.8",
     "bytes": "^3.1.0",
+    "cross-zip": "^4.0.0",
     "fs-extra": "^9.1.0",
     "hasha": "^5.2.2",
     "koa": "^2.13.1",
     "koa-send": "^5.0.1",
     "lodash": "^4.17.21",
     "mri": "^1.1.6",
+    "sleep-promise": "^9.1.0",
     "source-map-support": "^0.5.19",
     "tar": "^6.1.0",
-    "tempy": "^1.0.0",
+    "tempy": "^1.0.1",
     "tslib": "^2.1.0",
     "walk-sync": "^2.2.0",
     "ws": "^7.4.4"
   },
   "devDependencies": {
-    "@boostr/tsconfig": "^1.0.0",
+    "@boostr/tsconfig": "^1.0.2",
     "@mvila/dev-tools": "^1.0.28",
     "@types/bytes": "^3.1.0",
-    "@types/fs-extra": "^9.0.8",
+    "@types/fs-extra": "^9.0.9",
     "@types/koa": "^2.13.1",
     "@types/koa-send": "^4.1.2",
     "@types/lodash": "^4.14.168",
     "@types/mri": "^1.1.0",
-    "@types/node": "^14.14.31",
+    "@types/node": "^14.14.37",
     "@types/tar": "^4.0.4",
     "@types/ws": "^7.4.0",
-    "esbuild": "^0.9.6",
+    "esbuild": "^0.9.7",
     "mongodb-memory-server-global": "^6.9.6"
   }
 }

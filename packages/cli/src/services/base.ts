@@ -67,6 +67,13 @@ export class BaseService {
       help: 'Install help...'
     },
 
+    update: {
+      async handler(this: BaseService) {
+        await this.update();
+      },
+      help: 'Update help...'
+    },
+
     build: {
       async handler(this: BaseService) {
         await this.build();
@@ -88,11 +95,11 @@ export class BaseService {
       help: 'Migrate help...'
     },
 
-    update: {
+    deploy: {
       async handler(this: BaseService) {
-        await this.update();
+        await this.deploy();
       },
-      help: 'Update help...'
+      help: 'Deploy help...'
     },
 
     config: {
@@ -173,6 +180,10 @@ export class BaseService {
     await runNPMInstallIfThereIsAPackage(this.getDirectory());
   }
 
+  async update() {
+    await runNPMUpdateIfThereIsAPackage(this.getDirectory());
+  }
+
   async build(..._: any[]): Promise<any> {}
 
   _hasBeenStarted = false;
@@ -183,8 +194,10 @@ export class BaseService {
 
   async migrate() {}
 
-  async update() {
-    await runNPMUpdateIfThereIsAPackage(this.getDirectory());
+  _hasBeenDeployed = false;
+
+  async deploy() {
+    this._hasBeenDeployed = true;
   }
 
   async showConfig() {

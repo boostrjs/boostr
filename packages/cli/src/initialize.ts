@@ -1,15 +1,18 @@
 import {execFileSync} from 'child_process';
-import {readdirSync, readFileSync, writeFileSync} from 'fs';
+import {readFileSync, writeFileSync} from 'fs';
 import {join, basename, extname} from 'path';
-import tempy from 'tempy';
-import fsExtra from 'fs-extra';
 import tar from 'tar';
 import walkSync from 'walk-sync';
-import without from 'lodash/without.js';
 import kebabCase from 'lodash/kebabCase.js';
 
 import {createApplicationServiceFromDirectory} from './services/index.js';
-import {logMessage, throwError, resolveVariables} from './util.js';
+import {
+  logMessage,
+  throwError,
+  resolveVariables,
+  directoryIsEmpty,
+  withTemporaryDirectory
+} from './util.js';
 
 const POPULATABLE_TEMPLATE_FILE_EXTENSIONS = ['.js', '.mjs', '.jsx', '.ts', 'tsx', '.json', '.md'];
 
@@ -105,26 +108,5 @@ async function populateVariables(directory: string, {projectName}: {projectName:
     if (populatedContent !== originalContent) {
       writeFileSync(file, populatedContent);
     }
-  }
-}
-
-function directoryIsEmpty(
-  directory: string,
-  {ignoreDirectoryNames = []}: {ignoreDirectoryNames?: string[]} = {}
-) {
-  const entries = without(readdirSync(directory), ...ignoreDirectoryNames);
-
-  return entries.length === 0;
-}
-
-async function withTemporaryDirectory<ReturnValue extends unknown>(
-  task: (temporaryDirectory: string) => Promise<ReturnValue>
-) {
-  const temporaryDirectory = tempy.directory();
-
-  try {
-    return await task(temporaryDirectory);
-  } finally {
-    fsExtra.removeSync(temporaryDirectory);
   }
 }

@@ -104,3 +104,9 @@ export async function requireGlobalPackage(
 
   return require(packageName);
 }
+
+export function resolveInternalPackage(packageName: string) {
+  const require = memoizedCreateRequire(import.meta.url.toString());
+
+  return require.resolve(packageName);
+}

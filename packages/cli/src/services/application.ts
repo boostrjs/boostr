@@ -57,6 +57,14 @@ export class ApplicationService extends BaseService {
     }
   }
 
+  async update() {
+    await super.update();
+
+    for (const service of this.getServices()) {
+      await service.update();
+    }
+  }
+
   async build() {
     await super.build();
 
@@ -81,11 +89,11 @@ export class ApplicationService extends BaseService {
     }
   }
 
-  async update() {
-    await super.update();
+  async deploy() {
+    await super.deploy();
 
-    for (const service of this.getServices()) {
-      await service.update();
+    for (const service of this.getRootServices()) {
+      await service.deploy();
     }
   }
 }

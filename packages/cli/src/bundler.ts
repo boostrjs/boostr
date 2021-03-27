@@ -8,6 +8,7 @@ import {logMessage, logError, throwError, resolveVariables, getFileSize} from '.
 export async function bundle({
   serviceDirectory,
   buildDirectory,
+  bundleFileNameWithoutExtension = 'bundle',
   bootstrapTemplate,
   serviceName,
   stage,
@@ -20,6 +21,7 @@ export async function bundle({
 }: {
   serviceDirectory: string;
   buildDirectory: string;
+  bundleFileNameWithoutExtension?: string;
   bootstrapTemplate: string;
   serviceName?: string;
   stage: string;
@@ -47,6 +49,10 @@ export async function bundle({
 
   const bootstrapCode = resolveVariables(bootstrapTemplate, {entryPoint});
 
+  // Include CLI's node_modules folder so that packages such as @layr/component-server
+  // or @layr/aws-integration can be found even though they are not installed by the user
+  const nodePaths = [new URL('../node_modules', import.meta.url).pathname];
+
   const definedIdentifers: Record<string, string> = {'process.env.NODE_ENV': `"${stage}"`};
 
   for (const [name, value] of Object.entries(environment)) {
@@ -69,8 +75,11 @@ export async function bundle({
         resolveDir: serviceDirectory,
         sourcefile: 'bootstrap.js'
       },
+      nodePaths,
       bundle: true,
-      entryNames: freeze ? 'bundle-[hash].immutable' : 'bundle',
+      entryNames: freeze
+        ? `${bundleFileNameWithoutExtension}-[hash].immutable`
+        : bundleFileNameWithoutExtension,
       assetNames: freeze ? '[name]-[hash].immutable' : '[name]',
       define: definedIdentifers,
       metafile: true,
