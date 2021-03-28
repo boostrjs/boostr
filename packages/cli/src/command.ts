@@ -22,7 +22,7 @@ export function getCommandOptions(
 ) {
   const commandOptions: Record<string, any> = {};
 
-  for (const [parsedName, value] of Object.entries(parsedOptions)) {
+  for (let [parsedName, value] of Object.entries(parsedOptions)) {
     let actualName: string | undefined;
 
     const formattedName = parsedName.length === 1 ? `-${parsedName}` : `--${parsedName}`;
@@ -31,6 +31,18 @@ export function getCommandOptions(
       if (parsedName === name || aliases.includes(parsedName)) {
         if (type === 'string' && typeof value !== 'string') {
           throwError(`A string value should be specified for the ${formattedName} option`);
+        }
+
+        if (type === 'string[]') {
+          if (!Array.isArray(value)) {
+            value = [value];
+          }
+
+          for (const item of value) {
+            if (typeof item !== 'string') {
+              throwError(`A string value should be specified for the ${formattedName} option`);
+            }
+          }
         }
 
         actualName = name;

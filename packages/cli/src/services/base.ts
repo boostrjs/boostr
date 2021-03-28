@@ -96,8 +96,13 @@ export class BaseService {
     },
 
     deploy: {
-      async handler(this: BaseService) {
-        await this.deploy();
+      options: {
+        skip: {
+          type: 'string[]'
+        }
+      },
+      async handler(this: BaseService, [], {skip: skipServiceNames = []}: {skip?: string[]}) {
+        await this.deploy({skipServiceNames});
       },
       help: 'Deploy help...'
     },
@@ -196,7 +201,7 @@ export class BaseService {
 
   _hasBeenDeployed = false;
 
-  async deploy() {
+  async deploy({skipServiceNames: _ = []}: {skipServiceNames?: string[]} = {}) {
     if (this.getConfig().platform === 'local') {
       this.throwError(`Please specify a non-local stage (example: \`boostr deploy --production\`)`);
     }

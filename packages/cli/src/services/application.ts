@@ -89,11 +89,11 @@ export class ApplicationService extends BaseService {
     }
   }
 
-  async deploy() {
-    await super.deploy();
+  async deploy({skipServiceNames = []}: {skipServiceNames?: string[]} = {}) {
+    await super.deploy({skipServiceNames});
 
     for (const service of this.getRootServices()) {
-      await service.deploy();
+      await service.deploy({skipServiceNames});
     }
   }
 }

@@ -157,12 +157,12 @@ export class Subservice extends BaseService {
     }
   }
 
-  async deploy() {
-    await super.deploy();
+  async deploy({skipServiceNames = []}: {skipServiceNames?: string[]} = {}) {
+    await super.deploy({skipServiceNames});
 
     for (const service of this.getDependencies()) {
       if (!service._hasBeenDeployed) {
-        await service.deploy();
+        await service.deploy({skipServiceNames});
       }
     }
   }

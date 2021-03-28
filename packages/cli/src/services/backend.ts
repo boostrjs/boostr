@@ -126,11 +126,16 @@ export class BackendService extends Subservice {
     await processController.run();
   }
 
-  async deploy() {
-    await super.deploy();
+  async deploy({skipServiceNames = []}: {skipServiceNames?: string[]} = {}) {
+    await super.deploy({skipServiceNames});
+
+    const serviceName = this.getName();
+
+    if (skipServiceNames.includes(serviceName)) {
+      return;
+    }
 
     const config = this.getConfig();
-    const serviceName = this.getName();
 
     const {hostname} = this.parseConfigURL();
 
