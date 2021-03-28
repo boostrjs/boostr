@@ -24,13 +24,6 @@ export class BackendService extends Subservice {
 
   static help = 'Backend help...';
 
-  getBuildDirectory() {
-    const serviceDirectory = this.getDirectory();
-    const stage = this.getStage();
-
-    return join(serviceDirectory, 'build', stage);
-  }
-
   // === Commands ===
 
   static commands = {
@@ -45,7 +38,7 @@ export class BackendService extends Subservice {
     const stage = this.getStage();
     const {environment, platform, build: buildConfig} = this.getConfig();
 
-    const buildDirectory = this.getBuildDirectory();
+    const buildDirectory = join(serviceDirectory, 'build', stage);
 
     fsExtra.emptyDirSync(buildDirectory);
 
@@ -82,7 +75,7 @@ export class BackendService extends Subservice {
       }
     });
 
-    return bundleFile;
+    return {buildDirectory, bundleFile};
   }
 
   async start() {
@@ -96,53 +89,11 @@ export class BackendService extends Subservice {
       return;
     }
 
-    if (!config.url) {
-      this.throwError(
-        `A 'url' property is required in the configuration to start a local server (directory: '${directory}')`
-      );
-    }
-
-    let url: URL;
-
-    try {
-      url = new URL(config.url);
-    } catch {
-      this.throwError(
-        `An error occurred while parsing the 'url' property in the configuration (directory: '${directory}')`
-      );
-    }
-
-    const {protocol, hostname, port: portString, pathname} = url;
-
-    if (protocol !== 'http:') {
-      this.throwError(
-        `The 'url' property in the configuration should start with 'http://' (directory: '${directory}')`
-      );
-    }
-
-    if (hostname !== 'localhost') {
-      this.throwError(
-        `The host of the 'url' property in the configuration should be 'localhost' (directory: '${directory}')`
-      );
-    }
-
-    const port = Number(portString);
-
-    if (!port) {
-      this.throwError(
-        `The 'url' property in the configuration should specify a port (directory: '${directory}')`
-      );
-    }
-
-    if (pathname !== '/') {
-      this.throwError(
-        `The path of the 'url' property in the configuration should be '/' (directory: '${directory}')`
-      );
-    }
+    const {port} = this.parseConfigURL();
 
     let processController: ProcessController;
 
-    const bundleFile = await this.build({
+    const {bundleFile} = await this.build({
       watch: {
         afterRebuild() {
           processController.restart();
@@ -164,7 +115,7 @@ export class BackendService extends Subservice {
     const config = this.getConfig();
     const serviceName = this.getName();
 
-    const bundleFile = await this.build();
+    const {bundleFile} = await this.build();
 
     const processController = new ProcessController(
       'migrate-database',
@@ -178,61 +129,12 @@ export class BackendService extends Subservice {
   async deploy() {
     await super.deploy();
 
-    const directory = this.getDirectory();
     const config = this.getConfig();
     const serviceName = this.getName();
 
-    if (config.platform === 'local') {
-      this.throwError(`Please specify a non-local stage (example: \`boostr deploy --production\`)`);
-    }
+    const {hostname} = this.parseConfigURL();
 
-    if (!config.url) {
-      this.throwError(
-        `A 'url' property is required in the configuration to deploy a backend (directory: '${directory}')`
-      );
-    }
-
-    let url: URL;
-
-    try {
-      url = new URL(config.url);
-    } catch {
-      this.throwError(
-        `An error occurred while parsing the 'url' property in the configuration (directory: '${directory}')`
-      );
-    }
-
-    const {protocol, hostname, port: portString, pathname} = url;
-
-    if (protocol !== 'https:') {
-      this.throwError(
-        `The 'url' property in the configuration should start with 'https://' (directory: '${directory}')`
-      );
-    }
-
-    if (hostname === 'localhost') {
-      this.throwError(
-        `The host of the 'url' property in the configuration should not be 'localhost' (directory: '${directory}')`
-      );
-    }
-
-    const port = Number(portString);
-
-    if (port) {
-      this.throwError(
-        `The 'url' property in the configuration should not specify a port (directory: '${directory}')`
-      );
-    }
-
-    if (pathname !== '/') {
-      this.throwError(
-        `The path of the 'url' property in the configuration should be '/' (directory: '${directory}')`
-      );
-    }
-
-    await this.build();
-
-    const buildDirectory = this.getBuildDirectory();
+    const {buildDirectory} = await this.build();
 
     const resource = new AWSFunctionResource(
       {
@@ -241,7 +143,7 @@ export class BackendService extends Subservice {
         profile: config.aws?.profile,
         accessKeyId: config.aws?.accessKeyId,
         secretAccessKey: config.aws?.secretAccessKey,
-        buildDirectory,
+        directory: buildDirectory,
         environment: config.environment,
         lambda: {
           runtime: config.aws?.lambda?.runtime,

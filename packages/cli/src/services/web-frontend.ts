@@ -6,6 +6,7 @@ import escape from 'lodash/escape.js';
 import {Subservice} from './sub.js';
 import {bundle} from '../bundler.js';
 import {SinglePageApplicationServer} from '../spa-server.js';
+import {AWSWebsiteResource} from '../resources/aws/website.js';
 import {resolveVariables, generateHashFromFile} from '../util.js';
 
 const HTML_TEMPLATE = `<!DOCTYPE html>
@@ -158,18 +159,17 @@ export class WebFrontendService extends Subservice {
       }
     });
 
-    buildHTMLFile({buildDirectory, bundleFile, htmlConfig});
+    const htmlFile = buildHTMLFile({buildDirectory, bundleFile, htmlConfig});
 
     const publicDirectory = join(serviceDirectory, PUBLIC_DIRECTORY_NAME);
     fsExtra.copySync(publicDirectory, buildDirectory);
 
-    return buildDirectory;
+    return {buildDirectory, htmlFile, bundleFile};
   }
 
   async start() {
     await super.start();
 
-    const directory = this.getDirectory();
     const config = this.getConfig();
     const serviceName = this.getName();
 
@@ -177,53 +177,11 @@ export class WebFrontendService extends Subservice {
       return;
     }
 
-    if (!config.url) {
-      this.throwError(
-        `A 'url' property is required in the configuration to start a local server (directory: '${directory}')`
-      );
-    }
-
-    let url: URL;
-
-    try {
-      url = new URL(config.url);
-    } catch {
-      this.throwError(
-        `An error occurred while parsing the 'url' property in the configuration (directory: '${directory}')`
-      );
-    }
-
-    const {protocol, hostname, port: portString, pathname} = url;
-
-    if (protocol !== 'http:') {
-      this.throwError(
-        `The 'url' property in the configuration should start with 'http://' (directory: '${directory}')`
-      );
-    }
-
-    if (hostname !== 'localhost') {
-      this.throwError(
-        `The host of the 'url' property in the configuration should be 'localhost' (directory: '${directory}')`
-      );
-    }
-
-    const port = Number(portString);
-
-    if (!port) {
-      this.throwError(
-        `The 'url' property in the configuration should specify a port (directory: '${directory}')`
-      );
-    }
-
-    if (pathname !== '/') {
-      this.throwError(
-        `The path of the 'url' property in the configuration should be '/' (directory: '${directory}')`
-      );
-    }
+    const {port} = this.parseConfigURL();
 
     let server: SinglePageApplicationServer;
 
-    const buildDirectory = await this.build({
+    const {buildDirectory} = await this.build({
       watch: {
         afterRebuild() {
           server.restartClients();
@@ -234,6 +192,34 @@ export class WebFrontendService extends Subservice {
     server = new SinglePageApplicationServer({directory: buildDirectory, serviceName, port});
 
     await server.start();
+  }
+
+  async deploy() {
+    await super.deploy();
+
+    const config = this.getConfig();
+    const serviceName = this.getName();
+
+    const {hostname} = this.parseConfigURL();
+
+    const {buildDirectory} = await this.build();
+
+    const resource = new AWSWebsiteResource(
+      {
+        domainName: hostname,
+        region: config.aws?.region,
+        profile: config.aws?.profile,
+        accessKeyId: config.aws?.accessKeyId,
+        secretAccessKey: config.aws?.secretAccessKey,
+        directory: buildDirectory,
+        cloudFront: {
+          priceClass: config.aws?.cloudFront?.priceClass
+        }
+      },
+      {serviceName}
+    );
+
+    await resource.deploy();
   }
 
   async freeze() {
@@ -302,6 +288,8 @@ function buildHTMLFile({
   const htmlFile = join(buildDirectory, 'index.html');
 
   fsExtra.outputFileSync(htmlFile, htmlContent);
+
+  return htmlFile;
 }
 
 type Spec = Attributes | string | [Attributes, string];

@@ -1,6 +1,6 @@
 {
   "name": "boostr",
-  "version": "1.0.374",
+  "version": "1.0.380",
   "description": "Build and deploy your Layr applications",
   "keywords": [
     "layr",
@@ -49,6 +49,8 @@
     "koa": "^2.13.1",
     "koa-send": "^5.0.1",
     "lodash": "^4.17.21",
+    "mime": "^2.5.2",
+    "minimatch": "^3.0.4",
     "mri": "^1.1.6",
     "sleep-promise": "^9.1.0",
     "source-map-support": "^0.5.19",
@@ -66,6 +68,7 @@
     "@types/koa": "^2.13.1",
     "@types/koa-send": "^4.1.2",
     "@types/lodash": "^4.14.168",
+    "@types/mime": "^2.0.3",
     "@types/mri": "^1.1.0",
     "@types/node": "^14.14.37",
     "@types/tar": "^4.0.4",

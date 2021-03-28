@@ -197,6 +197,10 @@ export class BaseService {
   _hasBeenDeployed = false;
 
   async deploy() {
+    if (this.getConfig().platform === 'local') {
+      this.throwError(`Please specify a non-local stage (example: \`boostr deploy --production\`)`);
+    }
+
     this._hasBeenDeployed = true;
   }
 

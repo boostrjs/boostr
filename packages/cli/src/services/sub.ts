@@ -41,6 +41,92 @@ export class Subservice extends BaseService {
     return this._dependents;
   }
 
+  parseConfigURL() {
+    const directory = this.getDirectory();
+    const config = this.getConfig();
+
+    const {protocol, hostname, port, pathname} = this._parseConfigURL();
+
+    if (config.platform === 'local') {
+      if (protocol !== 'http:') {
+        this.throwError(
+          `The 'url' property in the configuration should start with 'http://' (directory: '${directory}')`
+        );
+      }
+
+      if (hostname !== 'localhost') {
+        this.throwError(
+          `The host of the 'url' property in the configuration should be 'localhost' (directory: '${directory}')`
+        );
+      }
+
+      if (!port) {
+        this.throwError(
+          `The 'url' property in the configuration should specify a port (directory: '${directory}')`
+        );
+      }
+
+      if (pathname !== '/') {
+        this.throwError(
+          `The path of the 'url' property in the configuration should be '/' (directory: '${directory}')`
+        );
+      }
+    } else {
+      if (protocol !== 'https:') {
+        this.throwError(
+          `The 'url' property in the configuration should start with 'https://' (directory: '${directory}')`
+        );
+      }
+
+      if (hostname === 'localhost') {
+        this.throwError(
+          `The host of the 'url' property in the configuration should not be 'localhost' (directory: '${directory}')`
+        );
+      }
+
+      if (port) {
+        this.throwError(
+          `The 'url' property in the configuration should not specify a port (directory: '${directory}')`
+        );
+      }
+
+      if (pathname !== '/') {
+        this.throwError(
+          `The path of the 'url' property in the configuration should be '/' (directory: '${directory}')`
+        );
+      }
+    }
+
+    return {protocol, hostname, port, pathname};
+  }
+
+  _parseConfigURL() {
+    const directory = this.getDirectory();
+    const config = this.getConfig();
+
+    if (!config.url) {
+      this.throwError(
+        `A 'url' property is required in the configuration (directory: '${directory}')`
+      );
+    }
+
+    let url: URL;
+
+    try {
+      url = new URL(config.url);
+    } catch {
+      this.throwError(
+        `An error occurred while parsing the 'url' property in the configuration (directory: '${directory}')`
+      );
+    }
+
+    const {protocol, hostname, port: portString, pathname} = url;
+
+    const port = Number(portString);
+
+    return {protocol, hostname, port, pathname};
+  }
+
   // === Utilities ===
 
   logMessage(message: string) {

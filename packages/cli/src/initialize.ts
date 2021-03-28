@@ -54,9 +54,8 @@ export async function initialize(
   const applicationService = await createApplicationServiceFromDirectory(directory, {stage});
   await applicationService!.install();
 
-  logMessage(
-    'Application successfully initialized. Run `boostr start` to start the development environment.'
-  );
+  logMessage('Application successfully initialized');
+  logMessage('Run `boostr start` to start the development environment');
 }
 
 async function fetchTemplate(name: string, directory: string) {

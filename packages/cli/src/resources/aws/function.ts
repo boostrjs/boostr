@@ -52,7 +52,7 @@ const DEFAULT_IAM_LAMBDA_POLICY_DOCUMENT = {
 };
 
 export type AWSFunctionResourceConfig = AWSBaseResourceConfig & {
-  buildDirectory: string;
+  directory: string;
   environment?: Environment;
   lambda?: {
     runtime?: string;
@@ -78,7 +78,7 @@ export class AWSFunctionResource extends AWSBaseResource {
 
   normalizeConfig(config: AWSFunctionResourceConfig) {
     const {
-      buildDirectory,
+      directory,
       environment = {},
       lambda: {
         runtime = DEFAULT_LAMBDA_RUNTIME,
@@ -90,21 +90,21 @@ export class AWSFunctionResource extends AWSBaseResource {
       ...otherAttributes
     } = config;
 
-    if (!buildDirectory) {
-      this.throwError(`A 'buildDirectory' property is required in the configuration`);
+    if (!directory) {
+      this.throwError(`A 'directory' property is required in the configuration`);
     }
 
     return {
       ...super.normalizeConfig(otherAttributes),
+      directory,
+      environment,
       lambda: {
         runtime,
         executionRole,
         memorySize,
         timeout,
         reservedConcurrentExecutions
-      },
-      buildDirectory,
-      environment
+      }
     };
   }
 
@@ -121,7 +121,7 @@ export class AWSFunctionResource extends AWSBaseResource {
     await this.createOrUpdateAPIGatewayCustomDomainName();
 
     this.logMessage(`Deployment completed`);
-    this.logMessage(`The function should be available at https://${config.domainName}`);
+    this.logMessage(`The service should be available at https://${config.domainName}`);
   }
 
   // === Lambda ===
@@ -374,7 +374,7 @@ export class AWSFunctionResource extends AWSBaseResource {
         const codeDirectory = join(temporaryDirectory, 'code');
         const zipArchiveFile = join(temporaryDirectory, 'archive.zip');
 
-        await fsExtra.copy(config.buildDirectory, codeDirectory);
+        await fsExtra.copy(config.directory, codeDirectory);
 
         await this.resetFileTimes(codeDirectory);
         zip.zipSync(`${codeDirectory}${sep}.`, zipArchiveFile);

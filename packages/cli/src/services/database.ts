@@ -13,6 +13,43 @@ export class DatabaseService extends Subservice {
 
   static help = 'Database help...';
 
+  parseConfigURL() {
+    const directory = this.getDirectory();
+    const config = this.getConfig();
+
+    const {protocol, hostname, port, pathname} = this._parseConfigURL();
+
+    if (config.platform === 'local') {
+      if (protocol !== 'mongodb:') {
+        this.throwError(
+          `The 'url' property in the configuration should start with 'mongodb://' (directory: '${directory}')`
+        );
+      }
+
+      if (hostname !== 'localhost') {
+        this.throwError(
+          `The host of the 'url' property in the configuration should be 'localhost' (directory: '${directory}')`
+        );
+      }
+
+      if (!port) {
+        this.throwError(
+          `The 'url' property in the configuration should specify a port (directory: '${directory}')`
+        );
+      }
+
+      if (pathname.length < 2) {
+        this.throwError(
+          `The 'url' property in the configuration should specify a database name (directory: '${directory}')`
+        );
+      }
+    } else {
+      this.throwError('Non-local database URL cannot be parsed for now');
+    }
+
+    return {protocol, hostname, port, pathname};
+  }
+
   // === Commands ===
 
   static commands = {
@@ -32,51 +69,9 @@ export class DatabaseService extends Subservice {
       return;
     }
 
-    if (!config.url) {
-      this.throwError(
-        `A 'url' property is required in the configuration to start a local database (directory: '${directory}')`
-      );
-    }
-
-    let url: URL;
-
-    try {
-      url = new URL(config.url);
-    } catch {
-      this.throwError(
-        `An error occurred while parsing the 'url' property in the configuration (directory: '${directory}')`
-      );
-    }
-
-    const {protocol, hostname, port: portString, pathname} = url;
-
-    if (protocol !== 'mongodb:') {
-      this.throwError(
-        `The 'url' property in the configuration should start with 'mongodb://' (directory: '${directory}')`
-      );
-    }
-
-    if (hostname !== 'localhost') {
-      this.throwError(
-        `The host of the 'url' property in the configuration should be 'localhost' (directory: '${directory}')`
-      );
-    }
-
-    const port = Number(portString);
-
-    if (!port) {
-      this.throwError(
-        `The 'url' property in the configuration should specify a port (directory: '${directory}')`
-      );
-    }
+    const {port, pathname} = this.parseConfigURL();
 
     const databaseName = pathname.slice(1);
-
-    if (!databaseName) {
-      this.throwError(
-        `The 'url' property in the configuration should specify a database name (directory: '${directory}')`
-      );
-    }
 
     const dataDirectory = join(directory, LOCAL_DATA_DIRECTORY_NAME);
 
