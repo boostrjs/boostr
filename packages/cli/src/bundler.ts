@@ -1,8 +1,9 @@
 import type {build as buildFunction, BuildOptions, BuildResult} from 'esbuild';
 import {join} from 'path';
 import bytes from 'bytes';
+import isEmpty from 'lodash/isEmpty.js';
 
-import {loadNPMPackage, requireGlobalPackage} from './npm.js';
+import {loadNPMPackage, requireGlobalPackage, installNPMPackages} from './npm.js';
 import {logMessage, logError, throwError, resolveVariables, getFileSize} from './util.js';
 
 export async function bundle({
@@ -13,9 +14,12 @@ export async function bundle({
   serviceName,
   stage,
   environment = {},
+  external = [],
+  builtInExternal = [],
   sourceMap = false,
   minify = false,
   freeze = false,
+  installExternalDependencies = false,
   watch = false,
   esbuildOptions
 }: {
@@ -26,9 +30,12 @@ export async function bundle({
   serviceName?: string;
   stage: string;
   environment?: Record<string, string>;
+  external?: string[];
+  builtInExternal?: string[];
   sourceMap?: boolean;
   minify?: boolean;
   freeze?: boolean;
+  installExternalDependencies?: boolean;
   watch?: {afterRebuild?: () => void} | boolean;
   esbuildOptions?: BuildOptions;
 }) {
@@ -82,6 +89,7 @@ export async function bundle({
         : bundleFileNameWithoutExtension,
       assetNames: freeze ? '[name]-[hash].immutable' : '[name]',
       define: definedIdentifers,
+      external: [...external, ...builtInExternal],
       metafile: true,
       loader: {
         '.png': 'file',
@@ -118,6 +126,23 @@ export async function bundle({
     });
   } catch {
     throwError('Build failed', {serviceName});
+  }
+
+  if (installExternalDependencies) {
+    const packages: Record<string, string> = {};
+
+    for (const packageName of external) {
+      const version = pkg.dependencies?.[packageName];
+
+      if (version !== undefined) {
+        packages[packageName] = version;
+      }
+    }
+
+    if (!isEmpty(packages)) {
+      logMessage('Installing external dependencies...', {serviceName});
+      await installNPMPackages(buildDirectory, packages);
+    }
   }
 
   bundleFile = determineBundleFileFromBuildResult(result, {serviceDirectory, serviceName});

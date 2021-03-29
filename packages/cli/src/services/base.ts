@@ -214,6 +214,6 @@ export class BaseService {
   }
 
   async runNPM(args: string[]) {
-    await runNPM({directory: this.getDirectory(), arguments: args});
+    await runNPM(this.getDirectory(), args);
   }
 }

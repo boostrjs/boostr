@@ -28,17 +28,34 @@ export function loadNPMPackage(directory: string) {
   return pkg;
 }
 
-export async function runNPM({
-  directory,
-  arguments: args
-}: {
-  directory: string;
-  arguments: string[];
-}) {
+export async function installNPMPackages(directory: string, packages: Record<string, string>) {
+  const generatedPackageFile = join(directory, 'package.json');
+
+  fsExtra.outputJSONSync(generatedPackageFile, {
+    private: true,
+    dependencies: packages
+  });
+
   try {
-    execFileSync('npm', args, {cwd: directory, stdio: 'inherit'});
-  } catch {
-    console.log();
+    await runNPM(directory, ['install'], {silent: true});
+  } finally {
+    fsExtra.removeSync(generatedPackageFile);
+  }
+}
+
+export async function runNPM(
+  directory: string,
+  args: string[] = [],
+  {silent = false}: {silent?: boolean} = {}
+) {
+  try {
+    execFileSync('npm', args, {cwd: directory, stdio: silent ? 'pipe' : 'inherit'});
+  } catch (error) {
+    if (silent) {
+      console.error(error.stderr.toString());
+    } else {
+      console.log();
+    }
     throwError(`An error occurred while executing npm`);
   }
 }
@@ -50,7 +67,7 @@ export async function runNPMInstallIfThereIsAPackage(directory: string) {
     return;
   }
 
-  await runNPM({directory, arguments: ['install']});
+  await runNPM(directory, ['install']);
 }
 
 export async function runNPMUpdateIfThereIsAPackage(directory: string) {
@@ -60,7 +77,7 @@ export async function runNPMUpdateIfThereIsAPackage(directory: string) {
     return;
   }
 
-  await runNPM({directory, arguments: ['update']});
+  await runNPM(directory, ['update']);
 }
 
 const memoizedCreateRequire = memoize(createRequire);
@@ -92,7 +109,7 @@ export async function requireGlobalPackage(
         }
       });
 
-      await runNPM({directory: packageDirectory, arguments: ['install']});
+      await runNPM(packageDirectory, ['install']);
     } catch (error) {
       fsExtra.removeSync(packageDirectory);
 

@@ -36,7 +36,7 @@ export class BackendService extends Subservice {
     const serviceDirectory = this.getDirectory();
     const serviceName = this.getName();
     const stage = this.getStage();
-    const {environment, platform, build: buildConfig} = this.getConfig();
+    const {environment, platform, build: buildConfig = {}} = this.getConfig();
 
     const buildDirectory = join(serviceDirectory, 'build', stage);
 
@@ -46,13 +46,16 @@ export class BackendService extends Subservice {
 
     let bundleFileNameWithoutExtension: string;
     let bootstrapTemplate: string;
+    let builtInExternal: string[] | undefined;
 
     if (isLocal) {
       bundleFileNameWithoutExtension = 'bundle';
       bootstrapTemplate = BOOTSTRAP_TEMPLATE_LOCAL;
+      builtInExternal = undefined;
     } else if (platform === 'aws') {
       bundleFileNameWithoutExtension = 'handler';
       bootstrapTemplate = BOOTSTRAP_TEMPLATE_AWS_LAMBDA;
+      builtInExternal = ['aws-sdk'];
     } else {
       this.throwError(`Couldn't create a build configuration for the '${platform}' platform`);
     }
@@ -65,8 +68,11 @@ export class BackendService extends Subservice {
       serviceName,
       stage,
       environment,
-      sourceMap: buildConfig?.sourceMap ?? isLocal,
-      minify: buildConfig?.minify ?? !isLocal,
+      external: buildConfig.external,
+      builtInExternal,
+      sourceMap: buildConfig.sourceMap ?? isLocal,
+      minify: buildConfig.minify ?? !isLocal,
+      installExternalDependencies: !isLocal,
       watch,
       esbuildOptions: {
         target: 'node12',
