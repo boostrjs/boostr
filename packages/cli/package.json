@@ -1,6 +1,6 @@
 {
   "name": "boostr",
-  "version": "1.0.402",
+  "version": "1.0.404",
   "description": "Build and deploy your Layr applications",
   "keywords": [
     "layr",
@@ -35,12 +35,12 @@
     "update": "dev-tools update:dependencies"
   },
   "dependencies": {
-    "@layr/aws-integration": "^1.1.12",
-    "@layr/component": "^1.1.11",
-    "@layr/component-http-server": "^1.1.10",
-    "@layr/component-server": "^1.1.10",
-    "@layr/storable": "^1.1.20",
-    "aws-sdk": "^2.874.0",
+    "@layr/aws-integration": "^1.1.14",
+    "@layr/component": "^1.1.12",
+    "@layr/component-http-server": "^1.1.11",
+    "@layr/component-server": "^1.1.11",
+    "@layr/storable": "^1.1.21",
+    "aws-sdk": "^2.875.0",
     "base-x": "^3.0.8",
     "bytes": "^3.1.0",
     "cross-zip": "^4.0.0",
