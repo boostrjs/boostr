@@ -2,6 +2,7 @@ import fsExtra from 'fs-extra';
 import {join} from 'path';
 
 import {Subservice} from './sub.js';
+import type {Command} from '../command.js';
 import {bundle} from '../bundler.js';
 import {ProcessController} from '../processes/index.js';
 import {AWSFunctionResource} from '../resources/aws/function.js';
@@ -22,11 +23,18 @@ export const handler = createAWSLambdaHandlerForComponentServer(async function()
 export class BackendService extends Subservice {
   static type = 'backend';
 
-  static help = 'Backend help...';
+  static description =
+    'A backend service implementing the data model and the business logic of your application.';
+
+  static examples = [
+    'boostr {{serviceName}} start',
+    'boostr {{serviceName}} deploy --production',
+    'boostr {{serviceName}} npm install lodash'
+  ];
 
   // === Commands ===
 
-  static commands = {
+  static commands: Record<string, Command> = {
     ...Subservice.commands
   };
 
@@ -77,7 +85,7 @@ export class BackendService extends Subservice {
       esbuildOptions: {
         target: 'node12',
         platform: 'node',
-        mainFields: ['browser', 'module', 'main']
+        mainFields: ['module', 'main']
       }
     });
 

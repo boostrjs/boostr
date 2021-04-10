@@ -6,6 +6,8 @@ import walkSync from 'walk-sync';
 import kebabCase from 'lodash/kebabCase.js';
 
 import {createApplicationServiceFromDirectory} from './services/index.js';
+import {GLOBAL_OPTIONS_HELP_OBJECT} from './argument-parser.js';
+import {formatHelp} from './help.js';
 import {
   logMessage,
   throwError,
@@ -13,6 +15,28 @@ import {
   directoryIsEmpty,
   withTemporaryDirectory
 } from './util.js';
+
+const INITIALIZE_HELP = formatHelp({
+  'Command': 'initialize',
+
+  'Alias': 'init',
+
+  'Description': 'Initialize your project within the current directory.',
+
+  'Usage': 'boostr initialize --template=<package> [options]',
+
+  'Options': {
+    '--template': 'Specify an npm package name to be used as template.',
+    '--name': 'Specify the name of your project (default: the name of the current directory).'
+  },
+
+  'Examples': [
+    'boostr initialize --template=@boostr/web-application-ts',
+    'boostr init --template=@boostr/web-application-js --name=my-project'
+  ],
+
+  'Global Options': GLOBAL_OPTIONS_HELP_OBJECT
+});
 
 const POPULATABLE_TEMPLATE_FILE_EXTENSIONS = ['.js', '.mjs', '.jsx', '.ts', 'tsx', '.json', '.md'];
 
@@ -22,7 +46,7 @@ export async function initialize(
   {stage, showHelp = false}: {stage: string; showHelp?: boolean}
 ) {
   if (showHelp) {
-    console.log('Initialize help...');
+    console.log(INITIALIZE_HELP);
     return;
   }
 

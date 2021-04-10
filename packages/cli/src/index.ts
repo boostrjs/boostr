@@ -1,10 +1,25 @@
 import {createApplicationServiceFromDirectory} from './services/index.js';
 import {BaseService} from './services/base.js';
 import {initialize} from './initialize.js';
-import {parseRawArguments, pullGlobalOptions} from './argument-parser.js';
+import {
+  parseRawArguments,
+  pullGlobalOptions,
+  GLOBAL_OPTIONS_HELP_OBJECT
+} from './argument-parser.js';
+import {formatHelp} from './help.js';
 import {programVersion, throwError} from './util.js';
 
 const DEFAULT_STAGE = 'development';
+
+const CONFIG_NOT_FOUND_HELP = `
+Couldn't find a configuration file.
+${formatHelp({
+  'Run the following command to initialize your project': 'boostr initialize --template=<package>',
+
+  'Find out more about the `initialize` command by running': 'boostr initialize --help',
+
+  'Options': GLOBAL_OPTIONS_HELP_OBJECT
+})}`;
 
 export async function runCLI(
   rawArguments: string[],
@@ -39,9 +54,9 @@ export async function runCLI(
 
   if (commandName === undefined) {
     if (currentService !== undefined) {
-      console.log(currentService.constructor.help);
+      console.log(currentService.generateHelp());
     } else {
-      console.log('General help...');
+      console.log(CONFIG_NOT_FOUND_HELP);
     }
     return;
   }

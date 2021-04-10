@@ -3,6 +3,7 @@ import {join} from 'path';
 import fsExtra from 'fs-extra';
 
 import {Subservice} from './sub.js';
+import type {Command} from '../command.js';
 import {BackendService} from './backend.js';
 import {requireGlobalPackage} from '../npm.js';
 
@@ -11,7 +12,13 @@ const LOCAL_DATA_DIRECTORY_NAME = 'data';
 export class DatabaseService extends Subservice {
   static type = 'database';
 
-  static help = 'Database help...';
+  static description = 'A database service providing some storage capability to your application.';
+
+  static examples = [
+    'boostr {{serviceName}} start',
+    'boostr {{serviceName}} migrate',
+    'boostr {{serviceName}} migrate --production'
+  ];
 
   parseConfigURL() {
     const directory = this.getDirectory();
@@ -52,8 +59,17 @@ export class DatabaseService extends Subservice {
 
   // === Commands ===
 
-  static commands = {
-    ...Subservice.commands
+  static commands: Record<string, Command> = {
+    ...Subservice.commands,
+
+    migrate: {
+      ...Subservice.commands.migrate,
+      description: 'Migrate the current database.',
+      examples: ['boostr {{serviceName}} migrate'],
+      async handler(this: DatabaseService) {
+        await this.migrate();
+      }
+    }
   };
 
   _localServer?: MongoMemoryServer;

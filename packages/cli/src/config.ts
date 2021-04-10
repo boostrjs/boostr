@@ -13,7 +13,7 @@ const BLACK_HOLE: any = new Proxy(Object.create(null), {
 
 export async function loadApplicationConfig(directory: string, {stage}: {stage: string}) {
   while (true) {
-    const config = await loadConfig(directory, {stage});
+    const config = await loadConfig(directory, {applicationConfig: BLACK_HOLE, stage});
 
     if (config !== undefined && config.type === 'application') {
       await _preloadServiceConfigs(config, {stage});

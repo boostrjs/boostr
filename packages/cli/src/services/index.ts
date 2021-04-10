@@ -1,4 +1,3 @@
-import type {Subservice} from './sub.js';
 import {ApplicationService} from './application.js';
 import {BackendService} from './backend.js';
 import {DatabaseService} from './database.js';
@@ -51,11 +50,7 @@ function createApplicationService({config, stage}: {config: any; stage: string})
   return new ApplicationService({directory, config, stage});
 }
 
-const subserviceClasses: typeof Subservice[] = [
-  WebFrontendService,
-  BackendService,
-  DatabaseService
-];
+const subserviceClasses = [WebFrontendService, BackendService, DatabaseService];
 
 function createSubservice({config, stage, name}: {config: any; stage: string; name: string}) {
   const {type, __directory: directory} = config as {type: string; __directory: string};

@@ -1,10 +1,11 @@
 import {BaseService, BaseServiceAttributes} from './base.js';
+import type {Command} from '../command.js';
 import type {ApplicationService} from './application.js';
 import {logMessage, logError, throwError} from '../util.js';
 
 export type SubserviceAttributes = BaseServiceAttributes & {name: string};
 
-export class Subservice extends BaseService {
+export abstract class Subservice extends BaseService {
   static isRoot = false;
 
   constructor({name, ...otherAttributes}: SubserviceAttributes) {
@@ -143,8 +144,57 @@ export class Subservice extends BaseService {
 
   // === Commands ===
 
-  static commands = {
-    ...BaseService.commands
+  static commands: Record<string, Command> = {
+    ...BaseService.commands,
+
+    install: {
+      ...BaseService.commands.install,
+      description: 'Install all the npm dependencies of the current service.',
+      examples: ['boostr {{serviceName}} install']
+    },
+
+    update: {
+      ...BaseService.commands.update,
+      description: 'Update all the npm dependencies of the current service.',
+      examples: ['boostr {{serviceName}} update']
+    },
+
+    build: {
+      ...BaseService.commands.build,
+      examples: ['boostr {{serviceName}} build']
+    },
+
+    start: {
+      ...BaseService.commands.start,
+      description:
+        'Start the current service (and the services it depends on) in development mode.',
+      examples: ['boostr {{serviceName}} start']
+    },
+
+    deploy: {
+      ...BaseService.commands.deploy,
+      description:
+        'Deploy the current service (and the services it depends on) to a specific stage.',
+      examples: [
+        'boostr {{serviceName}} deploy --production',
+        'boostr {{serviceName}} deploy --staging --skip=legacyBackend'
+      ]
+    },
+
+    config: {
+      ...BaseService.commands.config,
+      description: 'Show the configuration of the current service.',
+      examples: ['boostr {{serviceName}} config']
+    },
+
+    npm: {
+      ...BaseService.commands.npm,
+      description: 'Run an npm command in the directory of the current service.',
+      examples: [
+        'boostr {{serviceName}} npm install lodash',
+        'boostr {{serviceName}} npm rm underscore'
+      ]
+    }
   };
 
   async start() {

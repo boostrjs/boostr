@@ -4,6 +4,7 @@ import walkSync from 'walk-sync';
 import escape from 'lodash/escape.js';
 
 import {Subservice} from './sub.js';
+import type {Command} from '../command.js';
 import {bundle} from '../bundler.js';
 import {SinglePageApplicationServer} from '../spa-server.js';
 import {AWSWebsiteResource} from '../resources/aws/website.js';
@@ -30,7 +31,7 @@ const HTML_TEMPLATE = `<!DOCTYPE html>
 const BOOTSTRAP_TEMPLATE = `
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {useBrowserRouter} from '@layr/react-integration';
+import {RootView, useBrowserRouter} from '@layr/react-integration';
 
 import componentGetter from '{{entryPoint}}';
 
@@ -40,7 +41,7 @@ async function main() {
   try {
     const Component = await componentGetter();
 
-    const RootView = () => {
+    const RouterView = () => {
       const [router, isReady] = useBrowserRouter(Component);
 
       if (!isReady) {
@@ -54,7 +55,7 @@ async function main() {
       return content;
     }
 
-    content = React.createElement(RootView);
+    content = React.createElement(RootView, undefined, React.createElement(RouterView));
   } catch (err) {
     console.error(err);
 
@@ -99,7 +100,13 @@ const IMMUTABLE_EXTENSION = '.immutable';
 export class WebFrontendService extends Subservice {
   static type = 'web-frontend';
 
-  static help = 'Web frontend help...';
+  static description = 'A web frontend service providing a user interface for your application.';
+
+  static examples = [
+    'boostr {{serviceName}} deploy --skip=backend',
+    'boostr {{serviceName}} freeze',
+    'boostr {{serviceName}} npm install lodash'
+  ];
 
   getBuildDirectory() {
     const serviceDirectory = this.getDirectory();
@@ -110,14 +117,16 @@ export class WebFrontendService extends Subservice {
 
   // === Commands ===
 
-  static commands = {
+  static commands: Record<string, Command> = {
     ...Subservice.commands,
 
     freeze: {
+      ...Subservice.commands.freeze,
+      description: 'Freeze all the files that are present in the public directory.',
+      examples: ['boostr {{serviceName}} freeze'],
       async handler(this: WebFrontendService) {
         await this.freeze();
-      },
-      help: 'Freeze help...'
+      }
     }
   };
 

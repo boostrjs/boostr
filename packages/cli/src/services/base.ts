@@ -1,7 +1,14 @@
-import {Command, getCommandOptions} from '../command.js';
+import isEmpty from 'lodash/isEmpty.js';
+
+import {Command, getCommandOptions, formatCommandOptionName} from '../command.js';
 import {runNPMInstallIfThereIsAPackage, runNPMUpdateIfThereIsAPackage} from '../npm.js';
-import {parseRawArguments, pullGlobalOptions} from '../argument-parser.js';
+import {
+  parseRawArguments,
+  pullGlobalOptions,
+  GLOBAL_OPTIONS_HELP_OBJECT
+} from '../argument-parser.js';
 import {runNPM} from '../npm.js';
+import {formatHelp, Sections} from '../help.js';
 import {logMessage, logError, throwError} from '../util.js';
 
 export type BaseServiceAttributes = {
@@ -10,12 +17,14 @@ export type BaseServiceAttributes = {
   stage: string;
 };
 
-export class BaseService {
+export abstract class BaseService {
   ['constructor']!: typeof BaseService;
 
   static type: string;
 
-  static help: string;
+  static description: string;
+
+  static examples: string[];
 
   static isRoot: boolean;
 
@@ -43,6 +52,47 @@ export class BaseService {
     return this._stage;
   }
 
+  abstract getName(): string;
+
+  // === Help ===
+
+  generateHelp() {
+    const sections: Sections = {};
+
+    sections['Service'] = `${this.getName()} (${this.constructor.type})`;
+
+    sections['Description'] = this.constructor.description;
+
+    sections['Usage'] = `boostr ${
+      this.constructor.isRoot ? '[<service>]' : this.getName()
+    } <command> [options]`;
+
+    sections['Commands'] = {};
+
+    for (const [name, {aliases = [], description}] of Object.entries(this.constructor.commands)) {
+      if (description !== undefined) {
+        const nameWithAliases = [name, ...aliases].join(', ');
+        sections['Commands'][nameWithAliases] = description;
+      }
+    }
+
+    sections['Global Options'] = GLOBAL_OPTIONS_HELP_OBJECT;
+
+    if (this.constructor.examples?.length > 0) {
+      sections['Examples'] = this.constructor.examples;
+    }
+
+    sections['Learn more about a specific command'] = `boostr${
+      !this.constructor.isRoot ? ' ' + this.getName() : ''
+    } <command> --help`;
+
+    if (this.constructor.isRoot) {
+      sections['Learn more about a specific service'] = `boostr <service> --help`;
+    }
+
+    return formatHelp(sections, {variables: {serviceName: this.getName()}});
+  }
+
   // === Utilities ===
 
   logMessage(message: string) {
@@ -63,98 +113,98 @@ export class BaseService {
     install: {
       async handler(this: BaseService) {
         await this.install();
-      },
-      help: 'Install help...'
+      }
     },
 
     update: {
       async handler(this: BaseService) {
         await this.update();
-      },
-      help: 'Update help...'
+      }
     },
 
     build: {
+      description: 'Build runnable artifacts from your source code.',
       async handler(this: BaseService) {
         await this.build();
-      },
-      help: 'Build help...'
+      }
     },
+
+    freeze: {},
 
     start: {
       async handler(this: BaseService) {
         await this.start();
-      },
-      help: 'Start help...'
+      }
     },
 
-    migrate: {
-      async handler(this: BaseService) {
-        await this.migrate();
-      },
-      help: 'Migrate help...'
-    },
+    migrate: {},
 
     deploy: {
       options: {
         skip: {
-          type: 'string[]'
+          type: 'string[]',
+          description: 'Skip a specific service when deploying.'
         }
       },
       async handler(this: BaseService, [], {skip: skipServiceNames = []}: {skip?: string[]}) {
         await this.deploy({skipServiceNames});
-      },
-      help: 'Deploy help...'
+      }
     },
 
     config: {
       async handler(this: BaseService) {
         await this.showConfig();
-      },
-      help: 'Config help...'
+      }
     },
 
     npm: {
       useRawArguments: true,
       async handler(this: BaseService, args) {
         await this.runNPM(args);
-      },
-      help: 'NPM help...'
+      }
     }
   };
 
-  getCommand(name: string) {
-    for (const [commandName, command] of Object.entries(this.constructor.commands)) {
-      if (commandName === name || command.aliases?.includes(name)) {
-        return command;
+  getCommand(nameOrAlias: string) {
+    for (const [name, command] of Object.entries(this.constructor.commands)) {
+      if (
+        (name === nameOrAlias || command.aliases?.includes(nameOrAlias)) &&
+        command.handler !== undefined &&
+        command.description !== undefined
+      ) {
+        return {
+          ...command,
+          name,
+          handler: command.handler,
+          description: command.description
+        };
       }
     }
 
     if (this.constructor.isRoot) {
-      this.throwError(`The specified service or command is unknown: ${name}`);
+      this.throwError(`The specified service or command is unknown: ${nameOrAlias}`);
     } else {
-      this.throwError(`The specified command is unknown: ${name}`);
+      this.throwError(`The specified command is unknown: ${nameOrAlias}`);
     }
   }
 
   async runCommand(
-    name: string,
+    nameOrAlias: string,
     rawArguments: string[],
     {showHelp = false}: {showHelp?: boolean} = {}
   ) {
+    if (showHelp) {
+      console.log(this.generateCommandHelp(nameOrAlias));
+      return;
+    }
+
     const {
       minimumArguments = 0,
       maximumArguments = 0,
       useRawArguments = false,
       options: availableCommandOptions = {},
-      handler: commandHandler,
-      help: commandHelp
-    } = this.getCommand(name);
-
-    if (showHelp) {
-      console.log(commandHelp);
-      return;
-    }
+      handler: commandHandler
+    } = this.getCommand(nameOrAlias);
 
     let commandArguments: string[];
     let commandOptions: Record<string, any>;
@@ -181,6 +231,49 @@ export class BaseService {
     await commandHandler.call(this, commandArguments, commandOptions);
   }
 
+  generateCommandHelp(nameOrAlias: string) {
+    const {name, aliases = [], description, options = {}, examples = []} = this.getCommand(
+      nameOrAlias
+    );
+
+    const sections: Sections = {};
+
+    sections['Command'] = name;
+
+    if (aliases.length > 0) {
+      sections[aliases.length === 1 ? 'Alias' : 'Aliases'] = aliases.join(', ');
+    }
+
+    sections['Description'] = description;
+
+    sections['Usage'] = `boostr ${
+      this.constructor.isRoot ? '[<service>]' : this.getName()
+    } ${nameOrAlias} [options]`;
+
+    const optionsHelp: Record<string, string> = {};
+
+    for (const [name, {aliases = [], description}] of Object.entries(options)) {
+      if (description !== undefined) {
+        const formattedNameWithAliases = [name, ...aliases]
+          .map((name) => formatCommandOptionName(name))
+          .join(', ');
+        optionsHelp[formattedNameWithAliases] = description;
+      }
+    }
+
+    if (!isEmpty(optionsHelp)) {
+      sections['Command Options'] = optionsHelp;
+    }
+
+    sections['Global Options'] = GLOBAL_OPTIONS_HELP_OBJECT;
+
+    if (examples.length > 0) {
+      sections[examples.length === 1 ? 'Example' : 'Examples'] = examples;
+    }
+
+    return formatHelp(sections, {variables: {serviceName: this.getName()}});
+  }
+
   async install() {
     await runNPMInstallIfThereIsAPackage(this.getDirectory());
   }
@@ -196,8 +289,6 @@ export class BaseService {
   async start() {
     this._hasBeenStarted = true;
   }
-
-  async migrate() {}
 
   _hasBeenDeployed = false;
 

@@ -2,6 +2,8 @@ import {throwError} from './util.js';
 
 export type Command = {
   aliases?: string[];
+  description?: string;
+  examples?: string[];
   minimumArguments?: number;
   maximumArguments?: number;
   useRawArguments?: boolean;
@@ -10,10 +12,10 @@ export type Command = {
     {
       type?: string;
       aliases?: string[];
+      description?: string;
     }
   >;
-  handler: (commandArguments: string[], commandOptions: Record<string, any>) => Promise<void>;
-  help: string;
+  handler?: (commandArguments: string[], commandOptions: Record<string, any>) => Promise<void>;
 };
 
 export function getCommandOptions(
@@ -25,7 +27,7 @@ export function getCommandOptions(
   for (let [parsedName, value] of Object.entries(parsedOptions)) {
     let actualName: string | undefined;
 
-    const formattedName = parsedName.length === 1 ? `-${parsedName}` : `--${parsedName}`;
+    const formattedName = formatCommandOptionName(parsedName);
 
     for (const [name, {type, aliases = []}] of Object.entries(availableCommandOptions)) {
       if (parsedName === name || aliases.includes(parsedName)) {
@@ -59,4 +61,8 @@ export function getCommandOptions(
   }
 
   return commandOptions;
+}
+
+export function formatCommandOptionName(name: string) {
+  return name.length === 1 ? `-${name}` : `--${name}`;
 }

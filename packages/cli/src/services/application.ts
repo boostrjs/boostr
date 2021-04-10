@@ -1,12 +1,21 @@
 import {BaseService} from './base.js';
 import type {Subservice} from './sub.js';
+import type {Command} from '../command.js';
+import {DatabaseService} from './database.js';
 
 export class ApplicationService extends BaseService {
   static type = 'application';
 
-  static help = 'Application help...';
+  static description =
+    'The root of your application, which is composed of different services. A typical application is composed of a frontend, a backend, and a database.';
+
+  static examples = ['boostr start', 'boostr deploy --production', 'boostr database migrate'];
 
   static isRoot = true;
+
+  getName() {
+    return 'root';
+  }
 
   _services: Subservice[] = [];
 
@@ -45,8 +54,65 @@ export class ApplicationService extends BaseService {
 
   // === Commands ===
 
-  static commands = {
-    ...BaseService.commands
+  static commands: Record<string, Command> = {
+    ...BaseService.commands,
+
+    // TODO: Rewrite all descriptions to take into account the case of a service is specified
+
+    install: {
+      ...BaseService.commands.install,
+      description: 'Install all the npm dependencies.',
+      examples: ['boostr install', 'boostr frontend install']
+    },
+
+    update: {
+      ...BaseService.commands.update,
+      description: 'Update all the npm dependencies.',
+      examples: ['boostr update', 'boostr frontend update']
+    },
+
+    build: {
+      ...BaseService.commands.build,
+      examples: ['boostr build', 'boostr frontend build']
+    },
+
+    start: {
+      ...BaseService.commands.start,
+      description: 'Start your application (or a subset of services) in development mode.',
+      examples: ['boostr start', 'boostr backend start']
+    },
+
+    migrate: {
+      ...BaseService.commands.migrate,
+      description: 'Migrate one or more databases.',
+      async handler(this: ApplicationService) {
+        await this.migrate();
+      },
+      examples: ['boostr migrate', 'boostr database migrate']
+    },
+
+    deploy: {
+      ...BaseService.commands.deploy,
+      description: 'Deploy your application (or a subset of services) to a specific stage.',
+      examples: [
+        'boostr deploy --production',
+        'boostr deploy --staging --skip=legacyBackend',
+        'boostr frontend deploy --production'
+      ]
+    },
+
+    config: {
+      ...BaseService.commands.config,
+      description: 'Show the root (or a specified service) configuration.',
+      examples: ['boostr config', 'boostr frontend config']
+    },
+
+    npm: {
+      ...BaseService.commands.npm,
+      description:
+        'Run npm in the root directory of your application (or in the directory of a service).',
+      examples: ['boostr npm install eslint --save-dev', 'boostr backend npm install lodash']
+    }
   };
 
   async install() {
@@ -82,10 +148,10 @@ export class ApplicationService extends BaseService {
   }
 
   async migrate() {
-    await super.migrate();
-
     for (const service of this.getServices()) {
-      await service.migrate();
+      if (service instanceof DatabaseService) {
+        await service.migrate();
+      }
     }
   }
 

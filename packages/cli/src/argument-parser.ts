@@ -2,6 +2,15 @@ import mri from 'mri';
 
 import {throwError} from './util.js';
 
+export const GLOBAL_OPTIONS_HELP_OBJECT = {
+  '--stage': "Select a stage (default: 'development').",
+  '--development': 'A shorthand for `--stage=development`.',
+  '--staging': 'A shorthand for `--stage=staging`.',
+  '--production': 'A shorthand for `--stage=production`.',
+  '--version, -v': 'Show the current version.',
+  '--help, -h': 'Show this screen.'
+};
+
 const BUILT_IN_STAGES = ['development', 'staging', 'production'];
 
 export function parseRawArguments(rawArguments: string[]) {
