@@ -13,8 +13,8 @@ import {resolveVariables, generateHashFromFile} from '../util.js';
 const HTML_TEMPLATE = `<!DOCTYPE html>
 <html lang="{{language}}">
   <head>
-    <title>{{headTitle}}</title>
     {{headMetas}}
+    <title>{{headTitle}}</title>
     {{headLinks}}
     {{headStyle}}
     {{headScripts}}
