@@ -48,11 +48,7 @@ async function main() {
         return null;
       }
 
-      const content = router.callCurrentRoute({
-        fallback: () => 'Route not found'
-      });
-
-      return content;
+      return router.callCurrentRoute();
     }
 
     content = React.createElement(RootView, undefined, React.createElement(RouterView));
