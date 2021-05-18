@@ -31,6 +31,7 @@ const HTML_TEMPLATE = `<!DOCTYPE html>
 const BOOTSTRAP_TEMPLATE = `
 import React from 'react';
 import ReactDOM from 'react-dom';
+import {callRouteByURL} from '@layr/routable';
 import {RootView, useBrowserRouter} from '@layr/react-integration';
 
 import componentGetter from '{{entryPoint}}';
@@ -48,7 +49,7 @@ async function main() {
         return null;
       }
 
-      return router.callCurrentRoute();
+      return callRouteByURL(Component, router.getCurrentURL());
     }
 
     content = React.createElement(RootView, undefined, React.createElement(RouterView));
@@ -160,7 +161,8 @@ export class WebFrontendService extends Subservice {
       esbuildOptions: {
         target: 'es2017',
         platform: 'browser',
-        mainFields: ['browser', 'module', 'main']
+        mainFields: ['browser', 'module', 'main'],
+        publicPath: '/'
       }
     });
 

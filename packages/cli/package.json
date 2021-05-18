@@ -1,6 +1,6 @@
 {
   "name": "boostr",
-  "version": "1.0.533",
+  "version": "1.0.544",
   "description": "Build and deploy your Layr applications",
   "keywords": [
     "layr",
@@ -35,12 +35,12 @@
     "update": "dev-tools update:dependencies"
   },
   "dependencies": {
-    "@layr/aws-integration": "^1.1.14",
-    "@layr/component": "^1.1.12",
-    "@layr/component-http-server": "^1.1.11",
-    "@layr/component-server": "^1.1.11",
-    "@layr/storable": "^1.1.21",
-    "aws-sdk": "^2.897.0",
+    "@layr/aws-integration": "^2.0.3",
+    "@layr/component": "^1.1.14",
+    "@layr/component-http-server": "^2.0.5",
+    "@layr/component-server": "^2.0.6",
+    "@layr/storable": "^1.1.24",
+    "aws-sdk": "^2.908.0",
     "base-x": "^3.0.8",
     "bytes": "^3.1.0",
     "cross-zip": "^4.0.0",
@@ -68,14 +68,14 @@
     "@types/fs-extra": "^9.0.11",
     "@types/koa": "^2.13.1",
     "@types/koa-send": "^4.1.2",
-    "@types/lodash": "^4.14.168",
+    "@types/lodash": "^4.14.169",
     "@types/mime": "^2.0.3",
     "@types/mri": "^1.1.0",
-    "@types/node": "^14.14.43",
+    "@types/node": "^14.14.45",
     "@types/tar": "^4.0.4",
     "@types/wrap-ansi": "^3.0.0",
-    "@types/ws": "^7.4.2",
-    "esbuild": "^0.9.7",
+    "@types/ws": "^7.4.4",
+    "esbuild": "^0.11.23",
     "mongodb-memory-server-global": "^6.9.6"
   }
 }

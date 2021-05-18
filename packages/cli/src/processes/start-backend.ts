@@ -15,6 +15,7 @@ async function main() {
 
   const componentGetter = require(componentGetterFile).default;
   const component = (await componentGetter()) as typeof Component;
+
   const server = new ComponentServer(component);
   const httpServer = new ComponentHTTPServer(server, {port: Number(portString)});
   await httpServer.start();

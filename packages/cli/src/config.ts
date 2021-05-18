@@ -8,8 +8,12 @@ const CONFIG_FILE_NAME = 'boostr.config.mjs';
 const PRIVATE_CONFIG_FILE_NAME = 'boostr.config.private.mjs';
 
 const BLACK_HOLE: any = new Proxy(Object.create(null), {
-  get: () => BLACK_HOLE
+  get: (_, key) => (key === Symbol.toPrimitive ? unresolvedToPrimitive : BLACK_HOLE)
 });
+
+function unresolvedToPrimitive() {
+  return '<UNRESOLVED>';
+}
 
 export async function loadApplicationConfig(directory: string, {stage}: {stage: string}) {
   while (true) {
