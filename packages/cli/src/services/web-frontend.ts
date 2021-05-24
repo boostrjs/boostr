@@ -5,6 +5,7 @@ import escape from 'lodash/escape.js';
 
 import {Subservice} from './sub.js';
 import type {Command} from '../command.js';
+import {check} from '../checker.js';
 import {bundle} from '../bundler.js';
 import {SinglePageApplicationServer} from '../spa-server.js';
 import {AWSWebsiteResource} from '../resources/aws/website.js';
@@ -127,6 +128,15 @@ export class WebFrontendService extends Subservice {
     }
   };
 
+  async check() {
+    await super.check();
+
+    const serviceDirectory = this.getDirectory();
+    const serviceName = this.getName();
+
+    await check({serviceDirectory, serviceName});
+  }
+
   async build({watch = false}: {watch?: {afterRebuild?: () => void} | boolean} = {}) {
     await super.build();
 
@@ -209,6 +219,8 @@ export class WebFrontendService extends Subservice {
     if (skipServiceNames.includes(serviceName)) {
       return;
     }
+
+    await this.check();
 
     const config = this.getConfig();
 

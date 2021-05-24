@@ -5,7 +5,7 @@ import fsExtra from 'fs-extra';
 import {Subservice} from './sub.js';
 import type {Command} from '../command.js';
 import {BackendService} from './backend.js';
-import {requireGlobalPackage} from '../npm.js';
+import {requireGlobalNPMPackage} from '../npm.js';
 
 const LOCAL_DATA_DIRECTORY_NAME = 'data';
 
@@ -93,7 +93,7 @@ export class DatabaseService extends Subservice {
 
     fsExtra.ensureDirSync(dataDirectory);
 
-    const {MongoMemoryServer} = await requireGlobalPackage(
+    const {MongoMemoryServer} = await requireGlobalNPMPackage(
       'mongodb-memory-server-global',
       '6.9.6',
       {serviceName}

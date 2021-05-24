@@ -159,6 +159,11 @@ export abstract class Subservice extends BaseService {
       examples: ['boostr {{serviceName}} update']
     },
 
+    check: {
+      ...BaseService.commands.check,
+      examples: ['boostr {{serviceName}} check']
+    },
+
     build: {
       ...BaseService.commands.build,
       examples: ['boostr {{serviceName}} build']

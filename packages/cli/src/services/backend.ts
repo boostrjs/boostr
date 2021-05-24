@@ -3,6 +3,7 @@ import {join} from 'path';
 
 import {Subservice} from './sub.js';
 import type {Command} from '../command.js';
+import {check} from '../checker.js';
 import {bundle} from '../bundler.js';
 import {ProcessController} from '../processes/index.js';
 import {AWSFunctionResource} from '../resources/aws/function.js';
@@ -38,6 +39,15 @@ export class BackendService extends Subservice {
     ...Subservice.commands
   };
 
+  async check() {
+    await super.check();
+
+    const serviceDirectory = this.getDirectory();
+    const serviceName = this.getName();
+
+    await check({serviceDirectory, serviceName});
+  }
+
   async build({watch = false}: {watch?: {afterRebuild?: () => void} | boolean} = {}) {
     await super.build();
 
@@ -68,6 +78,11 @@ export class BackendService extends Subservice {
       this.throwError(`Couldn't create a build configuration for the '${platform}' platform`);
     }
 
+    const external: string[] = buildConfig.external ?? [];
+
+    // Always mark 'mongodb-client-encryption' as external to avoid an esbuild error
+    external.push('mongodb-client-encryption');
+
     const bundleFile = await bundle({
       serviceDirectory,
       buildDirectory,
@@ -76,7 +91,7 @@ export class BackendService extends Subservice {
       serviceName,
       stage,
       environment,
-      external: buildConfig.external,
+      external,
       builtInExternal,
       sourceMap: buildConfig.sourceMap ?? isLocal,
       minify: buildConfig.minify ?? !isLocal,
@@ -148,6 +163,8 @@ export class BackendService extends Subservice {
     if (skipServiceNames.includes(serviceName)) {
       return;
     }
+
+    await this.check();
 
     const config = this.getConfig();
 

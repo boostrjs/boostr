@@ -71,6 +71,11 @@ export class ApplicationService extends BaseService {
       examples: ['boostr update', 'boostr frontend update']
     },
 
+    check: {
+      ...BaseService.commands.check,
+      examples: ['boostr check', 'boostr frontend check']
+    },
+
     build: {
       ...BaseService.commands.build,
       examples: ['boostr build', 'boostr frontend build']
@@ -128,6 +133,14 @@ export class ApplicationService extends BaseService {
 
     for (const service of this.getServices()) {
       await service.update();
+    }
+  }
+
+  async check() {
+    await super.check();
+
+    for (const service of this.getServices()) {
+      await service.check();
     }
   }
 

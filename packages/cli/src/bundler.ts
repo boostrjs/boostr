@@ -3,7 +3,7 @@ import {join} from 'path';
 import bytes from 'bytes';
 import isEmpty from 'lodash/isEmpty.js';
 
-import {loadNPMPackage, requireGlobalPackage, installNPMPackages} from './npm.js';
+import {loadNPMPackage, requireGlobalNPMPackage, installNPMPackages} from './npm.js';
 import {logMessage, logError, throwError, resolveVariables, getFileSize} from './util.js';
 
 export async function bundle({
@@ -66,9 +66,13 @@ export async function bundle({
     definedIdentifers[`process.env.${name}`] = `"${value}"`;
   }
 
-  const {build}: {build: typeof buildFunction} = await requireGlobalPackage('esbuild', '0.9.6', {
-    serviceName
-  });
+  const {build}: {build: typeof buildFunction} = await requireGlobalNPMPackage(
+    'esbuild',
+    '0.12.1',
+    {
+      serviceName
+    }
+  );
 
   let bundleFile: string;
   let result: BuildResult;

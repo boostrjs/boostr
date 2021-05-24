@@ -122,6 +122,13 @@ export abstract class BaseService {
       }
     },
 
+    check: {
+      description: 'Check your TypeScript code.',
+      async handler(this: BaseService) {
+        await this.check();
+      }
+    },
+
     build: {
       description: 'Build runnable artifacts from your source code.',
       async handler(this: BaseService) {
@@ -281,6 +288,8 @@ export abstract class BaseService {
   async update() {
     await runNPMUpdateIfThereIsAPackage(this.getDirectory());
   }
+
+  async check(..._: any[]): Promise<any> {}
 
   async build(..._: any[]): Promise<any> {}
 
