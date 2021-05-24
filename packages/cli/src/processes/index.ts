@@ -73,12 +73,20 @@ export class ProcessController {
       }
     };
 
+    const rootProcessExitHandler = (code: number) => {
+      if (code !== 0) {
+        this._childProcess?.kill();
+      }
+    };
+
     const exitHandler = (code: number | null) => {
       stdout.close();
       stderr.close();
       this._childProcess?.off('message', messageHandler);
       this._childProcess?.off('exit', exitHandler);
       this._childProcess = undefined;
+
+      process.off('exit', rootProcessExitHandler);
 
       if (onExited !== undefined) {
         const _onExited = onExited;
@@ -97,6 +105,8 @@ export class ProcessController {
 
     this._childProcess.on('message', messageHandler);
     this._childProcess.on('exit', exitHandler);
+
+    process.on('exit', rootProcessExitHandler);
   }
 
   restart() {
