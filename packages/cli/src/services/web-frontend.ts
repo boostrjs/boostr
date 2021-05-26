@@ -32,8 +32,7 @@ const HTML_TEMPLATE = `<!DOCTYPE html>
 const BOOTSTRAP_TEMPLATE = `
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {callRouteByURL} from '@layr/routable';
-import {RootView, useBrowserNavigator} from '@layr/react-integration';
+import {BrowserRootView, BrowserNavigatorView} from '@layr/react-integration';
 
 import componentGetter from '{{entryPoint}}';
 
@@ -41,19 +40,13 @@ async function main() {
   let content;
 
   try {
-    const Component = await componentGetter();
+    const rootComponent = await componentGetter();
 
-    const NavigatorView = () => {
-      const [navigator, isReady] = useBrowserNavigator(Component);
-
-      if (!isReady) {
-        return null;
-      }
-
-      return callRouteByURL(Component, navigator.getCurrentURL());
-    }
-
-    content = React.createElement(RootView, undefined, React.createElement(NavigatorView));
+    content = React.createElement(
+      BrowserRootView,
+      undefined,
+      React.createElement(BrowserNavigatorView, {rootComponent})
+    );
   } catch (err) {
     console.error(err);
 
