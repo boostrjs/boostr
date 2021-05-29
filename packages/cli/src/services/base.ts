@@ -96,15 +96,15 @@ export abstract class BaseService {
   // === Utilities ===
 
   logMessage(message: string) {
-    logMessage(message);
+    logMessage(message, {serviceName: this.getName()});
   }
 
   logError(message: string) {
-    logError(message);
+    logError(message, {serviceName: this.getName()});
   }
 
   throwError(message: string): never {
-    throwError(message);
+    throwError(message, {serviceName: this.getName()});
   }
 
   // === Commands ===
@@ -282,11 +282,11 @@ export abstract class BaseService {
   }
 
   async install() {
-    await runNPMInstallIfThereIsAPackage(this.getDirectory());
+    await runNPMInstallIfThereIsAPackage(this.getDirectory(), {serviceName: this.getName()});
   }
 
   async update() {
-    await runNPMUpdateIfThereIsAPackage(this.getDirectory());
+    await runNPMUpdateIfThereIsAPackage(this.getDirectory(), {serviceName: this.getName()});
   }
 
   async check(..._: any[]): Promise<any> {}

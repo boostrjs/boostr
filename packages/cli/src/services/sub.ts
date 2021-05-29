@@ -1,7 +1,6 @@
 import {BaseService, BaseServiceAttributes} from './base.js';
 import type {Command} from '../command.js';
 import type {ApplicationService} from './application.js';
-import {logMessage, logError, throwError} from '../util.js';
 
 export type SubserviceAttributes = BaseServiceAttributes & {name: string};
 
@@ -126,20 +125,6 @@ export abstract class Subservice extends BaseService {
     const port = Number(portString);
 
     return {protocol, hostname, port, pathname};
-  }
-
-  // === Utilities ===
-
-  logMessage(message: string) {
-    logMessage(message, {serviceName: this.getName()});
-  }
-
-  logError(message: string) {
-    logError(message, {serviceName: this.getName()});
-  }
-
-  throwError(message: string): never {
-    throwError(message, {serviceName: this.getName()});
   }
 
   // === Commands ===

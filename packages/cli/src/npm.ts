@@ -60,22 +60,32 @@ export async function runNPM(
   }
 }
 
-export async function runNPMInstallIfThereIsAPackage(directory: string) {
+export async function runNPMInstallIfThereIsAPackage(
+  directory: string,
+  {serviceName}: {serviceName?: string} = {}
+) {
   const packageFile = join(directory, 'package.json');
 
   if (!existsSync(packageFile)) {
     return;
   }
+
+  logMessage('Installing npm dependencies...', {serviceName});
 
   await runNPM(directory, ['install']);
 }
 
-export async function runNPMUpdateIfThereIsAPackage(directory: string) {
+export async function runNPMUpdateIfThereIsAPackage(
+  directory: string,
+  {serviceName}: {serviceName?: string} = {}
+) {
   const packageFile = join(directory, 'package.json');
 
   if (!existsSync(packageFile)) {
     return;
   }
+
+  logMessage('Updating npm dependencies...', {serviceName});
 
   await runNPM(directory, ['update']);
 }
