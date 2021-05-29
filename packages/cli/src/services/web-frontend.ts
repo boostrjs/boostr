@@ -42,6 +42,8 @@ async function main() {
   try {
     const rootComponent = await componentGetter();
 
+    await rootComponent.initialize();
+
     content = React.createElement(
       BrowserRootView,
       undefined,
