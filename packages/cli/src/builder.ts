@@ -3,10 +3,15 @@ import {join} from 'path';
 import bytes from 'bytes';
 import isEmpty from 'lodash/isEmpty.js';
 
-import {loadNPMPackage, requireGlobalNPMPackage, installNPMPackages} from './npm.js';
+import {
+  loadNPMPackage,
+  requireGlobalNPMPackage,
+  installNPMPackages,
+  findInstalledNPMPackage
+} from './npm.js';
 import {logMessage, logError, throwError, resolveVariables, getFileSize} from './util.js';
 
-export async function bundle({
+export async function build({
   serviceDirectory,
   buildDirectory,
   bundleFileNameWithoutExtension = 'bundle',
@@ -133,19 +138,25 @@ export async function bundle({
   }
 
   if (installExternalDependencies) {
-    const packages: Record<string, string> = {};
+    const externalDependencies: Record<string, string> = {};
 
     for (const packageName of external) {
-      const version = pkg.dependencies?.[packageName];
+      // const version = pkg.dependencies?.[packageName];
+      const externalPackage = findInstalledNPMPackage(serviceDirectory, packageName);
 
-      if (version !== undefined) {
-        packages[packageName] = version;
+      if (externalPackage === undefined) {
+        throwError(
+          `Couldn't find the npm package '${packageName}' specified as an external dependency`,
+          {serviceName}
+        );
       }
+
+      externalDependencies[packageName] = externalPackage.version;
     }
 
-    if (!isEmpty(packages)) {
+    if (!isEmpty(externalDependencies)) {
       logMessage('Installing external dependencies...', {serviceName});
-      await installNPMPackages(buildDirectory, packages);
+      await installNPMPackages(buildDirectory, externalDependencies);
     }
   }
 

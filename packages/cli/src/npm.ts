@@ -43,6 +43,16 @@ export async function installNPMPackages(directory: string, packages: Record<str
   }
 }
 
+export function findInstalledNPMPackage(directory: string, packageName: string) {
+  const packageDirectory = join(directory, 'node_modules', ...packageName.split('/'));
+
+  if (!existsSync(packageDirectory)) {
+    return undefined;
+  }
+
+  return loadNPMPackage(packageDirectory);
+}
+
 export async function runNPM(
   directory: string,
   args: string[] = [],
@@ -90,8 +100,6 @@ export async function runNPMUpdateIfThereIsAPackage(
   await runNPM(directory, ['update']);
 }
 
-const memoizedCreateRequire = memoize(createRequire);
-
 // A way to lazily install npm packages while turning around an issue where packages
 // containing binary (e.g. esbuild) cannot be installed with `npm --global`
 export async function installGlobalNPMPackage(
@@ -129,6 +137,8 @@ export async function installGlobalNPMPackage(
 
   return packageDirectory;
 }
+
+const memoizedCreateRequire = memoize(createRequire);
 
 export async function requireGlobalNPMPackage(
   packageName: string,

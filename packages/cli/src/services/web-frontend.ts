@@ -6,7 +6,7 @@ import escape from 'lodash/escape.js';
 import {Subservice} from './sub.js';
 import type {Command} from '../command.js';
 import {check} from '../checker.js';
-import {bundle} from '../bundler.js';
+import {build} from '../builder.js';
 import {SinglePageApplicationServer} from '../spa-server.js';
 import {AWSWebsiteResource} from '../resources/aws/website.js';
 import {resolveVariables, generateHashFromFile} from '../util.js';
@@ -152,7 +152,7 @@ export class WebFrontendService extends Subservice {
       bootstrapTemplate += BOOTSTRAP_LOCAL;
     }
 
-    const bundleFile = await bundle({
+    const bundleFile = await build({
       serviceDirectory,
       buildDirectory,
       bootstrapTemplate,

@@ -4,7 +4,7 @@ import {join} from 'path';
 import {Subservice} from './sub.js';
 import type {Command} from '../command.js';
 import {check} from '../checker.js';
-import {bundle} from '../bundler.js';
+import {build} from '../builder.js';
 import {ProcessController} from '../processes/index.js';
 import {AWSFunctionResource} from '../resources/aws/function.js';
 
@@ -48,7 +48,10 @@ export class BackendService extends Subservice {
     await check({serviceDirectory, serviceName});
   }
 
-  async build({watch = false}: {watch?: {afterRebuild?: () => void} | boolean} = {}) {
+  async build({
+    watch = false,
+    forceLocal = false
+  }: {watch?: {afterRebuild?: () => void} | boolean; forceLocal?: boolean} = {}) {
     await super.build();
 
     const serviceDirectory = this.getDirectory();
@@ -60,7 +63,7 @@ export class BackendService extends Subservice {
 
     fsExtra.emptyDirSync(buildDirectory);
 
-    const isLocal = platform === 'local';
+    const isLocal = platform === 'local' || forceLocal;
 
     let bundleFileNameWithoutExtension: string;
     let bootstrapTemplate: string;
@@ -78,12 +81,7 @@ export class BackendService extends Subservice {
       this.throwError(`Couldn't create a build configuration for the '${platform}' platform`);
     }
 
-    const external: string[] = buildConfig.external ?? [];
-
-    // Always mark 'mongodb-client-encryption' as external to avoid an esbuild error
-    external.push('mongodb-client-encryption');
-
-    const bundleFile = await bundle({
+    const bundleFile = await build({
       serviceDirectory,
       buildDirectory,
       bundleFileNameWithoutExtension,
@@ -91,7 +89,7 @@ export class BackendService extends Subservice {
       serviceName,
       stage,
       environment,
-      external,
+      external: buildConfig.external,
       builtInExternal,
       sourceMap: buildConfig.sourceMap ?? isLocal,
       minify: buildConfig.minify ?? !isLocal,
@@ -144,7 +142,7 @@ export class BackendService extends Subservice {
     const config = this.getConfig();
     const serviceName = this.getName();
 
-    const {bundleFile} = await this.build();
+    const {bundleFile} = await this.build({forceLocal: true});
 
     const processController = new ProcessController(
       'migrate-database',
