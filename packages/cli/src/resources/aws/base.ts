@@ -1,4 +1,4 @@
-import AWS from 'aws-sdk';
+import type AWS from 'aws-sdk';
 import pick from 'lodash/pick.js';
 import sortBy from 'lodash/sortBy.js';
 import isEqual from 'lodash/isEqual.js';
@@ -7,6 +7,7 @@ import trimEnd from 'lodash/trimEnd.js';
 import sleep from 'sleep-promise';
 
 import {BaseResource, BaseResourceConfig, ResourceOptions} from '../base.js';
+import {requireGlobalNPMPackage} from '../../npm.js';
 
 const DEFAULT_ROUTE_53_TTL = 300;
 
@@ -42,13 +43,23 @@ export class AWSBaseResource extends BaseResource {
     };
   }
 
+  _AWS!: typeof AWS;
+
+  async initialize() {
+    await super.initialize();
+
+    this._AWS = await requireGlobalNPMPackage('aws-sdk', '2.919.0', {
+      serviceName: this.getServiceName()
+    });
+  }
+
   // === IAM ===
 
   _iamClient!: AWS.IAM;
 
   getIAMClient() {
     if (this._iamClient === undefined) {
-      this._iamClient = new AWS.IAM({...this.buildAWSConfig(), apiVersion: '2010-05-08'});
+      this._iamClient = new this._AWS.IAM({...this.buildAWSConfig(), apiVersion: '2010-05-08'});
     }
 
     return this._iamClient;
@@ -60,7 +71,10 @@ export class AWSBaseResource extends BaseResource {
 
   getLambdaClient() {
     if (this._lambdaClient === undefined) {
-      this._lambdaClient = new AWS.Lambda({...this.buildAWSConfig(), apiVersion: '2015-03-31'});
+      this._lambdaClient = new this._AWS.Lambda({
+        ...this.buildAWSConfig(),
+        apiVersion: '2015-03-31'
+      });
     }
 
     return this._lambdaClient;
@@ -72,7 +86,7 @@ export class AWSBaseResource extends BaseResource {
 
   getS3Client() {
     if (this._s3Client === undefined) {
-      this._s3Client = new AWS.S3({...this.buildAWSConfig(), apiVersion: '2006-03-01'});
+      this._s3Client = new this._AWS.S3({...this.buildAWSConfig(), apiVersion: '2006-03-01'});
     }
 
     return this._s3Client;
@@ -84,7 +98,7 @@ export class AWSBaseResource extends BaseResource {
 
   getAPIGatewayV2Client() {
     if (this._apiGatewayV2Client === undefined) {
-      this._apiGatewayV2Client = new AWS.ApiGatewayV2({
+      this._apiGatewayV2Client = new this._AWS.ApiGatewayV2({
         ...this.buildAWSConfig(),
         apiVersion: '2018-11-29'
       });
@@ -99,7 +113,7 @@ export class AWSBaseResource extends BaseResource {
 
   getCloudFrontClient() {
     if (this._cloudFrontClient === undefined) {
-      this._cloudFrontClient = new AWS.CloudFront({
+      this._cloudFrontClient = new this._AWS.CloudFront({
         ...this.buildAWSConfig(),
         apiVersion: '2019-03-26'
       });
@@ -353,7 +367,10 @@ export class AWSBaseResource extends BaseResource {
 
   getRoute53Client() {
     if (this._route53Client === undefined) {
-      this._route53Client = new AWS.Route53({...this.buildAWSConfig(), apiVersion: '2013-04-01'});
+      this._route53Client = new this._AWS.Route53({
+        ...this.buildAWSConfig(),
+        apiVersion: '2013-04-01'
+      });
     }
 
     return this._route53Client;
@@ -604,7 +621,7 @@ export class AWSBaseResource extends BaseResource {
     const regionKey = region !== undefined ? region : '$config';
 
     if (this._acmClients[regionKey] === undefined) {
-      this._acmClients[regionKey] = new AWS.ACM({
+      this._acmClients[regionKey] = new this._AWS.ACM({
         ...this.buildAWSConfig({region}),
         apiVersion: '2015-12-08'
       });
@@ -621,7 +638,7 @@ export class AWSBaseResource extends BaseResource {
     let credentials: {accessKeyId?: string; secretAccessKey?: string} = {};
 
     if (config.profile !== undefined) {
-      const profileCredentials = new AWS.SharedIniFileCredentials({profile: config.profile});
+      const profileCredentials = new this._AWS.SharedIniFileCredentials({profile: config.profile});
       credentials = pick(profileCredentials, ['accessKeyId', 'secretAccessKey']);
     }
 

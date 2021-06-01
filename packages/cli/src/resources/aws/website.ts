@@ -1,4 +1,4 @@
-import AWS from 'aws-sdk';
+import type AWS from 'aws-sdk';
 import {statSync, createReadStream} from 'fs';
 import {join} from 'path';
 import walkSync from 'walk-sync';

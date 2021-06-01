@@ -40,6 +40,8 @@ export class BaseResource {
     return this._serviceName;
   }
 
+  async initialize() {}
+
   // === Utilities ===
 
   logMessage(message: string) {

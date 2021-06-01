@@ -12,12 +12,12 @@ const BOOTSTRAP_TEMPLATE_LOCAL = `export {default} from '{{entryPoint}}';`;
 
 const BOOTSTRAP_TEMPLATE_AWS_LAMBDA = `
 import {ComponentServer} from '@layr/component-server';
-import {createAWSLambdaHandlerForComponentServer} from '@layr/aws-integration';
+import {createAWSLambdaHandler} from '@layr/aws-integration';
 
 import componentGetter from '{{entryPoint}}';
 
-export const handler = createAWSLambdaHandlerForComponentServer(async function() {
-  return new ComponentServer(await componentGetter());
+export const handler = createAWSLambdaHandler(async function() {
+  return await componentGetter();
 });
 `;
 
@@ -188,6 +188,8 @@ export class BackendService extends Subservice {
       },
       {serviceName}
     );
+
+    await resource.initialize();
 
     await resource.deploy();
   }

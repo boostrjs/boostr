@@ -1,5 +1,4 @@
-import {Component} from '@layr/component';
-import {ComponentServer} from '@layr/component-server';
+import type {Component} from '@layr/component';
 import {ComponentHTTPServer} from '@layr/component-http-server';
 import mri from 'mri';
 import {createRequire} from 'module';
@@ -16,8 +15,7 @@ async function main() {
   const componentGetter = require(componentGetterFile).default;
   const component = (await componentGetter()) as typeof Component;
 
-  const server = new ComponentServer(component);
-  const httpServer = new ComponentHTTPServer(server, {port: Number(portString)});
+  const httpServer = new ComponentHTTPServer(component, {port: Number(portString)});
   await httpServer.start();
 
   console.log(`Component HTTP server started at http://localhost:${portString}/`);

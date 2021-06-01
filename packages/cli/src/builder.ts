@@ -61,7 +61,7 @@ export async function build({
 
   const bootstrapCode = resolveVariables(bootstrapTemplate, {entryPoint});
 
-  // Include CLI's node_modules folder so that packages such as @layr/component-server
+  // Include CLI's node_modules folder so that packages such as @layr/component-http-server
   // or @layr/aws-integration can be found even though they are not installed by the user
   const nodePaths = [new URL('../node_modules', import.meta.url).pathname];
 

@@ -238,6 +238,8 @@ export class WebFrontendService extends Subservice {
       {serviceName}
     );
 
+    await resource.initialize();
+
     await resource.deploy();
   }
 

@@ -1,4 +1,4 @@
-import {Component} from '@layr/component';
+import type {Component} from '@layr/component';
 import {isStorableClass} from '@layr/storable';
 import mri from 'mri';
 import {createRequire} from 'module';
