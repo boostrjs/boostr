@@ -1,7 +1,11 @@
 import isEmpty from 'lodash/isEmpty.js';
 
 import {Command, getCommandOptions, formatCommandOptionName} from '../command.js';
-import {runNPMInstallIfThereIsAPackage, runNPMUpdateIfThereIsAPackage} from '../npm.js';
+import {
+  runNPMInstallIfThereIsAPackage,
+  runNPMUpdateIfThereIsAPackage,
+  runNPMTestIfThereIsAPackage
+} from '../npm.js';
 import {
   parseRawArguments,
   pullGlobalOptions,
@@ -136,13 +140,19 @@ export abstract class BaseService {
       }
     },
 
-    freeze: {},
+    test: {
+      async handler(this: BaseService) {
+        await this.test();
+      }
+    },
 
     start: {
       async handler(this: BaseService) {
         await this.start();
       }
     },
+
+    freeze: {},
 
     migrate: {},
 
@@ -292,6 +302,15 @@ export abstract class BaseService {
   async check(..._: any[]): Promise<any> {}
 
   async build(..._: any[]): Promise<any> {}
+
+  async test() {
+    await runNPMTestIfThereIsAPackage(this.getDirectory(), {
+      serviceName: this.getName(),
+      beforeTest: async () => {
+        await this.build();
+      }
+    });
+  }
 
   _hasBeenStarted = false;
 

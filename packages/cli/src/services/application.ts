@@ -81,6 +81,13 @@ export class ApplicationService extends BaseService {
       examples: ['boostr build', 'boostr frontend build']
     },
 
+    test: {
+      ...BaseService.commands.test,
+      description:
+        'Test all the services of your application (or a specific service) in development mode.',
+      examples: ['boostr test', 'boostr backend test']
+    },
+
     start: {
       ...BaseService.commands.start,
       description: 'Start your application (or a subset of services) in development mode.',
@@ -149,6 +156,12 @@ export class ApplicationService extends BaseService {
 
     for (const service of this.getServices()) {
       await service.build();
+    }
+  }
+
+  async test() {
+    for (const service of this.getServices()) {
+      await service.test();
     }
   }
 

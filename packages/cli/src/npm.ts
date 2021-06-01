@@ -100,6 +100,32 @@ export async function runNPMUpdateIfThereIsAPackage(
   await runNPM(directory, ['update']);
 }
 
+export async function runNPMTestIfThereIsAPackage(
+  directory: string,
+  {serviceName, beforeTest}: {serviceName?: string; beforeTest?: () => void | Promise<void>} = {}
+) {
+  const packageFile = join(directory, 'package.json');
+
+  if (!existsSync(packageFile)) {
+    return;
+  }
+
+  const pkg = loadNPMPackage(directory);
+
+  if (pkg.scripts?.test === undefined) {
+    logMessage('No test specified', {serviceName});
+    return;
+  }
+
+  if (beforeTest !== undefined) {
+    await beforeTest();
+  }
+
+  logMessage('Running tests...', {serviceName});
+
+  await runNPM(directory, ['test']);
+}
+
 // A way to lazily install npm packages while turning around an issue where packages
 // containing binary (e.g. esbuild) cannot be installed with `npm --global`
 export async function installGlobalNPMPackage(
