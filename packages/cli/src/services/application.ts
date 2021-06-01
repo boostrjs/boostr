@@ -84,7 +84,7 @@ export class ApplicationService extends BaseService {
     test: {
       ...BaseService.commands.test,
       description:
-        'Test all the services of your application (or a specific service) in development mode.',
+        'Test all the services of your application (or a specified service) in development mode.',
       examples: ['boostr test', 'boostr backend test']
     },
 
@@ -122,8 +122,15 @@ export class ApplicationService extends BaseService {
     npm: {
       ...BaseService.commands.npm,
       description:
-        'Run npm in the root directory of your application (or in the directory of a service).',
+        'Run npm in the root directory of your application (or in the directory of a specified service).',
       examples: ['boostr npm install eslint --save-dev', 'boostr backend npm install lodash']
+    },
+
+    exec: {
+      ...BaseService.commands.exec,
+      description:
+        'Execute any shell command in the root directory of your application (or in the directory of a specified service).',
+      examples: ['boostr execute ls -la', 'boostr frontend execute ls -la']
     }
   };
 

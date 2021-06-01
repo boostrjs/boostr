@@ -1,3 +1,4 @@
+import {execFileSync} from 'child_process';
 import isEmpty from 'lodash/isEmpty.js';
 
 import {Command, getCommandOptions, formatCommandOptionName} from '../command.js';
@@ -179,6 +180,13 @@ export abstract class BaseService {
       async handler(this: BaseService, args) {
         await this.runNPM(args);
       }
+    },
+
+    exec: {
+      useRawArguments: true,
+      async handler(this: BaseService, args) {
+        await this.execute(args);
+      }
     }
   };
 
@@ -334,5 +342,20 @@ export abstract class BaseService {
 
   async runNPM(args: string[]) {
     await runNPM(this.getDirectory(), args);
+  }
+
+  async execute(commandAndArguments: string[]) {
+    const [command, ...args] = commandAndArguments;
+
+    if (command === undefined) {
+      this.throwError(`Please specify a shell command to execute`);
+    }
+
+    try {
+      execFileSync(command, args, {cwd: this.getDirectory(), stdio: 'inherit'});
+    } catch (error) {
+      console.log();
+      throwError(`An error occurred while executing the specified command`);
+    }
   }
 }
