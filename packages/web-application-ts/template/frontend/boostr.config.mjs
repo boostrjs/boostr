@@ -4,6 +4,7 @@ export default ({application, services}) => ({
   dependsOn: 'backend',
 
   environment: {
+    FRONTEND_URL: services.frontend.url,
     BACKEND_URL: services.backend.url
   },
 

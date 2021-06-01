@@ -4,9 +4,9 @@
   "private": true,
   "main": "./src/index.ts",
   "dependencies": {
-    "@layr/component": "^1.1.8",
-    "@layr/mongodb-store": "^1.1.30",
-    "@layr/storable": "^1.1.9"
+    "@layr/component": "^2.0.0",
+    "@layr/mongodb-store": "^2.0.0",
+    "@layr/storable": "^2.0.0"
   },
   "devDependencies": {
     "@boostr/tsconfig": "^1.0.0",

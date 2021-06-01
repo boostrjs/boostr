@@ -2,24 +2,18 @@
 
 ## Install
 
-```
-TODO
+```sh
+boostr install
 ```
 
 ## Develop
 
 ```
-TODO
-```
-
-## Debug
-
-```
-TODO
+boostr start
 ```
 
 ## Deploy
 
 ```
-TODO
+boostr deploy --production
 ```

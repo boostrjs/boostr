@@ -5,7 +5,12 @@ export default ({services}) => ({
 
   environment: {
     FRONTEND_URL: services.frontend.url,
+    BACKEND_URL: services.backend.url,
     DATABASE_URL: services.database.url
+  },
+
+  build: {
+    external: ['mongodb']
   },
 
   stages: {

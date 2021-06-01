@@ -1,25 +1,38 @@
-import {Routable, route} from '@layr/routable';
-import React from 'react';
-import {view, useAsyncMemo} from '@layr/react-integration';
+import {Routable} from '@layr/routable';
+import React, {Fragment} from 'react';
+import {layout, page, useData} from '@layr/react-integration';
 
 import type {Application as BackendApplication} from '../../../backend/src/components/application';
 
-export const getApplication = (Base: typeof BackendApplication) => {
+export const createApplicationComponent = (Base: typeof BackendApplication) => {
   class Application extends Routable(Base) {
     ['constructor']!: typeof Application;
 
-    @route('/') @view() static HomePage() {
-      const [isHealthy, isLoading] = useAsyncMemo(async () => await this.isHealthy());
-
-      if (isLoading) {
-        return null;
-      }
-
+    @layout('/') static MainLayout({children}: {children: () => any}) {
       return (
-        <div>
-          <h1>Boostr Application</h1>
-          <div>The application is {isHealthy ? 'healthy' : 'unhealthy'}.</div>
-        </div>
+        <>
+          <this.HomePage.Link>
+            <h1>Boostr Application</h1>
+          </this.HomePage.Link>
+          {children()}
+        </>
+      );
+    }
+
+    @page('[/]') static HomePage() {
+      return useData(
+        async () => await this.isHealthy(),
+
+        (isHealthy) => <p>The application is {isHealthy ? 'healthy' : 'unhealthy'}.</p>
+      );
+    }
+
+    @page('[/]*') static NotFoundPage() {
+      return (
+        <>
+          <h2>Page not found</h2>
+          <p>Sorry, there is nothing here.</p>
+        </>
       );
     }
   }
@@ -27,6 +40,6 @@ export const getApplication = (Base: typeof BackendApplication) => {
   return Application;
 };
 
-export declare const Application: ReturnType<typeof getApplication>;
+export declare const Application: ReturnType<typeof createApplicationComponent>;
 
 export type Application = InstanceType<typeof Application>;
