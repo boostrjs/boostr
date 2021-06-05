@@ -181,6 +181,7 @@ export class BackendService extends Subservice {
         environment: config.environment,
         lambda: {
           runtime: config.aws?.lambda?.runtime,
+          executionRole: config.aws?.lambda?.executionRole,
           memorySize: config.aws?.lambda?.memorySize,
           timeout: config.aws?.lambda?.timeout,
           reservedConcurrentExecutions: config.aws?.lambda?.reservedConcurrentExecutions
