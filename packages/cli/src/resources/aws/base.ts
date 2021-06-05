@@ -48,7 +48,7 @@ export class AWSBaseResource extends BaseResource {
   async initialize() {
     await super.initialize();
 
-    this._AWS = await requireGlobalNPMPackage('aws-sdk', '2.919.0', {
+    this._AWS = await requireGlobalNPMPackage('aws-sdk', '2.922.0', {
       serviceName: this.getServiceName()
     });
   }
