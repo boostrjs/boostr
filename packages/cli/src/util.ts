@@ -46,6 +46,14 @@ export function resolveVariables(string: string, variables: Record<string, any>)
   return string;
 }
 
+export function fileExists(file: string) {
+  try {
+    return statSync(file).isFile();
+  } catch {
+    return false;
+  }
+}
+
 export function getFileSize(file: string) {
   return statSync(file).size;
 }

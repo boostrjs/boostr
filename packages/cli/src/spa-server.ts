@@ -1,11 +1,10 @@
 import Koa from 'koa';
 import koaSend from 'koa-send';
 import WebSocket, {Server as WebSocketServer} from 'ws';
-import {existsSync} from 'fs';
 import {join} from 'path';
 import type {Server} from 'http';
 
-import {logMessage, throwError} from './util.js';
+import {logMessage, throwError, fileExists} from './util.js';
 
 const INDEX_PAGE = 'index.html';
 
@@ -44,7 +43,7 @@ export class SinglePageApplicationServer {
       if (fileRelative !== '' && fileRelative !== 'favicon.ico') {
         const file = join(this.directory, fileRelative);
 
-        if (!existsSync(file)) {
+        if (!fileExists(file)) {
           fileRelative = INDEX_PAGE;
         }
       }
