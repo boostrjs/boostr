@@ -1,6 +1,6 @@
 {
   "name": "boostr",
-  "version": "2.0.4",
+  "version": "2.0.6",
   "description": "Build and deploy your Layr applications",
   "keywords": [
     "layr",
@@ -35,9 +35,9 @@
     "update": "dev-tools update:dependencies"
   },
   "dependencies": {
-    "@layr/aws-integration": "^2.0.26",
-    "@layr/component-http-server": "^2.0.24",
-    "@layr/storable": "^2.0.14",
+    "@layr/aws-integration": "^2.0.27",
+    "@layr/component-http-server": "^2.0.25",
+    "@layr/storable": "^2.0.15",
     "base-x": "^3.0.8",
     "bytes": "^3.1.0",
     "cross-zip": "^4.0.0",
@@ -69,12 +69,12 @@
     "@types/lodash": "^4.14.170",
     "@types/mime": "^2.0.3",
     "@types/mri": "^1.1.0",
-    "@types/node": "^14.17.2",
+    "@types/node": "^14.17.3",
     "@types/tar": "^4.0.4",
     "@types/wrap-ansi": "^3.0.0",
     "@types/ws": "^7.4.4",
-    "aws-sdk": "^2.922.0",
-    "esbuild": "^0.12.6",
+    "aws-sdk": "^2.925.0",
+    "esbuild": "^0.12.8",
     "mongodb-memory-server-global": "^6.9.6"
   }
 }
