@@ -1,4 +1,4 @@
-import {throwError} from './util.js';
+import {throwError} from './utilities.js';
 
 export type Command = {
   aliases?: string[];

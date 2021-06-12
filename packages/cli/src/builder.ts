@@ -9,7 +9,7 @@ import {
   installNPMPackages,
   findInstalledNPMPackage
 } from './npm.js';
-import {logMessage, logError, throwError, resolveVariables, getFileSize} from './util.js';
+import {logMessage, logError, throwError, resolveVariables, getFileSize} from './utilities.js';
 
 export async function build({
   serviceDirectory,

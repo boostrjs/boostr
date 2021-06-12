@@ -4,7 +4,7 @@ import WebSocket, {Server as WebSocketServer} from 'ws';
 import {join} from 'path';
 import type {Server} from 'http';
 
-import {logMessage, throwError, fileExists} from './util.js';
+import {logMessage, throwError, fileExists} from './utilities.js';
 
 const INDEX_PAGE = 'index.html';
 

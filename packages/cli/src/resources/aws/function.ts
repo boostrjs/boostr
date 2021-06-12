@@ -10,7 +10,7 @@ import bytes from 'bytes';
 
 import {AWSBaseResource, AWSBaseResourceConfig} from './base.js';
 import {ResourceOptions} from '../base.js';
-import {withTemporaryDirectory} from '../../util.js';
+import {withTemporaryDirectory} from '../../utilities.js';
 
 const DEFAULT_LAMBDA_RUNTIME = 'nodejs14.x';
 const DEFAULT_LAMBDA_EXECUTION_ROLE = 'boostr-backend-lambda-role-v1';

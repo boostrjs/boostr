@@ -1,4 +1,4 @@
-import {logMessage, logError, throwError} from '../util.js';
+import {logMessage, logError, throwError} from '../utilities.js';
 
 export type BaseResourceConfig = {
   domainName: string;

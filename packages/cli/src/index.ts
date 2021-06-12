@@ -7,7 +7,7 @@ import {
   GLOBAL_OPTIONS_HELP_OBJECT
 } from './argument-parser.js';
 import {formatHelp} from './help.js';
-import {programVersion, throwError} from './util.js';
+import {programVersion, throwError} from './utilities.js';
 
 const DEFAULT_STAGE = 'development';
 

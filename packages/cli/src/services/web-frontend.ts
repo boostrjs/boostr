@@ -9,7 +9,7 @@ import {check} from '../checker.js';
 import {build} from '../builder.js';
 import {SinglePageApplicationServer} from '../spa-server.js';
 import {AWSWebsiteResource} from '../resources/aws/website.js';
-import {resolveVariables, generateHashFromFile} from '../util.js';
+import {resolveVariables, generateHashFromFile} from '../utilities.js';
 
 const HTML_TEMPLATE = `<!DOCTYPE html>
 <html lang="{{language}}">

@@ -1,6 +1,6 @@
 import wrap from 'wrap-ansi';
 
-import {resolveVariables} from './util.js';
+import {resolveVariables} from './utilities.js';
 
 const MAXIMUM_TERMINAL_WIDTH = Math.min(100, process.stdout.columns);
 

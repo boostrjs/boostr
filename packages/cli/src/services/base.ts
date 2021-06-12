@@ -14,7 +14,7 @@ import {
 } from '../argument-parser.js';
 import {runNPM} from '../npm.js';
 import {formatHelp, Sections} from '../help.js';
-import {logMessage, logError, throwError} from '../util.js';
+import {logMessage, logError, throwError} from '../utilities.js';
 
 export type BaseServiceAttributes = {
   directory: string;
@@ -324,6 +324,12 @@ export abstract class BaseService {
 
   async start() {
     this._hasBeenStarted = true;
+  }
+
+  _hasBeenStopped = false;
+
+  async stop() {
+    this._hasBeenStopped = true;
   }
 
   _hasBeenDeployed = false;

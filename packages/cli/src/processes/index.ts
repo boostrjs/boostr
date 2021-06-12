@@ -1,14 +1,16 @@
 import {fork, ChildProcess} from 'child_process';
 import readline from 'readline';
 
-import {logMessage, logError} from '../util.js';
+import {logMessage, logError} from '../utilities.js';
 
 export class ProcessController {
-  _name!: string;
-  _arguments!: string[];
-  _currentDirectory?: string;
-  _environment?: any;
-  _serviceName?: string;
+  _name: string;
+  _arguments: string[];
+  _currentDirectory: string | undefined;
+  _environment: any;
+  _serviceName: string | undefined;
+  _nodeArguments: string[];
+  _decorateOutput: boolean;
 
   constructor(
     name: string,
@@ -16,11 +18,15 @@ export class ProcessController {
     {
       currentDirectory,
       environment,
-      serviceName
+      serviceName,
+      nodeArguments = [],
+      decorateOutput = true
     }: {
       currentDirectory?: string;
       environment?: any;
       serviceName?: string;
+      nodeArguments?: string[];
+      decorateOutput?: boolean;
     } = {}
   ) {
     this._name = name;
@@ -28,6 +34,8 @@ export class ProcessController {
     this._currentDirectory = currentDirectory;
     this._environment = environment;
     this._serviceName = serviceName;
+    this._nodeArguments = nodeArguments;
+    this._decorateOutput = decorateOutput;
   }
 
   start() {
@@ -48,20 +56,26 @@ export class ProcessController {
     this._childProcess = fork(url.pathname, this._arguments, {
       cwd: this._currentDirectory,
       env: {...process.env, ...this._environment},
-      stdio: 'pipe'
+      execArgv: [...process.execArgv, ...this._nodeArguments],
+      stdio: this._decorateOutput ? 'pipe' : 'inherit'
     });
 
-    const stdout = readline.createInterface({input: this._childProcess.stdout!});
+    let stdout: readline.Interface;
+    let stderr: readline.Interface;
 
-    stdout.on('line', (line) => {
-      logMessage(line, {serviceName: this._serviceName});
-    });
+    if (this._decorateOutput) {
+      stdout = readline.createInterface({input: this._childProcess.stdout!});
 
-    const stderr = readline.createInterface({input: this._childProcess.stderr!});
+      stdout.on('line', (line) => {
+        logMessage(line, {serviceName: this._serviceName});
+      });
 
-    stderr.on('line', (line) => {
-      logError(line, {serviceName: this._serviceName});
-    });
+      stderr = readline.createInterface({input: this._childProcess.stderr!});
+
+      stderr.on('line', (line) => {
+        logError(line, {serviceName: this._serviceName});
+      });
+    }
 
     const messageHandler = (message: string) => {
       if (message === 'started') {
@@ -80,8 +94,14 @@ export class ProcessController {
     };
 
     const exitHandler = (code: number | null) => {
-      stdout.close();
-      stderr.close();
+      if (stdout !== undefined) {
+        stdout.close();
+      }
+
+      if (stderr !== undefined) {
+        stderr.close();
+      }
+
       this._childProcess?.off('message', messageHandler);
       this._childProcess?.off('exit', exitHandler);
       this._childProcess = undefined;

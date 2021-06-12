@@ -201,10 +201,21 @@ export abstract class Subservice extends BaseService {
 
   async start() {
     await super.start();
+    await this.startDependencies();
+  }
 
+  async startDependencies() {
     for (const service of this.getDependencies()) {
       if (!service._hasBeenStarted) {
         await service.start();
+      }
+    }
+  }
+
+  async stopDependencies() {
+    for (const service of this.getDependencies()) {
+      if (!service._hasBeenStopped) {
+        await service.stop();
       }
     }
   }

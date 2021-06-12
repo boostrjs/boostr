@@ -36,7 +36,16 @@ export class BackendService extends Subservice {
   // === Commands ===
 
   static commands: Record<string, Command> = {
-    ...Subservice.commands
+    ...Subservice.commands,
+
+    repl: {
+      ...Subservice.commands.migrate,
+      description: 'Start a REPL with the root component exposed globally.',
+      examples: ['boostr {{serviceName}} repl'],
+      async handler(this: BackendService) {
+        await this.startREPL();
+      }
+    }
   };
 
   async check() {
@@ -193,5 +202,31 @@ export class BackendService extends Subservice {
     await resource.initialize();
 
     await resource.deploy();
+  }
+
+  async startREPL() {
+    const directory = this.getDirectory();
+    const config = this.getConfig();
+    const serviceName = this.getName();
+
+    await this.startDependencies();
+
+    const {bundleFile} = await this.build({forceLocal: true});
+
+    const processController = new ProcessController(
+      'start-repl',
+      ['--componentGetterFile', bundleFile, '--serviceName', serviceName],
+      {
+        currentDirectory: directory,
+        environment: config.environment,
+        serviceName,
+        nodeArguments: ['--experimental-repl-await'],
+        decorateOutput: false
+      }
+    );
+
+    await processController.run();
+
+    await this.stopDependencies();
   }
 }

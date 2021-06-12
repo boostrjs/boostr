@@ -2,7 +2,7 @@ import {existsSync} from 'fs';
 import {join, resolve} from 'path';
 import merge from 'lodash/merge.js';
 
-import {throwError} from './util.js';
+import {throwError} from './utilities.js';
 
 const CONFIG_FILE_NAME = 'boostr.config.mjs';
 const PRIVATE_CONFIG_FILE_NAME = 'boostr.config.private.mjs';

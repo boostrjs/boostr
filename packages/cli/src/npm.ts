@@ -6,7 +6,7 @@ import {execFileSync} from 'child_process';
 import {createRequire} from 'module';
 import memoize from 'lodash/memoize.js';
 
-import {logMessage, throwError} from './util.js';
+import {logMessage, throwError} from './utilities.js';
 
 export function loadNPMPackage(directory: string) {
   const packageFile = join(directory, 'package.json');

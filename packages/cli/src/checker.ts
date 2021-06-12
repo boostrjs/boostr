@@ -3,7 +3,7 @@ import {join} from 'path';
 import {execFileSync} from 'child_process';
 
 import {installGlobalNPMPackage} from './npm.js';
-import {logMessage, throwError} from './util.js';
+import {logMessage, throwError} from './utilities.js';
 
 export async function check({
   serviceDirectory,

@@ -1,6 +1,6 @@
 import mri from 'mri';
 
-import {throwError} from './util.js';
+import {throwError} from './utilities.js';
 
 export const GLOBAL_OPTIONS_HELP_OBJECT = {
   '--stage': "Select a stage (default: 'development').",

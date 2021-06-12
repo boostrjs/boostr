@@ -3,7 +3,7 @@ import {BackendService} from './backend.js';
 import {DatabaseService} from './database.js';
 import {WebFrontendService} from './web-frontend.js';
 import {loadApplicationConfig, loadServiceConfig} from '../config.js';
-import {throwError} from '../util.js';
+import {throwError} from '../utilities.js';
 
 export async function createApplicationServiceFromDirectory(
   directory: string,

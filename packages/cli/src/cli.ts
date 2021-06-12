@@ -3,7 +3,7 @@
 import {existsSync, readFileSync} from 'fs';
 import {join} from 'path';
 
-import {programName, logError} from './util.js';
+import {programName, logError} from './utilities.js';
 
 async function main() {
   const entryPoint = findEntryPoint(process.cwd());

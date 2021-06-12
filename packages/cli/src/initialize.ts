@@ -14,7 +14,7 @@ import {
   resolveVariables,
   directoryIsEmpty,
   withTemporaryDirectory
-} from './util.js';
+} from './utilities.js';
 
 const INITIALIZE_HELP = formatHelp({
   'Command': 'initialize',
