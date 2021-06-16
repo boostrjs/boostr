@@ -45,6 +45,8 @@ export type AWSWebsiteResourceConfig = AWSBaseResourceConfig & {
 };
 
 export class AWSWebsiteResource extends AWSBaseResource {
+  static managerIdentifiers = [...AWSBaseResource.managerIdentifiers, 'aws-s3-hosted-website-v1'];
+
   constructor(config: AWSWebsiteResourceConfig, options: ResourceOptions = {}) {
     super(config, options);
   }
