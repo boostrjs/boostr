@@ -101,6 +101,8 @@ export async function build({
       external: [...external, ...builtInExternal],
       metafile: true,
       loader: {
+        '.js': 'ts', // Use TS loader for .js files to enable support for decorators
+        '.jsx': 'tsx',
         '.png': 'file',
         '.jpeg': 'file',
         '.jpg': 'file',
