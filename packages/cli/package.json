@@ -1,6 +1,6 @@
 {
   "name": "boostr",
-  "version": "2.0.36",
+  "version": "2.0.43",
   "description": "Build and deploy your Layr applications",
   "keywords": [
     "layr",
@@ -40,6 +40,7 @@
     "@layr/storable": "^2.0.21",
     "base-x": "^3.0.8",
     "bytes": "^3.1.0",
+    "chokidar": "^3.5.2",
     "cross-zip": "^4.0.0",
     "fs-extra": "^9.1.0",
     "hasha": "^5.2.2",

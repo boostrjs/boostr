@@ -1,7 +1,9 @@
 import fsExtra from 'fs-extra';
 import {join, dirname, basename, extname} from 'path';
 import walkSync from 'walk-sync';
+import chokidar from 'chokidar';
 import escape from 'lodash/escape.js';
+import debounce from 'lodash/debounce.js';
 
 import {Subservice} from './sub.js';
 import type {Command} from '../command.js';
@@ -174,7 +176,19 @@ export class WebFrontendService extends Subservice {
     const htmlFile = buildHTMLFile({buildDirectory, bundleFile, htmlConfig});
 
     const publicDirectory = join(serviceDirectory, PUBLIC_DIRECTORY_NAME);
+
     fsExtra.copySync(publicDirectory, buildDirectory);
+
+    if (watch) {
+      // TODO: Implement a proper syncing mechanism
+      chokidar.watch(publicDirectory, {ignoreInitial: true}).on(
+        'all',
+        debounce(() => {
+          fsExtra.copySync(publicDirectory, buildDirectory);
+          this.logMessage(`Public directory synchronized`);
+        }, 200)
+      );
+    }
 
     return {buildDirectory, htmlFile, bundleFile};
   }
