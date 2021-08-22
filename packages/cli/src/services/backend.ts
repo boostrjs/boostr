@@ -90,7 +90,7 @@ export class BackendService extends Subservice {
       this.throwError(`Couldn't create a build configuration for the '${platform}' platform`);
     }
 
-    const bundleFile = await build({
+    const {jsBundleFile} = await build({
       serviceDirectory,
       buildDirectory,
       bundleFileNameWithoutExtension,
@@ -111,7 +111,7 @@ export class BackendService extends Subservice {
       }
     });
 
-    return {buildDirectory, bundleFile};
+    return {buildDirectory, jsBundleFile};
   }
 
   async start() {
@@ -129,7 +129,7 @@ export class BackendService extends Subservice {
 
     let processController: ProcessController;
 
-    const {bundleFile} = await this.build({
+    const {jsBundleFile} = await this.build({
       watch: {
         afterRebuild() {
           processController.restart();
@@ -139,7 +139,7 @@ export class BackendService extends Subservice {
 
     processController = new ProcessController(
       'start-backend',
-      ['--componentGetterFile', bundleFile, '--port', String(port)],
+      ['--componentGetterFile', jsBundleFile, '--port', String(port)],
       {currentDirectory: directory, environment: config.environment, serviceName}
     );
 
@@ -151,11 +151,11 @@ export class BackendService extends Subservice {
     const config = this.getConfig();
     const serviceName = this.getName();
 
-    const {bundleFile} = await this.build({forceLocal: true});
+    const {jsBundleFile} = await this.build({forceLocal: true});
 
     const processController = new ProcessController(
       'migrate-database',
-      ['--componentGetterFile', bundleFile, '--databaseURL', databaseURL],
+      ['--componentGetterFile', jsBundleFile, '--databaseURL', databaseURL],
       {currentDirectory: directory, environment: config.environment, serviceName}
     );
 
@@ -211,11 +211,11 @@ export class BackendService extends Subservice {
 
     await this.startDependencies();
 
-    const {bundleFile} = await this.build({forceLocal: true});
+    const {jsBundleFile} = await this.build({forceLocal: true});
 
     const processController = new ProcessController(
       'start-repl',
-      ['--componentGetterFile', bundleFile, '--serviceName', serviceName],
+      ['--componentGetterFile', jsBundleFile, '--serviceName', serviceName],
       {
         currentDirectory: directory,
         environment: config.environment,

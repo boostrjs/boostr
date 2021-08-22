@@ -26,7 +26,7 @@ const HTML_TEMPLATE = `<!DOCTYPE html>
     <noscript><p>Sorry, this site requires JavaScript to be enabled.</p></noscript>
     {{bodyScripts}}
     <div id="root"></div>
-    <script src="{{bundleURL}}"></script>
+    <script src="{{jsBundleURL}}"></script>
   </body>
 </html>
 `;
@@ -154,7 +154,7 @@ export class WebFrontendService extends Subservice {
       bootstrapTemplate += BOOTSTRAP_LOCAL;
     }
 
-    const bundleFile = await build({
+    const {jsBundleFile, cssBundleFile} = await build({
       serviceDirectory,
       buildDirectory,
       bootstrapTemplate,
@@ -173,7 +173,7 @@ export class WebFrontendService extends Subservice {
       }
     });
 
-    const htmlFile = buildHTMLFile({buildDirectory, bundleFile, htmlConfig});
+    const htmlFile = buildHTMLFile({buildDirectory, jsBundleFile, cssBundleFile, htmlConfig});
 
     const publicDirectory = join(serviceDirectory, PUBLIC_DIRECTORY_NAME);
 
@@ -190,7 +190,7 @@ export class WebFrontendService extends Subservice {
       );
     }
 
-    return {buildDirectory, htmlFile, bundleFile};
+    return {buildDirectory, htmlFile, jsBundleFile, cssBundleFile};
   }
 
   async start() {
@@ -285,19 +285,30 @@ export class WebFrontendService extends Subservice {
 
 function buildHTMLFile({
   buildDirectory,
-  bundleFile,
+  jsBundleFile,
+  cssBundleFile,
   htmlConfig = {}
 }: {
   buildDirectory: string;
-  bundleFile: string;
+  jsBundleFile: string;
+  cssBundleFile: string | undefined;
   htmlConfig: Record<string, any>;
 }) {
   const language = escape(htmlConfig.language ?? '');
 
   const headConfig = htmlConfig.head ?? {};
+
+  let headConfigLinks = headConfig.links ?? [];
+  headConfigLinks = Array.isArray(headConfigLinks) ? headConfigLinks : [headConfigLinks];
+
+  if (cssBundleFile !== undefined) {
+    const cssBundleURL = `/${basename(cssBundleFile)}`;
+    headConfigLinks.push({rel: 'stylesheet', href: cssBundleURL});
+  }
+
   const headTitle = escape(headConfig.title ?? '');
   const headMetas = buildTags('meta', headConfig.metas);
-  const headLinks = buildTags('link', headConfig.links);
+  const headLinks = buildTags('link', headConfigLinks);
   const headStyle =
     headConfig.style !== undefined ? `<style>\n${headConfig.style}\n    </style>` : '';
   const headScripts = buildTags('script', headConfig.scripts);
@@ -305,7 +316,7 @@ function buildHTMLFile({
   const bodyConfig = htmlConfig.body ?? {};
   const bodyScripts = buildTags('script', bodyConfig.scripts);
 
-  const bundleURL = `/${basename(bundleFile)}`;
+  const jsBundleURL = `/${basename(jsBundleFile)}`;
 
   const htmlContent = removeEmptyLines(
     resolveVariables(HTML_TEMPLATE, {
@@ -316,7 +327,7 @@ function buildHTMLFile({
       headStyle,
       headScripts,
       bodyScripts,
-      bundleURL
+      jsBundleURL
     })
   );
 

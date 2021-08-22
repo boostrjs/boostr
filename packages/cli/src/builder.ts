@@ -79,7 +79,8 @@ export async function build({
     }
   );
 
-  let bundleFile: string;
+  let jsBundleFile: string;
+  let cssBundleFile: string | undefined;
   let result: BuildResult;
 
   try {
@@ -122,7 +123,7 @@ export async function build({
             if (error) {
               logError('Rebuild failed', {serviceName});
             } else {
-              logMessage(`Rebuild succeeded (bundle size: ${bytes(getFileSize(bundleFile))})`, {
+              logMessage(`Rebuild succeeded (bundle size: ${bytes(getFileSize(jsBundleFile))})`, {
                 serviceName
               });
 
@@ -162,30 +163,36 @@ export async function build({
     }
   }
 
-  bundleFile = determineBundleFileFromBuildResult(result, {serviceDirectory, serviceName});
+  ({jsBundleFile, cssBundleFile} = determineFileBundlesFromBuildResult(result, {
+    serviceDirectory,
+    serviceName
+  }));
 
-  logMessage(`Build succeeded (bundle size: ${bytes(getFileSize(bundleFile))})`, {serviceName});
+  logMessage(`Build succeeded (bundle size: ${bytes(getFileSize(jsBundleFile))})`, {serviceName});
 
-  return bundleFile;
+  return {jsBundleFile, cssBundleFile};
 }
 
-function determineBundleFileFromBuildResult(
+function determineFileBundlesFromBuildResult(
   result: BuildResult,
   {serviceDirectory, serviceName}: {serviceDirectory: string; serviceName?: string}
 ) {
-  let bundleFile: string | undefined;
+  let jsBundleFile: string | undefined;
+  let cssBundleFile: string | undefined;
 
   const outputs = result?.metafile?.outputs ?? {};
 
   for (const [file, output] of Object.entries(outputs)) {
     if (output.entryPoint === 'bootstrap.js') {
-      bundleFile = join(serviceDirectory, file);
+      jsBundleFile = join(serviceDirectory, file);
+    } else if (file.endsWith('.css')) {
+      cssBundleFile = join(serviceDirectory, file);
     }
   }
 
-  if (bundleFile === undefined) {
+  if (jsBundleFile === undefined) {
     throwError("Couldn't determine the name of generated bundle", {serviceName});
   }
 
-  return bundleFile;
+  return {jsBundleFile, cssBundleFile};
 }
