@@ -1,6 +1,6 @@
 {
   "name": "boostr",
-  "version": "2.0.44",
+  "version": "2.0.58",
   "description": "Build and deploy your Layr applications",
   "keywords": [
     "layr",
@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@layr/aws-integration": "^2.0.31",
+    "@layr/component": "^2.0.13",
     "@layr/component-http-server": "^2.0.29",
     "@layr/storable": "^2.0.21",
     "base-x": "^3.0.8",
@@ -61,7 +62,6 @@
   },
   "devDependencies": {
     "@boostr/tsconfig": "^1.0.2",
-    "@layr/component": "^2.0.13",
     "@mvila/dev-tools": "^1.0.30",
     "@types/bytes": "^3.1.0",
     "@types/fs-extra": "^9.0.11",

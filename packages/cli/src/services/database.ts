@@ -1,5 +1,5 @@
 import type {MongoMemoryServer} from 'mongodb-memory-server-global';
-import {join} from 'path';
+import {join, resolve} from 'path';
 import fsExtra from 'fs-extra';
 
 import {Subservice} from './sub.js';
@@ -68,6 +68,28 @@ export class DatabaseService extends Subservice {
       examples: ['boostr {{serviceName}} migrate'],
       async handler(this: DatabaseService) {
         await this.migrate();
+      }
+    },
+
+    import: {
+      ...Subservice.commands.import,
+      description: 'Import the specified JSON file to the current database.',
+      examples: ['boostr {{serviceName}} import inputFile'],
+      minimumArguments: 1,
+      maximumArguments: 1,
+      async handler(this: DatabaseService, [inputFile]) {
+        await this.import(inputFile);
+      }
+    },
+
+    export: {
+      ...Subservice.commands.export,
+      description: 'Export the current database to a JSON file.',
+      examples: ['boostr {{serviceName}} export outputFile'],
+      minimumArguments: 1,
+      maximumArguments: 1,
+      async handler(this: DatabaseService, [outputFile]) {
+        await this.export(outputFile);
       }
     }
   };
@@ -142,6 +164,52 @@ export class DatabaseService extends Subservice {
     for (const service of this.getDependents()) {
       if (service instanceof BackendService) {
         await service.migrateDatabase(url);
+      }
+    }
+
+    await this.stop();
+  }
+
+  async import(inputFile: string) {
+    inputFile = resolve(process.cwd(), inputFile);
+
+    const directory = this.getDirectory();
+    const {url} = this.getConfig();
+
+    if (!url) {
+      this.throwError(
+        `A 'url' property is required in the configuration to import a database (directory: '${directory}')`
+      );
+    }
+
+    await this.start();
+
+    for (const service of this.getDependents()) {
+      if (service instanceof BackendService) {
+        await service.importDatabase(url, inputFile);
+      }
+    }
+
+    await this.stop();
+  }
+
+  async export(outputFile: string) {
+    outputFile = resolve(process.cwd(), outputFile);
+
+    const directory = this.getDirectory();
+    const {url} = this.getConfig();
+
+    if (!url) {
+      this.throwError(
+        `A 'url' property is required in the configuration to export a database (directory: '${directory}')`
+      );
+    }
+
+    await this.start();
+
+    for (const service of this.getDependents()) {
+      if (service instanceof BackendService) {
+        await service.exportDatabase(url, outputFile);
       }
     }
 

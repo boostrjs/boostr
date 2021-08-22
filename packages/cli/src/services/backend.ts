@@ -39,7 +39,7 @@ export class BackendService extends Subservice {
     ...Subservice.commands,
 
     repl: {
-      ...Subservice.commands.migrate,
+      ...Subservice.commands.repl,
       description: 'Start a REPL with the root component exposed globally.',
       examples: ['boostr {{serviceName}} repl'],
       async handler(this: BackendService) {
@@ -156,6 +156,52 @@ export class BackendService extends Subservice {
     const processController = new ProcessController(
       'migrate-database',
       ['--componentGetterFile', jsBundleFile, '--databaseURL', databaseURL],
+      {currentDirectory: directory, environment: config.environment, serviceName}
+    );
+
+    await processController.run();
+  }
+
+  async importDatabase(databaseURL: string, inputFile: string) {
+    const directory = this.getDirectory();
+    const config = this.getConfig();
+    const serviceName = this.getName();
+
+    const {jsBundleFile} = await this.build({forceLocal: true});
+
+    const processController = new ProcessController(
+      'import-database',
+      [
+        '--componentGetterFile',
+        jsBundleFile,
+        '--databaseURL',
+        databaseURL,
+        '--inputFile',
+        inputFile
+      ],
+      {currentDirectory: directory, environment: config.environment, serviceName}
+    );
+
+    await processController.run();
+  }
+
+  async exportDatabase(databaseURL: string, outputFile: string) {
+    const directory = this.getDirectory();
+    const config = this.getConfig();
+    const serviceName = this.getName();
+
+    const {jsBundleFile} = await this.build({forceLocal: true});
+
+    const processController = new ProcessController(
+      'export-database',
+      [
+        '--componentGetterFile',
+        jsBundleFile,
+        '--databaseURL',
+        databaseURL,
+        '--outputFile',
+        outputFile
+      ],
       {currentDirectory: directory, environment: config.environment, serviceName}
     );
 

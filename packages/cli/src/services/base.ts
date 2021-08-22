@@ -157,6 +157,10 @@ export abstract class BaseService {
 
     migrate: {},
 
+    import: {},
+
+    export: {},
+
     deploy: {
       options: {
         skip: {

@@ -18,19 +18,16 @@ async function main() {
   let stores = new Set<any>();
 
   for (const component of [rootComponent, ...rootComponent.getProvidedComponents({deep: true})]) {
-    if (
-      isStorableClass(component) &&
-      !component.isEmbedded() &&
-      component.hasStore() &&
-      component.getStore().getURL() === databaseURL
-    ) {
+    if (isStorableClass(component) && !component.isEmbedded() && component.hasStore()) {
       // TODO: Improve StoreLike typing to avoid the following 'any' casting
       const store = component.getStore() as any;
 
-      if (store.getURL() === databaseURL) {
-        await store.migrateStorable(component);
-        stores.add(store);
+      if (store.getURL() !== databaseURL) {
+        continue;
       }
+
+      await store.migrateStorable(component);
+      stores.add(store);
     }
   }
 
