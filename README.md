@@ -12,6 +12,18 @@
 TODO
 ```
 
+## Installation
+
+```sh
+npm install -g boostr
+```
+
+## Documentation
+
+```
+TODO
+```
+
 ## Contributing
 
 Contributions are welcome.
