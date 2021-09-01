@@ -103,13 +103,6 @@ export class WebFrontendService extends Subservice {
     'boostr {{serviceName}} npm install lodash'
   ];
 
-  getBuildDirectory() {
-    const serviceDirectory = this.getDirectory();
-    const stage = this.getStage();
-
-    return join(serviceDirectory, 'build', stage);
-  }
-
   // === Commands ===
 
   static commands: Record<string, Command> = {
@@ -142,7 +135,7 @@ export class WebFrontendService extends Subservice {
     const stage = this.getStage();
     const {environment, platform, build: buildConfig, html: htmlConfig} = this.getConfig();
 
-    const buildDirectory = this.getBuildDirectory();
+    const buildDirectory = join(serviceDirectory, 'build', stage);
 
     fsExtra.emptyDirSync(buildDirectory);
 
@@ -159,7 +152,6 @@ export class WebFrontendService extends Subservice {
       buildDirectory,
       bootstrapTemplate,
       serviceName,
-      stage,
       environment,
       sourceMap: buildConfig?.sourceMap ?? isLocal,
       minify: buildConfig?.minify ?? !isLocal,

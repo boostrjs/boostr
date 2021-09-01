@@ -17,7 +17,6 @@ export async function build({
   bundleFileNameWithoutExtension = 'bundle',
   bootstrapTemplate,
   serviceName,
-  stage,
   environment = {},
   external = [],
   builtInExternal = [],
@@ -33,7 +32,6 @@ export async function build({
   bundleFileNameWithoutExtension?: string;
   bootstrapTemplate: string;
   serviceName?: string;
-  stage: string;
   environment?: Record<string, string>;
   external?: string[];
   builtInExternal?: string[];
@@ -65,7 +63,7 @@ export async function build({
   // or @layr/aws-integration can be found even though they are not installed by the user
   const nodePaths = [new URL('../node_modules', import.meta.url).pathname];
 
-  const definedIdentifers: Record<string, string> = {'process.env.NODE_ENV': `"${stage}"`};
+  const definedIdentifers: Record<string, string> = {};
 
   for (const [name, value] of Object.entries(environment)) {
     definedIdentifers[`process.env.${name}`] = `"${value}"`;

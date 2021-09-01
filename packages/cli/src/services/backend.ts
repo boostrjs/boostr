@@ -96,7 +96,6 @@ export class BackendService extends Subservice {
       bundleFileNameWithoutExtension,
       bootstrapTemplate,
       serviceName,
-      stage,
       environment,
       external: buildConfig.external,
       builtInExternal,
