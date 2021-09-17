@@ -153,6 +153,10 @@ export abstract class BaseService {
       }
     },
 
+    eval: {},
+
+    repl: {},
+
     freeze: {},
 
     migrate: {},

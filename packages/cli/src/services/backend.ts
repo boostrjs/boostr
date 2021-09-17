@@ -38,6 +38,18 @@ export class BackendService extends Subservice {
   static commands: Record<string, Command> = {
     ...Subservice.commands,
 
+    eval: {
+      ...Subservice.commands.eval,
+      description:
+        'Evaluate the specified JavaScript code with the root component exposed globally.',
+      examples: ['boostr {{serviceName}} eval Application.checkHealth()'],
+      minimumArguments: 1,
+      maximumArguments: 1,
+      async handler(this: BackendService, [code]) {
+        await this.eval(code);
+      }
+    },
+
     repl: {
       ...Subservice.commands.repl,
       description: 'Start a REPL with the root component exposed globally.',
@@ -249,6 +261,31 @@ export class BackendService extends Subservice {
     await resource.deploy();
   }
 
+  async eval(code: string) {
+    const directory = this.getDirectory();
+    const config = this.getConfig();
+    const serviceName = this.getName();
+
+    await this.startDependencies();
+
+    const {jsBundleFile} = await this.build({forceLocal: true});
+
+    const processController = new ProcessController(
+      'eval-backend',
+      ['--componentGetterFile', jsBundleFile, '--serviceName', serviceName, '--code', code],
+      {
+        currentDirectory: directory,
+        environment: config.environment,
+        serviceName,
+        nodeArguments: ['--experimental-repl-await']
+      }
+    );
+
+    await processController.run();
+
+    await this.stopDependencies();
+  }
+
   async startREPL() {
     const directory = this.getDirectory();
     const config = this.getConfig();
@@ -259,7 +296,7 @@ export class BackendService extends Subservice {
     const {jsBundleFile} = await this.build({forceLocal: true});
 
     const processController = new ProcessController(
-      'start-repl',
+      'start-backend-repl',
       ['--componentGetterFile', jsBundleFile, '--serviceName', serviceName],
       {
         currentDirectory: directory,
