@@ -642,10 +642,17 @@ export class AWSBaseResource extends BaseResource {
       credentials = pick(profileCredentials, ['accessKeyId', 'secretAccessKey']);
     }
 
+    if (config.accessKeyId !== undefined) {
+      credentials.accessKeyId = config.accessKeyId;
+    }
+
+    if (config.secretAccessKey !== undefined) {
+      credentials.secretAccessKey = config.secretAccessKey;
+    }
+
     return {
       ...credentials,
-      ...pick(config, ['accessKeyId', 'secretAccessKey', 'region']),
-      ...(region !== undefined && {region}),
+      region: region ?? config.region,
       signatureVersion: 'v4'
     };
   }
