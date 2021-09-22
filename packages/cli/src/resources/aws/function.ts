@@ -1,6 +1,7 @@
 import {promises as fsAsync} from 'fs';
 import fsExtra from 'fs-extra';
 import {join, sep} from 'path';
+import tempy from 'tempy';
 // @ts-ignore
 import zip from 'cross-zip';
 import hasha from 'hasha';
@@ -10,7 +11,6 @@ import bytes from 'bytes';
 
 import {AWSBaseResource, AWSBaseResourceConfig} from './base.js';
 import {ResourceOptions} from '../base.js';
-import {withTemporaryDirectory} from '../../utilities.js';
 
 const DEFAULT_LAMBDA_RUNTIME = 'nodejs14.x';
 const DEFAULT_LAMBDA_EXECUTION_ROLE = 'boostr-backend-lambda-role-v1';
@@ -370,7 +370,7 @@ export class AWSFunctionResource extends AWSBaseResource {
 
       this.logMessage(`Building the ZIP archive...`);
 
-      await withTemporaryDirectory(async (temporaryDirectory) => {
+      await tempy.directory.task(async (temporaryDirectory) => {
         const codeDirectory = join(temporaryDirectory, 'code');
         const zipArchiveFile = join(temporaryDirectory, 'archive.zip');
 

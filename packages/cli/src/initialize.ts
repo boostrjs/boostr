@@ -1,6 +1,7 @@
 import {execFileSync} from 'child_process';
 import {readFileSync, writeFileSync} from 'fs';
 import {join, basename, extname} from 'path';
+import tempy from 'tempy';
 import tar from 'tar';
 import walkSync from 'walk-sync';
 import kebabCase from 'lodash/kebabCase.js';
@@ -8,13 +9,7 @@ import kebabCase from 'lodash/kebabCase.js';
 import {createApplicationServiceFromDirectory} from './services/index.js';
 import {GLOBAL_OPTIONS_HELP_OBJECT} from './argument-parser.js';
 import {formatHelp} from './help.js';
-import {
-  logMessage,
-  throwError,
-  resolveVariables,
-  directoryIsEmpty,
-  withTemporaryDirectory
-} from './utilities.js';
+import {logMessage, throwError, resolveVariables, directoryIsEmpty} from './utilities.js';
 
 const INITIALIZE_HELP = formatHelp({
   'Command': 'initialize',
@@ -83,7 +78,7 @@ export async function initialize(
 }
 
 async function fetchTemplate(name: string, directory: string) {
-  await withTemporaryDirectory(async (temporaryDirectory) => {
+  await tempy.directory.task(async (temporaryDirectory) => {
     try {
       const tarballFileName = execFileSync('npm', ['pack', name, '--silent'], {
         cwd: temporaryDirectory

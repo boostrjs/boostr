@@ -1,6 +1,4 @@
 import {readFileSync, statSync, readdirSync} from 'fs';
-import tempy from 'tempy';
-import fsExtra from 'fs-extra';
 import hasha from 'hasha';
 import baseX from 'base-x';
 import without from 'lodash/without.js';
@@ -70,16 +68,4 @@ export function directoryIsEmpty(
   const entries = without(readdirSync(directory), ...ignoreDirectoryNames);
 
   return entries.length === 0;
-}
-
-export async function withTemporaryDirectory<ReturnValue extends unknown>(
-  task: (temporaryDirectory: string) => Promise<ReturnValue>
-) {
-  const temporaryDirectory = tempy.directory();
-
-  try {
-    return await task(temporaryDirectory);
-  } finally {
-    fsExtra.removeSync(temporaryDirectory);
-  }
 }
