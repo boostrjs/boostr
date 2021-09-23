@@ -5,12 +5,15 @@ import tempy from 'tempy';
 // @ts-ignore
 import zip from 'cross-zip';
 import hasha from 'hasha';
+import {sleep, MINUTE, HOUR, DAY} from '@layr/utilities';
 import isEqual from 'lodash/isEqual.js';
-import sleep from 'sleep-promise';
+import pull from 'lodash/pull.js';
 import bytes from 'bytes';
 
 import {AWSBaseResource, AWSBaseResourceConfig} from './base.js';
 import {ResourceOptions} from '../base.js';
+import {BackgroundMethod} from '../../component.js';
+import {ensureMaximumStringLength} from '../../utilities.js';
 
 const DEFAULT_LAMBDA_RUNTIME = 'nodejs14.x';
 const DEFAULT_LAMBDA_EXECUTION_ROLE = 'boostr-backend-lambda-role-v1';
@@ -54,6 +57,7 @@ const DEFAULT_IAM_LAMBDA_POLICY_DOCUMENT = {
 export type AWSFunctionResourceConfig = AWSBaseResourceConfig & {
   directory: string;
   environment?: Environment;
+  backgroundMethods?: BackgroundMethod[];
   lambda?: {
     runtime?: string;
     executionRole?: string;
@@ -80,6 +84,7 @@ export class AWSFunctionResource extends AWSBaseResource {
     const {
       directory,
       environment = {},
+      backgroundMethods = [],
       lambda: {
         runtime = DEFAULT_LAMBDA_RUNTIME,
         executionRole = DEFAULT_LAMBDA_EXECUTION_ROLE,
@@ -98,6 +103,7 @@ export class AWSFunctionResource extends AWSBaseResource {
       ...super.normalizeConfig(otherAttributes),
       directory,
       environment,
+      backgroundMethods,
       lambda: {
         runtime,
         executionRole,
@@ -116,6 +122,7 @@ export class AWSFunctionResource extends AWSBaseResource {
     await this.getRoute53HostedZone();
     await this.ensureIAMLambdaRole();
     await this.createOrUpdateLambdaFunction();
+    await this.configureEventBridgeRules();
     await this.ensureACMCertificate();
     await this.createOrUpdateAPIGateway();
     await this.createOrUpdateAPIGatewayCustomDomainName();
@@ -427,7 +434,209 @@ export class AWSFunctionResource extends AWSBaseResource {
   }
 
   getLambdaName() {
-    return this.getConfig().domainName.replace(/\./g, '-');
+    return ensureMaximumStringLength(this.getConfig().domainName.replace(/\./g, '-'), 64);
+  }
+
+  // === EventBridge rules ===
+
+  async configureEventBridgeRules() {
+    const config = this.getConfig();
+
+    const expectedRules = config.backgroundMethods
+      .filter(({schedule}) => schedule !== undefined)
+      .map(({path, schedule, query}) => ({
+        name: ensureMaximumStringLength(`${this.getLambdaName()}.${path}`, 64),
+        description: `Invokes the method ${path}() from the Lambda function '${this.getLambdaName()}'.`,
+        scheduleExpression: millisecondsToEventBridgeScheduleExpression(schedule!.rate),
+        input: JSON.stringify({query})
+      }));
+
+    const existingRules = await this.findEventBridgeExistingRules();
+
+    for (const expectedRule of expectedRules) {
+      const existingRule = existingRules.find(
+        (existingRule) => existingRule.name === expectedRule.name
+      );
+
+      if (existingRule === undefined) {
+        await this.createEventBridgeRule(expectedRule);
+      } else {
+        if (existingRule.scheduleExpression !== expectedRule.scheduleExpression) {
+          await this.updateEventBridgeRule({...existingRule, ...expectedRule});
+        }
+
+        pull(existingRules, existingRule);
+      }
+    }
+
+    for (const existingRule of existingRules) {
+      await this.removeEventBridgeRule(existingRule);
+    }
+  }
+
+  async findEventBridgeExistingRules() {
+    const eventBridge = this.getEventBridgeClient();
+
+    const lambdaFunction = (await this.getLambdaFunction())!;
+
+    this.logMessage(`Searching for EventBridge existing rules...`);
+
+    const result = await eventBridge
+      .listRuleNamesByTarget({TargetArn: lambdaFunction.arn})
+      .promise();
+
+    if (result.NextToken) {
+      this.throwError(
+        `Whoa, you have a lot of EventBridge rules associated to the Lambda function! Unfortunately, this tool cannot list them all.`
+      );
+    }
+
+    const existingRuleNames = result.RuleNames!;
+
+    const existingRules: {
+      name: string;
+      description: string;
+      arn: string;
+      scheduleExpression: string;
+    }[] = [];
+
+    for (const name of existingRuleNames) {
+      const result = await eventBridge.describeRule({Name: name}).promise();
+
+      existingRules.push({
+        name: result.Name!,
+        description: result.Description!,
+        arn: result.Arn!,
+        scheduleExpression: result.ScheduleExpression!
+      });
+    }
+
+    return existingRules;
+  }
+
+  async createEventBridgeRule(rule: {
+    name: string;
+    description: string;
+    scheduleExpression: string;
+    input: string;
+  }) {
+    const lambda = this.getLambdaClient();
+    const eventBridge = this.getEventBridgeClient();
+
+    this.logMessage(`Creating the EventBridge rule '${rule.name}'...`);
+
+    const putRuleResult = await eventBridge
+      .putRule({
+        Name: rule.name,
+        Description: rule.description,
+        ScheduleExpression: rule.scheduleExpression,
+        Tags: [{Key: 'managed-by', Value: this.constructor.managerIdentifiers[0]}]
+      })
+      .promise();
+
+    await lambda
+      .addPermission({
+        FunctionName: this.getLambdaName(),
+        StatementId: eventBridgeRuleNameToLambdaPermissionStatementId(rule.name),
+        Action: 'lambda:InvokeFunction',
+        Principal: 'events.amazonaws.com',
+        SourceArn: putRuleResult.RuleArn!
+      })
+      .promise();
+
+    const lambdaFunction = (await this.getLambdaFunction())!;
+
+    const putTargetsResult = await eventBridge
+      .putTargets({
+        Rule: rule.name,
+        Targets: [{Id: rule.name, Arn: lambdaFunction.arn, Input: rule.input}]
+      })
+      .promise();
+
+    if (putTargetsResult.FailedEntryCount !== 0) {
+      this.throwError(
+        `An error occurred while setting the target of the EventBridge rule (code: '${
+          putTargetsResult.FailedEntries![0].ErrorCode
+        }', message: '${putTargetsResult.FailedEntries![0].ErrorMessage}')`
+      );
+    }
+  }
+
+  async updateEventBridgeRule(rule: {
+    name: string;
+    description: string;
+    scheduleExpression: string;
+    arn: string;
+  }) {
+    const eventBridge = this.getEventBridgeClient();
+
+    if (!(await this.checkEventBridgeRuleTags(rule))) {
+      this.throwError(
+        `Cannot update an EventBridge rule that was not originally created by this tool (rule: '${rule.name}')`
+      );
+    }
+
+    this.logMessage(`Updating the EventBridge rule '${rule.name}'...`);
+
+    await eventBridge
+      .putRule({
+        Name: rule.name,
+        Description: rule.description,
+        ScheduleExpression: rule.scheduleExpression
+      })
+      .promise();
+  }
+
+  async removeEventBridgeRule(rule: {name: string; arn: string}) {
+    const lambda = this.getLambdaClient();
+    const eventBridge = this.getEventBridgeClient();
+
+    if (!(await this.checkEventBridgeRuleTags(rule))) {
+      return;
+    }
+
+    this.logMessage(`Removing the EventBridge rule '${rule.name}'...`);
+
+    const removeTargetsResult = await eventBridge
+      .removeTargets({Rule: rule.name, Ids: [rule.name]})
+      .promise();
+
+    if (removeTargetsResult.FailedEntryCount !== 0) {
+      this.throwError(
+        `An error occurred while setting the target of the EventBridge rule (code: '${
+          removeTargetsResult.FailedEntries![0].ErrorCode
+        }', message: '${removeTargetsResult.FailedEntries![0].ErrorMessage}')`
+      );
+    }
+
+    await lambda
+      .removePermission({
+        FunctionName: this.getLambdaName(),
+        StatementId: eventBridgeRuleNameToLambdaPermissionStatementId(rule.name)
+      })
+      .promise();
+
+    await eventBridge.deleteRule({Name: rule.name}).promise();
+  }
+
+  async checkEventBridgeRuleTags(rule: {name: string; arn: string}) {
+    const tags = await this.getEventBridgeRuleTags(rule);
+
+    return this.constructor.managerIdentifiers.includes(tags['managed-by']);
+  }
+
+  async getEventBridgeRuleTags(rule: {arn: string}) {
+    const eventBridge = this.getEventBridgeClient();
+
+    const result = await eventBridge.listTagsForResource({ResourceARN: rule.arn}).promise();
+
+    const tags: Record<string, string> = Object.create(null);
+
+    for (const {Key, Value} of result.Tags!) {
+      tags[Key] = Value;
+    }
+
+    return tags;
   }
 
   // === IAM for Lambda ===
@@ -666,4 +875,34 @@ export class AWSFunctionResource extends AWSBaseResource {
   getAPIGatewayName() {
     return this.getConfig().domainName;
   }
+}
+
+function millisecondsToEventBridgeScheduleExpression(milliseconds: number) {
+  let value: number;
+  let unit: string;
+
+  if (milliseconds > 0 && milliseconds % DAY === 0) {
+    value = milliseconds / DAY;
+    unit = 'day';
+  } else if (milliseconds > 0 && milliseconds % HOUR === 0) {
+    value = milliseconds / HOUR;
+    unit = 'hour';
+  } else if (milliseconds > 0 && milliseconds % MINUTE === 0) {
+    value = milliseconds / MINUTE;
+    unit = 'minute';
+  } else {
+    throw new Error(
+      `The specified number of milliseconds (${milliseconds}) cannot be converted to an EventBridge schedule expression`
+    );
+  }
+
+  if (value > 1) {
+    unit += 's';
+  }
+
+  return `rate(${value} ${unit})`;
+}
+
+function eventBridgeRuleNameToLambdaPermissionStatementId(name: string) {
+  return name.replace(/\./g, '-');
 }

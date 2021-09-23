@@ -1,10 +1,12 @@
 import fsExtra from 'fs-extra';
 import {join} from 'path';
+import tempy from 'tempy';
 
 import {Subservice} from './sub.js';
 import type {Command} from '../command.js';
 import {check} from '../checker.js';
 import {build} from '../builder.js';
+import type {BackgroundMethod} from '../component.js';
 import {ProcessController} from '../processes/index.js';
 import {AWSFunctionResource} from '../resources/aws/function.js';
 
@@ -230,6 +232,8 @@ export class BackendService extends Subservice {
 
     await this.check();
 
+    const backgroundMethods = await this.findBackgroundMethods();
+
     const config = this.getConfig();
 
     const {hostname} = this.parseConfigURL();
@@ -245,6 +249,7 @@ export class BackendService extends Subservice {
         secretAccessKey: config.aws?.secretAccessKey,
         directory: buildDirectory,
         environment: config.environment,
+        backgroundMethods,
         lambda: {
           runtime: config.aws?.lambda?.runtime,
           executionRole: config.aws?.lambda?.executionRole,
@@ -259,6 +264,48 @@ export class BackendService extends Subservice {
     await resource.initialize();
 
     await resource.deploy();
+  }
+
+  async findBackgroundMethods() {
+    this.logMessage('Searching for background methods...');
+
+    const directory = this.getDirectory();
+    const config = this.getConfig();
+    const serviceName = this.getName();
+
+    await this.startDependencies();
+
+    const {jsBundleFile} = await this.build({forceLocal: true});
+
+    const backgroundMethods = await tempy.file.task(async (outputFile) => {
+      const processController = new ProcessController(
+        'find-backend-background-methods',
+        [
+          '--componentGetterFile',
+          jsBundleFile,
+          '--serviceName',
+          serviceName,
+          '--outputFile',
+          outputFile
+        ],
+        {
+          currentDirectory: directory,
+          environment: config.environment,
+          serviceName,
+          nodeArguments: ['--experimental-repl-await']
+        }
+      );
+
+      await processController.run();
+
+      return fsExtra.readJSONSync(outputFile) as BackgroundMethod[];
+    });
+
+    await this.stopDependencies();
+
+    this.logMessage(`${backgroundMethods.length} background method(s) found`);
+
+    return backgroundMethods;
   }
 
   async eval(code: string) {

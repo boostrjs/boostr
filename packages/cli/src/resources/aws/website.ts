@@ -7,7 +7,7 @@ import hasha from 'hasha';
 import minimatch from 'minimatch';
 import bytes from 'bytes';
 import mime from 'mime';
-import sleep from 'sleep-promise';
+import {sleep} from '@layr/utilities';
 
 import {AWSBaseResource, AWSBaseResourceConfig, getS3WebsiteDomainName} from './base.js';
 import {ResourceOptions} from '../base.js';

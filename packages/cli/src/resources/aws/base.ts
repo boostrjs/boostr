@@ -4,7 +4,7 @@ import sortBy from 'lodash/sortBy.js';
 import isEqual from 'lodash/isEqual.js';
 import takeRight from 'lodash/takeRight.js';
 import trimEnd from 'lodash/trimEnd.js';
-import sleep from 'sleep-promise';
+import {sleep} from '@layr/utilities';
 
 import {BaseResource, BaseResourceConfig, ResourceOptions} from '../base.js';
 import {requireGlobalNPMPackage} from '../../npm.js';
@@ -48,7 +48,7 @@ export class AWSBaseResource extends BaseResource {
   async initialize() {
     await super.initialize();
 
-    this._AWS = await requireGlobalNPMPackage('aws-sdk', '2.987.0', {
+    this._AWS = await requireGlobalNPMPackage('aws-sdk', '2.992.0', {
       serviceName: this.getServiceName()
     });
   }
@@ -78,6 +78,21 @@ export class AWSBaseResource extends BaseResource {
     }
 
     return this._lambdaClient;
+  }
+
+  // === EventBridge ===
+
+  _eventBridgeClient!: AWS.EventBridge;
+
+  getEventBridgeClient() {
+    if (this._eventBridgeClient === undefined) {
+      this._eventBridgeClient = new this._AWS.EventBridge({
+        ...this.buildAWSConfig(),
+        apiVersion: '2015-10-07'
+      });
+    }
+
+    return this._eventBridgeClient;
   }
 
   // === S3 ===

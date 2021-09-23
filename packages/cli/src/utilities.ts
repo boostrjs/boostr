@@ -69,3 +69,19 @@ export function directoryIsEmpty(
 
   return entries.length === 0;
 }
+
+export function ensureMaximumStringLength(
+  string: string,
+  maximumLength: number,
+  {hashLength = 6}: {hashLength?: number} = {}
+) {
+  if (string.length <= maximumLength) {
+    return string;
+  }
+
+  const head = string.slice(0, maximumLength - hashLength);
+  const tail = string.slice(maximumLength - hashLength);
+  const hash = hasha(tail, {algorithm: 'md5'}).slice(0, hashLength).toUpperCase();
+
+  return head + hash;
+}
