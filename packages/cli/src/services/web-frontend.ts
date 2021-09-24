@@ -66,11 +66,11 @@ main().catch((error) => {
 `;
 
 const BOOTSTRAP_LOCAL = `
-function openWebSocket(isFirstTime = true) {
+function openWebSocket({reconnectionCount = 0} = {}) {
   const webSocket = new WebSocket('ws://' + window.location.host);
 
   webSocket.addEventListener('open', () => {
-    if (!isFirstTime) {
+    if (reconnectionCount !== 0) {
       window.location.reload();
     }
   });
@@ -82,7 +82,19 @@ function openWebSocket(isFirstTime = true) {
   });
 
   webSocket.addEventListener('close', () => {
-    setTimeout(() => { openWebSocket(false); }, 10000); // 10 seconds
+    setTimeout(() => {
+      reconnectionCount++;
+
+      if (reconnectionCount > 30) {
+        console.warn(
+          'Automatic refresh disabled because the server has not responded for 5 minutes.'
+        );
+
+        return;
+      }
+
+      openWebSocket({reconnectionCount});
+    }, 10000); // 10 seconds
   });
 }
 
