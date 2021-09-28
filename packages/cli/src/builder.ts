@@ -16,6 +16,7 @@ export async function build({
   buildDirectory,
   bundleFileNameWithoutExtension = 'bundle',
   bootstrapTemplate,
+  bootstrapVariables = {},
   serviceName,
   environment = {},
   external = [],
@@ -31,6 +32,7 @@ export async function build({
   buildDirectory: string;
   bundleFileNameWithoutExtension?: string;
   bootstrapTemplate: string;
+  bootstrapVariables?: Record<string, string>;
   serviceName?: string;
   environment?: Record<string, string>;
   external?: string[];
@@ -57,7 +59,7 @@ export async function build({
     );
   }
 
-  const bootstrapCode = resolveVariables(bootstrapTemplate, {entryPoint});
+  const bootstrapCode = resolveVariables(bootstrapTemplate, {...bootstrapVariables, entryPoint});
 
   // Include CLI's node_modules folder so that packages such as @layr/component-http-server
   // or @layr/aws-integration can be found even though they are not installed by the user

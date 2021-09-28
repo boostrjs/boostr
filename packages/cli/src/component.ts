@@ -1,35 +1,48 @@
-import type {Component, MethodSchedule} from '@layr/component';
+import type {Component, MethodScheduling, MethodQueueing} from '@layr/component';
 
 export type BackgroundMethod = {
   path: string;
-  schedule?: MethodSchedule;
+  scheduling: MethodScheduling | undefined;
+  queueing: MethodQueueing | undefined;
+  maximumDuration: number | undefined;
   query?: any;
 };
 
 export function findBackgroundMethods(rootComponent: typeof Component) {
   const backgroundMethods: BackgroundMethod[] = [];
 
-  for (const component of rootComponent.traverseComponents()) {
+  const find = (component: typeof Component | Component) => {
     for (const method of component.getMethods()) {
-      const schedule = method.getSchedule();
+      const scheduling = method.getScheduling();
+      const queueing = method.getQueueing();
 
-      if (schedule === undefined) {
+      if (!scheduling && !queueing) {
         continue;
       }
 
-      const path = `${component.getComponentName()}.${method.getName()}`;
+      const maximumDuration = method.getMaximumDuration();
 
-      const query = {
-        '<=': {__component: component.getComponentType()},
-        [`${method.getName()}=>`]: {'()': []}
+      const backgroundMethod: BackgroundMethod = {
+        path: component.describeComponentProperty(method.getName()),
+        scheduling,
+        queueing,
+        maximumDuration
       };
 
-      backgroundMethods.push({
-        path,
-        schedule,
-        query
-      });
+      if (scheduling) {
+        backgroundMethod.query = {
+          '<=': {__component: component.getComponentType()},
+          [`${method.getName()}=>`]: {'()': []}
+        };
+      }
+
+      backgroundMethods.push(backgroundMethod);
     }
+  };
+
+  for (const component of rootComponent.traverseComponents()) {
+    find(component);
+    find(component.prototype);
   }
 
   return backgroundMethods;

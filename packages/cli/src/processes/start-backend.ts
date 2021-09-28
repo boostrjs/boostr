@@ -2,6 +2,8 @@ import {deserialize} from '@layr/component';
 import type {Component} from '@layr/component';
 import {ComponentServer} from '@layr/component-server';
 import {ComponentHTTPServer} from '@layr/component-http-server';
+import {ComponentBackgroundClient} from '@layr/component-client';
+import {ExecutionQueue} from '@layr/execution-queue';
 import mri from 'mri';
 import {createRequire} from 'module';
 import 'source-map-support/register.js';
@@ -21,17 +23,10 @@ async function main() {
 
   const componentServer = new ComponentServer(rootComponent);
 
-  // === Handle HTTP server ===
+  // === Handle method scheduling ===
 
-  const httpServer = new ComponentHTTPServer(componentServer, {port: Number(portString)});
-  await httpServer.start();
-
-  console.log(`Component HTTP server started at http://localhost:${portString}/`);
-
-  // === Handle scheduled method ===
-
-  for (const {path, schedule, query} of findBackgroundMethods(rootComponent)) {
-    if (schedule === undefined) {
+  for (const {path, scheduling, query} of findBackgroundMethods(rootComponent)) {
+    if (!scheduling) {
       continue;
     }
 
@@ -47,8 +42,23 @@ async function main() {
         },
         source: 'server'
       });
-    }, schedule.rate);
+    }, scheduling.rate);
   }
+
+  // === Handle method queueing ===
+
+  const componentClient = new ComponentBackgroundClient(componentServer);
+
+  const executionQueue = new ExecutionQueue(componentClient);
+
+  executionQueue.registerRootComponent(rootComponent);
+
+  // === Handle HTTP server ===
+
+  const httpServer = new ComponentHTTPServer(componentServer, {port: Number(portString)});
+  await httpServer.start();
+
+  console.log(`Component HTTP server started at http://localhost:${portString}/`);
 
   process.send!('started');
 }

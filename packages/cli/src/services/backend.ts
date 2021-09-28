@@ -8,18 +8,26 @@ import {check} from '../checker.js';
 import {build} from '../builder.js';
 import type {BackgroundMethod} from '../component.js';
 import {ProcessController} from '../processes/index.js';
-import {AWSFunctionResource} from '../resources/aws/function.js';
+import {AWSFunctionResource, domainNameToLambdaFunctionName} from '../resources/aws/function.js';
 
 const BOOTSTRAP_TEMPLATE_LOCAL = `export {default} from '{{entryPoint}}';`;
 
 const BOOTSTRAP_TEMPLATE_AWS_LAMBDA = `
-import {ComponentServer} from '@layr/component-server';
-import {createAWSLambdaHandler} from '@layr/aws-integration';
+import {createAWSLambdaHandler, ComponentAWSLambdaClient} from '@layr/aws-integration';
+import {ExecutionQueue} from '@layr/execution-queue';
 
 import componentGetter from '{{entryPoint}}';
 
 export const handler = createAWSLambdaHandler(async function() {
-  return await componentGetter();
+  const rootComponent = await componentGetter();
+
+  const componentClient = new ComponentAWSLambdaClient('{{lambdaFunctionName}}');
+
+  const executionQueue = new ExecutionQueue(componentClient);
+
+  executionQueue.registerRootComponent(rootComponent);
+
+  return rootComponent;
 });
 `;
 
@@ -90,15 +98,19 @@ export class BackendService extends Subservice {
 
     let bundleFileNameWithoutExtension: string;
     let bootstrapTemplate: string;
+    let bootstrapVariables: Record<string, string>;
     let builtInExternal: string[] | undefined;
 
     if (isLocal) {
       bundleFileNameWithoutExtension = 'bundle';
       bootstrapTemplate = BOOTSTRAP_TEMPLATE_LOCAL;
+      bootstrapVariables = {};
       builtInExternal = undefined;
     } else if (platform === 'aws') {
       bundleFileNameWithoutExtension = 'handler';
       bootstrapTemplate = BOOTSTRAP_TEMPLATE_AWS_LAMBDA;
+      const {hostname} = this.parseConfigURL();
+      bootstrapVariables = {lambdaFunctionName: domainNameToLambdaFunctionName(hostname)};
       builtInExternal = ['aws-sdk'];
     } else {
       this.throwError(`Couldn't create a build configuration for the '${platform}' platform`);
@@ -109,6 +121,7 @@ export class BackendService extends Subservice {
       buildDirectory,
       bundleFileNameWithoutExtension,
       bootstrapTemplate,
+      bootstrapVariables,
       serviceName,
       environment,
       external: buildConfig.external,

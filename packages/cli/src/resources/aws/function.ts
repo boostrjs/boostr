@@ -5,7 +5,7 @@ import tempy from 'tempy';
 // @ts-ignore
 import zip from 'cross-zip';
 import hasha from 'hasha';
-import {sleep, MINUTE, HOUR, DAY} from '@layr/utilities';
+import {sleep, SECOND, MINUTE, HOUR, DAY} from '@layr/utilities';
 import isEqual from 'lodash/isEqual.js';
 import pull from 'lodash/pull.js';
 import bytes from 'bytes';
@@ -16,7 +16,7 @@ import {BackgroundMethod} from '../../component.js';
 import {ensureMaximumStringLength} from '../../utilities.js';
 
 const DEFAULT_LAMBDA_RUNTIME = 'nodejs14.x';
-const DEFAULT_LAMBDA_EXECUTION_ROLE = 'boostr-backend-lambda-role-v1';
+const DEFAULT_LAMBDA_EXECUTION_ROLE = 'boostr-backend-lambda-role-v2';
 const DEFAULT_LAMBDA_MEMORY_SIZE = 128;
 const DEFAULT_LAMBDA_TIMEOUT = 10;
 
@@ -47,7 +47,7 @@ const DEFAULT_IAM_LAMBDA_POLICY_DOCUMENT = {
   Version: '2012-10-17',
   Statement: [
     {
-      Action: ['logs:*'],
+      Action: ['logs:*', 'lambda:InvokeFunction'],
       Effect: 'Allow',
       Resource: '*'
     }
@@ -81,7 +81,7 @@ export class AWSFunctionResource extends AWSBaseResource {
   _config!: ReturnType<AWSFunctionResource['normalizeConfig']>;
 
   normalizeConfig(config: AWSFunctionResourceConfig) {
-    const {
+    let {
       directory,
       environment = {},
       backgroundMethods = [],
@@ -89,7 +89,7 @@ export class AWSFunctionResource extends AWSBaseResource {
         runtime = DEFAULT_LAMBDA_RUNTIME,
         executionRole = DEFAULT_LAMBDA_EXECUTION_ROLE,
         memorySize = DEFAULT_LAMBDA_MEMORY_SIZE,
-        timeout = DEFAULT_LAMBDA_TIMEOUT,
+        timeout,
         reservedConcurrentExecutions
       } = {},
       ...otherAttributes
@@ -97,6 +97,37 @@ export class AWSFunctionResource extends AWSBaseResource {
 
     if (!directory) {
       this.throwError(`A 'directory' property is required in the configuration`);
+    }
+
+    let longestBackgroundMethod: BackgroundMethod | undefined;
+
+    for (const backgroundMethod of backgroundMethods) {
+      if (backgroundMethod.maximumDuration === undefined) {
+        continue;
+      }
+
+      if (longestBackgroundMethod === undefined) {
+        longestBackgroundMethod = backgroundMethod;
+        continue;
+      }
+
+      if (backgroundMethod.maximumDuration > longestBackgroundMethod.maximumDuration!) {
+        longestBackgroundMethod = backgroundMethod;
+      }
+    }
+
+    if (longestBackgroundMethod !== undefined) {
+      const maximumTimeout = longestBackgroundMethod.maximumDuration! / SECOND;
+
+      if (timeout === undefined) {
+        timeout = maximumTimeout;
+      } else if (timeout < maximumTimeout) {
+        this.throwError(
+          `The Lambda function timeout specified in the configuration (${timeout} seconds) shouldn't be lower than the maximum background method duration (method: '${longestBackgroundMethod.path}', maximum duration: ${maximumTimeout} seconds)`
+        );
+      }
+    } else {
+      timeout ??= DEFAULT_LAMBDA_TIMEOUT;
     }
 
     return {
@@ -434,7 +465,7 @@ export class AWSFunctionResource extends AWSBaseResource {
   }
 
   getLambdaName() {
-    return ensureMaximumStringLength(this.getConfig().domainName.replace(/\./g, '-'), 64);
+    return domainNameToLambdaFunctionName(this.getConfig().domainName);
   }
 
   // === EventBridge rules ===
@@ -443,11 +474,13 @@ export class AWSFunctionResource extends AWSBaseResource {
     const config = this.getConfig();
 
     const expectedRules = config.backgroundMethods
-      .filter(({schedule}) => schedule !== undefined)
-      .map(({path, schedule, query}) => ({
+      .filter(({scheduling}) => scheduling)
+      .map(({path, scheduling, query}) => ({
         name: ensureMaximumStringLength(`${this.getLambdaName()}.${path}`, 64),
         description: `Invokes the method ${path}() from the Lambda function '${this.getLambdaName()}'.`,
-        scheduleExpression: millisecondsToEventBridgeScheduleExpression(schedule!.rate),
+        scheduleExpression: millisecondsToEventBridgeScheduleExpression(
+          (scheduling as {rate: number}).rate
+        ),
         input: JSON.stringify({query})
       }));
 
@@ -704,7 +737,7 @@ export class AWSFunctionResource extends AWSBaseResource {
       })
       .promise();
 
-    await sleep(5000); // Wait 5 secs so AWS can replicate the role in all regions
+    await sleep(15000); // Wait 15 secs so AWS can replicate the role in all regions
 
     this._iamLambdaRole = {arn};
   }
@@ -901,6 +934,10 @@ function millisecondsToEventBridgeScheduleExpression(milliseconds: number) {
   }
 
   return `rate(${value} ${unit})`;
+}
+
+export function domainNameToLambdaFunctionName(domainName: string) {
+  return ensureMaximumStringLength(domainName.replace(/\./g, '-'), 64);
 }
 
 function eventBridgeRuleNameToLambdaPermissionStatementId(name: string) {
