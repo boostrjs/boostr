@@ -1,6 +1,6 @@
 {
   "name": "boostr",
-  "version": "2.0.126",
+  "version": "2.0.128",
   "description": "Build and deploy your Layr applications",
   "keywords": [
     "layr",
@@ -40,7 +40,7 @@
     "@layr/component-client": "^2.0.51",
     "@layr/component-http-server": "^2.0.55",
     "@layr/component-server": "^2.0.44",
-    "@layr/execution-queue": "^2.0.12",
+    "@layr/execution-queue": "^2.0.14",
     "@layr/storable": "^2.0.49",
     "@layr/utilities": "^1.0.5",
     "base-x": "^3.0.8",
