@@ -18,14 +18,23 @@ export default ({services}) => ({
       url: 'http://localhost:{{backendPort}}/',
       platform: 'local'
     },
+    staging: {
+      url: 'https://staging.backend.example.com/',
+      platform: 'aws',
+      aws: {
+        region: 'us-east-1',
+        lambda: {
+          memorySize: 1024
+        }
+      }
+    },
     production: {
       url: 'https://backend.example.com/',
       platform: 'aws',
       aws: {
         region: 'us-east-1',
         lambda: {
-          memorySize: 1024,
-          timeout: 15
+          memorySize: 1024
         }
       }
     }

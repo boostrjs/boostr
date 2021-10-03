@@ -12,5 +12,18 @@ export default () => ({
 
   environment: {
     // Put global environment variables here
+  },
+
+  stages: {
+    staging: {
+      environment: {
+        NODE_ENV: 'production'
+      }
+    },
+    production: {
+      environment: {
+        NODE_ENV: 'production'
+      }
+    }
   }
 });

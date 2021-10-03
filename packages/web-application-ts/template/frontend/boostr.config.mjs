@@ -27,6 +27,16 @@ export default ({application, services}) => ({
       url: 'http://localhost:{{frontendPort}}/',
       platform: 'local'
     },
+    staging: {
+      url: 'https://staging.example.com/',
+      platform: 'aws',
+      aws: {
+        region: 'us-east-1',
+        cloudFront: {
+          priceClass: 'PriceClass_100'
+        }
+      }
+    },
     production: {
       url: 'https://example.com/',
       platform: 'aws',

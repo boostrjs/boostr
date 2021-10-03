@@ -4,22 +4,22 @@ import {layout, page, useData} from '@layr/react-integration';
 
 import type {Application as BackendApplication} from '../../../backend/src/components/application';
 
-export const createApplicationComponent = (Base: typeof BackendApplication) => {
+export const extendApplication = (Base: typeof BackendApplication) => {
   class Application extends Routable(Base) {
     ['constructor']!: typeof Application;
 
     @layout('/') static MainLayout({children}: {children: () => any}) {
       return (
         <>
-          <this.HomePage.Link>
+          <this.MainPage.Link>
             <h1>Boostr Application</h1>
-          </this.HomePage.Link>
+          </this.MainPage.Link>
           {children()}
         </>
       );
     }
 
-    @page('[/]') static HomePage() {
+    @page('[/]') static MainPage() {
       return useData(
         async () => await this.isHealthy(),
 
@@ -40,6 +40,6 @@ export const createApplicationComponent = (Base: typeof BackendApplication) => {
   return Application;
 };
 
-export declare const Application: ReturnType<typeof createApplicationComponent>;
+export declare const Application: ReturnType<typeof extendApplication>;
 
 export type Application = InstanceType<typeof Application>;
