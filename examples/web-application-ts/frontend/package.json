@@ -1,7 +1,21 @@
 {
-  "name": "frontend",
+  "name": "web-application-ts-frontend",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
-  "dependencies": {}
+  "main": "./src/index.ts",
+  "dependencies": {
+    "@layr/component": "^2.0.0",
+    "@layr/component-http-client": "^2.0.0",
+    "@layr/react-integration": "^2.0.0",
+    "@layr/routable": "^2.0.0",
+    "@layr/storable": "^2.0.0",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
+  },
+  "devDependencies": {
+    "@boostr/tsconfig": "^1.0.0",
+    "@types/node": "^14.14.35",
+    "@types/react": "^17.0.2",
+    "@types/react-dom": "^17.0.1"
+  }
 }

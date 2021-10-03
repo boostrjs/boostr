@@ -3,8 +3,8 @@ export default () => ({
 
   stages: {
     development: {
-      url: 'mongodb://dev:dev@localhost:34567/myApp',
-      createLocalDatabase: true
+      url: 'mongodb://localhost:16783/dev',
+      platform: 'local'
     }
   }
 });
