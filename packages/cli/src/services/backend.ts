@@ -13,17 +13,23 @@ import {AWSFunctionResource, domainNameToLambdaFunctionName} from '../resources/
 const BOOTSTRAP_TEMPLATE_LOCAL = `export {default} from '{{entryPoint}}';`;
 
 const BOOTSTRAP_TEMPLATE_AWS_LAMBDA = `
-import {createAWSLambdaHandler, ComponentAWSLambdaClient} from '@layr/aws-integration';
+import {createAWSLambdaHandler, createAWSLambdaExecutionQueueSender} from '@layr/aws-integration';
 import {ExecutionQueue} from '@layr/execution-queue';
+import AWS from 'aws-sdk';
 
 import componentGetter from '{{entryPoint}}';
 
-export const handler = createAWSLambdaHandler(async function() {
+export const handler = createAWSLambdaHandler(async function () {
   const rootComponent = await componentGetter();
 
-  const componentClient = new ComponentAWSLambdaClient('{{lambdaFunctionName}}');
+  const lambdaClient = new AWS.Lambda({apiVersion: '2015-03-31'});
 
-  const executionQueue = new ExecutionQueue(componentClient);
+  const executionQueueSender = createAWSLambdaExecutionQueueSender({
+    lambdaClient,
+    functionName: '{{lambdaFunctionName}}'
+  });
+
+  const executionQueue = new ExecutionQueue(executionQueueSender);
 
   executionQueue.registerRootComponent(rootComponent);
 

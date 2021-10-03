@@ -1,8 +1,6 @@
-import {deserialize} from '@layr/component';
 import type {Component} from '@layr/component';
 import {ComponentServer} from '@layr/component-server';
 import {ComponentHTTPServer} from '@layr/component-http-server';
-import {ComponentBackgroundClient} from '@layr/component-client';
 import {ExecutionQueue} from '@layr/execution-queue';
 import mri from 'mri';
 import {createRequire} from 'module';
@@ -25,31 +23,21 @@ async function main() {
 
   // === Handle method scheduling ===
 
-  for (const {path, scheduling, query} of findBackgroundMethods(rootComponent)) {
+  for (const {scheduling, query} of findBackgroundMethods(rootComponent)) {
     if (!scheduling) {
       continue;
     }
 
-    setInterval(async () => {
-      const {result: serializedResult} = await componentServer.receive({query});
-
-      deserialize(serializedResult, {
-        rootComponent: rootComponent.fork(),
-        errorHandler(error) {
-          console.error(
-            `An error occurred while running the scheduled method '${path}': ${error.message}`
-          );
-        },
-        source: 'server'
-      });
+    setInterval(() => {
+      componentServer.receive({query}, {executionMode: 'background'});
     }, scheduling.rate);
   }
 
   // === Handle method queueing ===
 
-  const componentClient = new ComponentBackgroundClient(componentServer);
-
-  const executionQueue = new ExecutionQueue(componentClient);
+  const executionQueue = new ExecutionQueue(async (query) => {
+    componentServer.receive({query}, {executionMode: 'background'});
+  });
 
   executionQueue.registerRootComponent(rootComponent);
 
