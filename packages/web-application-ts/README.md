@@ -1,6 +1,6 @@
 # @boostr/web-application-ts
 
-A Boostr template for building a full-stack web application in TypeScript.
+A Boostr template for building full-stack web apps in TypeScript.
 
 ## Usage
 

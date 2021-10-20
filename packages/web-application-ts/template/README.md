@@ -4,7 +4,7 @@
 
 - Make sure you have [Node.js](https://nodejs.org/) v14 or newer installed.
 - Make sure you have [Boostr](https://boostr.dev/) v2 installed. Boostr is used to manage the development environment.
-- Make sure you have [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html) installed and some [AWS credentials](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html) properly set up.
+- If you want to deploy your app to AWS, make sure you have [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html) installed and some [AWS credentials](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html) properly set up.
 
 ## Installation
 
