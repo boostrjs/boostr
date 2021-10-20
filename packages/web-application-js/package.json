@@ -1,0 +1,20 @@
+{
+  "name": "@boostr/web-application-js",
+  "version": "2.0.1",
+  "description": "A Boostr template for building full-stack web apps in JavaScript",
+  "keywords": [
+    "boostr",
+    "template",
+    "full-stack",
+    "web-application",
+    "web-app",
+    "javascript",
+    "js"
+  ],
+  "author": "Manuel Vila <hi@mvila.me>",
+  "license": "MIT",
+  "repository": "https://github.com/boostrjs/boostr/tree/master/packages/web-application-js",
+  "files": [
+    "template"
+  ]
+}
