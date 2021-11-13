@@ -173,7 +173,8 @@ export class WebFrontendService extends Subservice {
         target: 'es2017',
         platform: 'browser',
         mainFields: ['browser', 'module', 'main'],
-        publicPath: '/'
+        publicPath: '/',
+        define: {global: 'window'}
       }
     });
 

@@ -65,10 +65,10 @@ export async function build({
   // or @layr/aws-integration can be found even though they are not installed by the user
   const nodePaths = [new URL('../node_modules', import.meta.url).pathname];
 
-  const definedIdentifers: Record<string, string> = {};
+  const definedIdentifiers: Record<string, string> = esbuildOptions?.define ?? {};
 
   for (const [name, value] of Object.entries(environment)) {
-    definedIdentifers[`process.env.${name}`] = `"${value}"`;
+    definedIdentifiers[`process.env.${name}`] = `"${value}"`;
   }
 
   const {build}: {build: typeof buildFunction} = await requireGlobalNPMPackage(
@@ -98,7 +98,7 @@ export async function build({
         ? `${bundleFileNameWithoutExtension}-[hash].immutable`
         : bundleFileNameWithoutExtension,
       assetNames: freeze ? '[name]-[hash].immutable' : '[name]',
-      define: definedIdentifers,
+      define: definedIdentifiers,
       external: [...external, ...builtInExternal],
       metafile: true,
       loader: {
