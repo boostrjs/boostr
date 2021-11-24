@@ -94,7 +94,7 @@ export class BackendService extends Subservice {
     const serviceDirectory = this.getDirectory();
     const serviceName = this.getName();
     const stage = this.getStage();
-    const {environment, platform, build: buildConfig = {}} = this.getConfig();
+    const {environment, platform, build: buildConfig = {}, hooks} = this.getConfig();
 
     const buildDirectory = join(serviceDirectory, 'build', stage);
 
@@ -142,6 +142,11 @@ export class BackendService extends Subservice {
         mainFields: ['module', 'main']
       }
     });
+
+    if (hooks?.afterBuild !== undefined) {
+      // TODO: Handle watch mode
+      await hooks.afterBuild({buildDirectory, jsBundleFile});
+    }
 
     return {buildDirectory, jsBundleFile};
   }

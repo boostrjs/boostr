@@ -145,7 +145,7 @@ export class WebFrontendService extends Subservice {
     const serviceDirectory = this.getDirectory();
     const serviceName = this.getName();
     const stage = this.getStage();
-    const {environment, platform, build: buildConfig, html: htmlConfig} = this.getConfig();
+    const {environment, platform, build: buildConfig, html: htmlConfig, hooks} = this.getConfig();
 
     const buildDirectory = join(serviceDirectory, 'build', stage);
 
@@ -193,6 +193,11 @@ export class WebFrontendService extends Subservice {
           this.logMessage(`Public directory synchronized`);
         }, 200)
       );
+    }
+
+    if (hooks?.afterBuild !== undefined) {
+      // TODO: Handle watch mode
+      await hooks.afterBuild({buildDirectory, htmlFile, jsBundleFile, cssBundleFile});
     }
 
     return {buildDirectory, htmlFile, jsBundleFile, cssBundleFile};
