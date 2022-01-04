@@ -1,4 +1,9 @@
-import {Component, serialize} from '@layr/component';
+import {
+  Component,
+  serialize,
+  createAttributeSelectorFromAttributes,
+  removeFromAttributeSelector
+} from '@layr/component';
 import {StorableComponent, isStorableClass} from '@layr/storable';
 import mri from 'mri';
 import fsExtra from 'fs-extra';
@@ -33,6 +38,15 @@ async function main() {
         continue;
       }
 
+      let attributeSelector = storableClass.prototype.resolveAttributeSelector(true);
+      const computedAttributes = storableClass.prototype.getStorableComputedAttributes({
+        attributeSelector
+      });
+      attributeSelector = removeFromAttributeSelector(
+        attributeSelector,
+        createAttributeSelectorFromAttributes(computedAttributes)
+      );
+
       const foundStorables = await store.find(storableClass);
 
       for (const foundStorable of foundStorables) {
@@ -42,7 +56,7 @@ async function main() {
             .getValue()}')`
         );
 
-        await store.load(foundStorable);
+        await store.load(foundStorable, {attributeSelector});
 
         exportedStorables.push(foundStorable);
       }
