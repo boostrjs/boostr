@@ -117,20 +117,20 @@ export class DatabaseService extends Subservice {
 
     const {MongoMemoryServer} = await requireGlobalNPMPackage(
       'mongodb-memory-server-global',
-      '6.9.6',
+      '8.1.0',
       {serviceName}
     );
 
-    this._localServer = new MongoMemoryServer({
+    this._localServer = (await MongoMemoryServer.create({
       instance: {
         port,
         dbName: databaseName,
         dbPath: dataDirectory,
         storageEngine: 'wiredTiger'
       }
-    }) as MongoMemoryServer;
+    })) as MongoMemoryServer;
 
-    let connectionString = await this._localServer.getUri();
+    let connectionString = this._localServer.getUri();
 
     connectionString = connectionString.replace('127.0.0.1', 'localhost');
 

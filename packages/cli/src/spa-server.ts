@@ -1,6 +1,6 @@
 import Koa from 'koa';
 import koaSend from 'koa-send';
-import WebSocket, {Server as WebSocketServer} from 'ws';
+import {WebSocketServer} from 'ws';
 import {join} from 'path';
 import type {Server} from 'http';
 
@@ -67,7 +67,7 @@ export class SinglePageApplicationServer {
       }
 
       this._server = koa.listen(this.port, () => {
-        this._webSocketServer = new WebSocket.Server({server: this._server});
+        this._webSocketServer = new WebSocketServer({server: this._server});
 
         logMessage(`Single-page application server started at http://localhost:${this.port}/`, {
           serviceName: this.serviceName

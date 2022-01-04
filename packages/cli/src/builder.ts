@@ -73,7 +73,7 @@ export async function build({
 
   const {build}: {build: typeof buildFunction} = await requireGlobalNPMPackage(
     'esbuild',
-    '0.12.28',
+    '0.14.10',
     {
       serviceName
     }
