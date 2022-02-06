@@ -320,11 +320,14 @@ export abstract class BaseService {
   async build(..._: any[]): Promise<any> {}
 
   async test() {
+    const {environment} = this.getConfig();
+
     await runNPMTestIfThereIsAPackage(this.getDirectory(), {
       serviceName: this.getName(),
       beforeTest: async () => {
         await this.build();
-      }
+      },
+      environment: {...process.env, ...environment}
     });
   }
 
@@ -355,7 +358,9 @@ export abstract class BaseService {
   }
 
   async runNPM(args: string[]) {
-    await runNPM(this.getDirectory(), args);
+    const {environment} = this.getConfig();
+
+    await runNPM(this.getDirectory(), args, {environment: {...process.env, ...environment}});
   }
 
   async execute(commandAndArguments: string[]) {
@@ -365,8 +370,14 @@ export abstract class BaseService {
       this.throwError(`Please specify a shell command to execute`);
     }
 
+    const {environment} = this.getConfig();
+
     try {
-      execFileSync(command, args, {cwd: this.getDirectory(), stdio: 'inherit'});
+      execFileSync(command, args, {
+        cwd: this.getDirectory(),
+        env: {...process.env, ...environment},
+        stdio: 'inherit'
+      });
     } catch (error) {
       console.log();
       throwError(`An error occurred while executing the specified command`);

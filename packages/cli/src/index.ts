@@ -9,7 +9,7 @@ import {
 import {formatHelp} from './help.js';
 import {programVersion, throwError} from './utilities.js';
 
-const DEFAULT_STAGE = 'development';
+const DEFAULT_STAGE = process.env.BOOSTR_STAGE || 'development';
 
 const CONFIG_NOT_FOUND_HELP = `
 Couldn't find a configuration file.

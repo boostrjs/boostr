@@ -2,6 +2,7 @@ import {ApplicationService} from './application.js';
 import {BackendService} from './backend.js';
 import {DatabaseService} from './database.js';
 import {WebFrontendService} from './web-frontend.js';
+import {CustomService} from './custom.js';
 import {loadApplicationConfig, loadServiceConfig} from '../config.js';
 import {throwError} from '../utilities.js';
 
@@ -50,7 +51,7 @@ function createApplicationService({config, stage}: {config: any; stage: string})
   return new ApplicationService({directory, config, stage});
 }
 
-const subserviceClasses = [WebFrontendService, BackendService, DatabaseService];
+const subserviceClasses = [WebFrontendService, BackendService, DatabaseService, CustomService];
 
 function createSubservice({config, stage, name}: {config: any; stage: string; name: string}) {
   const {type, __directory: directory} = config as {type: string; __directory: string};

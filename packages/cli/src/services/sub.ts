@@ -156,7 +156,7 @@ export abstract class Subservice extends BaseService {
 
     test: {
       ...BaseService.commands.test,
-      description: 'Test the current service in development mode.',
+      description: 'Test the current service.',
       examples: ['boostr {{serviceName}} test']
     },
 

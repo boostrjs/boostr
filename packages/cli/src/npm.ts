@@ -56,10 +56,14 @@ export function findInstalledNPMPackage(directory: string, packageName: string) 
 export async function runNPM(
   directory: string,
   args: string[] = [],
-  {silent = false}: {silent?: boolean} = {}
+  {environment, silent = false}: {environment?: NodeJS.ProcessEnv; silent?: boolean} = {}
 ) {
   try {
-    execFileSync('npm', args, {cwd: directory, stdio: silent ? 'pipe' : 'inherit'});
+    execFileSync('npm', args, {
+      cwd: directory,
+      env: environment,
+      stdio: silent ? 'pipe' : 'inherit'
+    });
   } catch (error) {
     if (silent) {
       console.error(error.stderr.toString());
@@ -102,7 +106,15 @@ export async function runNPMUpdateIfThereIsAPackage(
 
 export async function runNPMTestIfThereIsAPackage(
   directory: string,
-  {serviceName, beforeTest}: {serviceName?: string; beforeTest?: () => void | Promise<void>} = {}
+  {
+    serviceName,
+    beforeTest,
+    environment
+  }: {
+    serviceName?: string;
+    beforeTest?: () => void | Promise<void>;
+    environment?: NodeJS.ProcessEnv;
+  } = {}
 ) {
   const packageFile = join(directory, 'package.json');
 
@@ -123,7 +135,7 @@ export async function runNPMTestIfThereIsAPackage(
 
   logMessage('Running tests...', {serviceName});
 
-  await runNPM(directory, ['test']);
+  await runNPM(directory, ['test'], {environment});
 }
 
 // A way to lazily install npm packages while turning around an issue where packages

@@ -7,7 +7,8 @@ export default () => ({
   services: {
     frontend: './frontend',
     backend: './backend',
-    database: './database'
+    database: './database',
+    custom: './custom'
   },
 
   environment: {
