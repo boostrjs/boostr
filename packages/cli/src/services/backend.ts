@@ -254,11 +254,19 @@ export class BackendService extends Subservice {
       return;
     }
 
+    const config = this.getConfig();
+
+    if (!config.url) {
+      this.logMessage(
+        `The 'url' property is not specified in the configuration. Skipping deployment...`
+      );
+
+      return;
+    }
+
     await this.check();
 
     const backgroundMethods = await this.findBackgroundMethods();
-
-    const config = this.getConfig();
 
     const {hostname} = this.parseConfigURL();
 

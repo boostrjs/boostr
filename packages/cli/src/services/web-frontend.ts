@@ -239,11 +239,19 @@ export class WebFrontendService extends Subservice {
       return;
     }
 
-    await this.check();
-
     const config = this.getConfig();
 
+    if (!config.url) {
+      this.logMessage(
+        `The 'url' property is not specified in the configuration. Skipping deployment...`
+      );
+
+      return;
+    }
+
     const {hostname} = this.parseConfigURL();
+
+    await this.check();
 
     const {buildDirectory} = await this.build();
 
