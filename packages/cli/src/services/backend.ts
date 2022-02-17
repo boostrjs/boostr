@@ -1,5 +1,5 @@
 import fsExtra from 'fs-extra';
-import {join} from 'path';
+import {join, resolve} from 'path';
 import tempy from 'tempy';
 
 import {Subservice} from './sub.js';
@@ -53,6 +53,17 @@ export class BackendService extends Subservice {
 
   static commands: Record<string, Command> = {
     ...Subservice.commands,
+
+    introspect: {
+      ...Subservice.commands.introspect,
+      description: 'Introspect the root component and write the result to a JSON file.',
+      examples: ['boostr {{serviceName}} introspect introspection.json'],
+      minimumArguments: 1,
+      maximumArguments: 1,
+      async handler(this: BackendService, [outputFile]) {
+        await this.introspect(outputFile);
+      }
+    },
 
     eval: {
       ...Subservice.commands.eval,
@@ -338,6 +349,24 @@ export class BackendService extends Subservice {
     this.logMessage(`${backgroundMethods.length} background method(s) found`);
 
     return backgroundMethods;
+  }
+
+  async introspect(outputFile: string) {
+    outputFile = resolve(process.cwd(), outputFile);
+
+    const directory = this.getDirectory();
+    const config = this.getConfig();
+    const serviceName = this.getName();
+
+    const {jsBundleFile} = await this.build({forceLocal: true});
+
+    const processController = new ProcessController(
+      'introspect-backend',
+      ['--componentGetterFile', jsBundleFile, '--outputFile', outputFile],
+      {currentDirectory: directory, environment: config.environment, serviceName}
+    );
+
+    await processController.run();
   }
 
   async eval(code: string) {
