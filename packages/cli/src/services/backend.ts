@@ -156,7 +156,14 @@ export class BackendService extends Subservice {
 
     if (hooks?.afterBuild !== undefined) {
       // TODO: Handle watch mode
-      await hooks.afterBuild({buildDirectory, jsBundleFile});
+      await hooks.afterBuild({
+        serviceDirectory,
+        serviceName,
+        stage,
+        platform,
+        buildDirectory,
+        jsBundleFile
+      });
     }
 
     return {buildDirectory, jsBundleFile};

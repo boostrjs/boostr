@@ -197,7 +197,16 @@ export class WebFrontendService extends Subservice {
 
     if (hooks?.afterBuild !== undefined) {
       // TODO: Handle watch mode
-      await hooks.afterBuild({buildDirectory, htmlFile, jsBundleFile, cssBundleFile});
+      await hooks.afterBuild({
+        serviceDirectory,
+        serviceName,
+        stage,
+        platform,
+        buildDirectory,
+        htmlFile,
+        jsBundleFile,
+        cssBundleFile
+      });
     }
 
     return {buildDirectory, htmlFile, jsBundleFile, cssBundleFile};
