@@ -20,7 +20,7 @@ export async function check({
 
   logMessage('Checking your TypeScript code...', {serviceName});
 
-  const typeScriptPackageDirectory = await installGlobalNPMPackage('typescript', '4.2.4', {
+  const typeScriptPackageDirectory = await installGlobalNPMPackage('typescript', '4.3.5', {
     serviceName
   });
 

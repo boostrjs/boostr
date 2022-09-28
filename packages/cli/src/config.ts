@@ -134,7 +134,9 @@ async function _loadConfig(
     configBuilder = (await import(file)).default;
   } catch (error) {
     throwError(
-      `An error occurred while loading a configuration file (path: '${file}')\n${error.message}`
+      `An error occurred while loading a configuration file (path: '${file}')\n${
+        (error as Error).message
+      }`
     );
   }
 
@@ -147,7 +149,9 @@ async function _loadConfig(
     });
   } catch (error) {
     throwError(
-      `An error occurred while evaluating a configuration file (path: '${file}')\n${error.stack}`
+      `An error occurred while evaluating a configuration file (path: '${file}')\n${
+        (error as Error).stack
+      }`
     );
   }
 

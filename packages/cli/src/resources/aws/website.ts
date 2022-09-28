@@ -186,15 +186,15 @@ export class AWSWebsiteResource extends AWSBaseResource {
     try {
       return (await s3.getBucketTagging({Bucket: this.getS3BucketName()}).promise()).TagSet;
     } catch (err) {
-      if (err.code === 'NoSuchTagSet') {
+      if ((err as any).code === 'NoSuchTagSet') {
         return [];
       }
 
-      if (err.code === 'NoSuchBucket') {
+      if ((err as any).code === 'NoSuchBucket') {
         return undefined;
       }
 
-      if (err.code === 'AccessDenied') {
+      if ((err as any).code === 'AccessDenied') {
         this.throwError(`Access denied to the S3 bucket '${this.getS3BucketName()}'`);
       }
 
@@ -356,7 +356,7 @@ export class AWSWebsiteResource extends AWSBaseResource {
 
       return JSON.parse(result.Body as string);
     } catch (err) {
-      if (err.code === 'NoSuchKey') {
+      if ((err as any).code === 'NoSuchKey') {
         return {};
       }
 

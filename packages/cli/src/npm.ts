@@ -66,7 +66,7 @@ export async function runNPM(
     });
   } catch (error) {
     if (silent) {
-      console.error(error.stderr.toString());
+      console.error((error as any).stderr.toString());
     } else {
       console.log();
     }

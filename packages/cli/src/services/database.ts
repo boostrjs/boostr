@@ -117,7 +117,7 @@ export class DatabaseService extends Subservice {
 
     const {MongoMemoryServer} = await requireGlobalNPMPackage(
       'mongodb-memory-server-global',
-      '8.1.0',
+      '8.9.3',
       {serviceName}
     );
 
