@@ -9,7 +9,7 @@
     "@layr/react-integration": "^2.0.0",
     "@layr/routable": "^2.0.0",
     "@layr/storable": "^2.0.0",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1"
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0"
   }
 }

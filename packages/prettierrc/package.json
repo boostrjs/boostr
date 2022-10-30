@@ -1,6 +1,6 @@
 {
   "name": "@boostr/prettierrc",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Default Prettier configuration used by Boostr",
   "keywords": [
     "boostr",
@@ -17,6 +17,12 @@
   ],
   "main": ".prettierrc.json",
   "engines": {
-    "node": ">=10.0.0"
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "version:patch": "npm version --no-git-tag-version patch",
+    "version:minor": "npm version --no-git-tag-version minor",
+    "version:major": "npm version --no-git-tag-version major",
+    "publish:package": "npm publish --registry=https://registry.npmjs.org"
   }
 }

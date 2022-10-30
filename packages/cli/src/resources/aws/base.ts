@@ -9,6 +9,8 @@ import {sleep} from '@layr/utilities';
 import {BaseResource, BaseResourceConfig, ResourceOptions} from '../base.js';
 import {requireGlobalNPMPackage} from '../../npm.js';
 
+const AWS_SDK_PACKAGE_VERSION = '2.1243.0';
+
 const DEFAULT_ROUTE_53_TTL = 300;
 
 export type AWSBaseResourceConfig = BaseResourceConfig & {
@@ -48,7 +50,7 @@ export class AWSBaseResource extends BaseResource {
   async initialize() {
     await super.initialize();
 
-    this._AWS = await requireGlobalNPMPackage('aws-sdk', '2.1225.0', {
+    this._AWS = await requireGlobalNPMPackage('aws-sdk', AWS_SDK_PACKAGE_VERSION, {
       serviceName: this.getServiceName()
     });
   }

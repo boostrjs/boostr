@@ -148,7 +148,7 @@ export class BackendService extends Subservice {
       installExternalDependencies: !isLocal,
       watch,
       esbuildOptions: {
-        target: 'node12',
+        target: 'node16',
         platform: 'node',
         mainFields: ['module', 'main']
       }

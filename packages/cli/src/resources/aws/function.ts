@@ -15,7 +15,7 @@ import {ResourceOptions} from '../base.js';
 import {BackgroundMethod} from '../../component.js';
 import {ensureMaximumStringLength} from '../../utilities.js';
 
-const DEFAULT_LAMBDA_RUNTIME = 'nodejs14.x';
+const DEFAULT_LAMBDA_RUNTIME = 'nodejs16.x';
 const DEFAULT_LAMBDA_EXECUTION_ROLE = 'boostr-backend-lambda-role-v2';
 const DEFAULT_LAMBDA_MEMORY_SIZE = 128;
 const DEFAULT_LAMBDA_TIMEOUT = 10;
@@ -314,6 +314,7 @@ export class AWSFunctionResource extends AWSBaseResource {
     if (lambdaFunction.runtime !== config.lambda.runtime) {
       return true;
     }
+
     if (lambdaFunction.executionRole !== config.lambda.executionRole) {
       return true;
     }
@@ -326,7 +327,15 @@ export class AWSFunctionResource extends AWSBaseResource {
       return true;
     }
 
-    if (!isEqual(lambdaFunction.environment, config.environment)) {
+    const configEnvironmentWithoutUndefinedValues: Environment = {};
+
+    for (const [name, value] of Object.entries(config.environment)) {
+      if (value !== undefined) {
+        configEnvironmentWithoutUndefinedValues[name] = value;
+      }
+    }
+
+    if (!isEqual(lambdaFunction.environment, configEnvironmentWithoutUndefinedValues)) {
       return true;
     }
 
@@ -350,6 +359,8 @@ export class AWSFunctionResource extends AWSBaseResource {
         Environment: {Variables: config.environment}
       })
       .promise();
+
+    await this.waitForLambdaFunctionUpdated();
   }
 
   async checkIfLambdaFunctionConcurrencyHasChanged() {
@@ -377,6 +388,8 @@ export class AWSFunctionResource extends AWSBaseResource {
         })
         .promise();
     }
+
+    await this.waitForLambdaFunctionUpdated();
   }
 
   async checkIfLambdaFunctionCodeHasChanged() {
@@ -399,6 +412,14 @@ export class AWSFunctionResource extends AWSBaseResource {
         ZipFile: zipArchive
       })
       .promise();
+
+    await this.waitForLambdaFunctionUpdated();
+  }
+
+  async waitForLambdaFunctionUpdated() {
+    const lambda = this.getLambdaClient();
+
+    await lambda.waitFor('functionUpdatedV2', {FunctionName: this.getLambdaName()}).promise();
   }
 
   _zipArchive!: Buffer;

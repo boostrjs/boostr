@@ -5,6 +5,8 @@ import {execFileSync} from 'child_process';
 import {installGlobalNPMPackage} from './npm.js';
 import {logMessage, throwError} from './utilities.js';
 
+const TYPESCRIPT_PACKAGE_VERSION = '4.8.4';
+
 export async function check({
   serviceDirectory,
   serviceName
@@ -20,9 +22,11 @@ export async function check({
 
   logMessage('Checking your TypeScript code...', {serviceName});
 
-  const typeScriptPackageDirectory = await installGlobalNPMPackage('typescript', '4.3.5', {
-    serviceName
-  });
+  const typeScriptPackageDirectory = await installGlobalNPMPackage(
+    'typescript',
+    TYPESCRIPT_PACKAGE_VERSION,
+    {serviceName}
+  );
 
   const tscFile = join(typeScriptPackageDirectory, 'node_modules', 'typescript', 'bin', 'tsc');
 

@@ -9,7 +9,7 @@
   "repository": "https://github.com/boostrjs/boostr",
   "prettier": "@boostr/prettierrc",
   "devDependencies": {
-    "@boostr/prettierrc": "^1.0.0",
-    "prettier": "^2.2.1"
+    "@boostr/prettierrc": "^1.0.1",
+    "prettier": "^2.7.1"
   }
 }

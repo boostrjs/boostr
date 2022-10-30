@@ -11,6 +11,8 @@ import {
 } from './npm.js';
 import {logMessage, logError, throwError, resolveVariables, getFileSize} from './utilities.js';
 
+const ESBUILD_PACKAGE_VERSION = '0.15.12';
+
 export async function build({
   serviceDirectory,
   buildDirectory,
@@ -73,10 +75,8 @@ export async function build({
 
   const {build}: {build: typeof buildFunction} = await requireGlobalNPMPackage(
     'esbuild',
-    '0.15.9',
-    {
-      serviceName
-    }
+    ESBUILD_PACKAGE_VERSION,
+    {serviceName}
   );
 
   let jsBundleFile: string;
@@ -144,7 +144,6 @@ export async function build({
     const externalDependencies: Record<string, string> = {};
 
     for (const packageName of external) {
-      // const version = pkg.dependencies?.[packageName];
       const externalPackage = findInstalledNPMPackage(serviceDirectory, packageName);
 
       if (externalPackage === undefined) {

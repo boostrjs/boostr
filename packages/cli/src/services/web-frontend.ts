@@ -170,7 +170,7 @@ export class WebFrontendService extends Subservice {
       watch,
       freeze: !isLocal,
       esbuildOptions: {
-        target: 'es2017',
+        target: 'es2020',
         platform: 'browser',
         mainFields: ['browser', 'module', 'main'],
         publicPath: '/',

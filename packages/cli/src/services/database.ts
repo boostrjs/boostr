@@ -7,6 +7,8 @@ import type {Command} from '../command.js';
 import {BackendService} from './backend.js';
 import {requireGlobalNPMPackage} from '../npm.js';
 
+const MONGODB_MEMORY_SERVER_GLOBAL_PACKAGE_VERSION = '8.9.4';
+
 const LOCAL_DATA_DIRECTORY_NAME = 'data';
 
 export class DatabaseService extends Subservice {
@@ -117,7 +119,7 @@ export class DatabaseService extends Subservice {
 
     const {MongoMemoryServer} = await requireGlobalNPMPackage(
       'mongodb-memory-server-global',
-      '8.9.3',
+      MONGODB_MEMORY_SERVER_GLOBAL_PACKAGE_VERSION,
       {serviceName}
     );
 
