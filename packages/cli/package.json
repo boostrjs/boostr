@@ -1,6 +1,6 @@
 {
   "name": "boostr",
-  "version": "2.0.167",
+  "version": "2.0.168",
   "description": "Build and deploy your Layr applications",
   "keywords": [
     "layr",
@@ -78,6 +78,6 @@
     "@types/ws": "^8.5.3",
     "aws-sdk": "^2.1243.0",
     "esbuild": "^0.15.12",
-    "mongodb-memory-server-global": "^8.9.4"
+    "mongodb-memory-server-global": "^8.10.1"
   }
 }
