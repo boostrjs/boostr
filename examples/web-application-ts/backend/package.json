@@ -2,7 +2,6 @@
   "name": "web-application-ts-backend",
   "version": "1.0.0",
   "private": true,
-  "main": "./src/index.ts",
   "dependencies": {
     "@layr/component": "^2.0.0",
     "@layr/mongodb-store": "^2.0.0",

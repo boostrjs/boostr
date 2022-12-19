@@ -3,18 +3,14 @@ import {join} from 'path';
 import bytes from 'bytes';
 import isEmpty from 'lodash/isEmpty.js';
 
-import {
-  loadNPMPackage,
-  requireGlobalNPMPackage,
-  installNPMPackages,
-  findInstalledNPMPackage
-} from './npm.js';
+import {requireGlobalNPMPackage, installNPMPackages, findInstalledNPMPackage} from './npm.js';
 import {logMessage, logError, throwError, resolveVariables, getFileSize} from './utilities.js';
 
 const ESBUILD_PACKAGE_VERSION = '0.15.12';
 
 export async function build({
   serviceDirectory,
+  entryPoint,
   buildDirectory,
   bundleFileNameWithoutExtension = 'bundle',
   bootstrapTemplate,
@@ -31,6 +27,7 @@ export async function build({
   esbuildOptions
 }: {
   serviceDirectory: string;
+  entryPoint: string;
   buildDirectory: string;
   bundleFileNameWithoutExtension?: string;
   bootstrapTemplate: string;
@@ -48,17 +45,6 @@ export async function build({
 }) {
   if (freeze && watch) {
     throw Error("You cannot use both 'freeze' and 'watch'");
-  }
-
-  const pkg = loadNPMPackage(serviceDirectory);
-
-  const entryPoint = pkg.main;
-
-  if (entryPoint === undefined) {
-    throwError(
-      `A 'main' property is missing in a 'package.json' file (directory: '${serviceDirectory}')`,
-      {serviceName}
-    );
   }
 
   const bootstrapCode = resolveVariables(bootstrapTemplate, {...bootstrapVariables, entryPoint});

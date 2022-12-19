@@ -69,7 +69,7 @@ export class BackendService extends Subservice {
       ...Subservice.commands.eval,
       description:
         'Evaluate the specified JavaScript code with the root component exposed globally.',
-      examples: ['boostr {{serviceName}} eval Application.checkHealth()'],
+      examples: ['boostr {{serviceName}} eval "Application.isHealthy()"'],
       minimumArguments: 1,
       maximumArguments: 1,
       async handler(this: BackendService, [code]) {
@@ -105,7 +105,13 @@ export class BackendService extends Subservice {
     const serviceDirectory = this.getDirectory();
     const serviceName = this.getName();
     const stage = this.getStage();
-    const {environment, platform, build: buildConfig = {}, hooks} = this.getConfig();
+    const {environment, platform, rootComponent, build: buildConfig = {}, hooks} = this.getConfig();
+
+    if (!rootComponent) {
+      this.throwError(
+        `A 'rootComponent' property is required in the configuration (directory: '${serviceDirectory}')`
+      );
+    }
 
     const buildDirectory = join(serviceDirectory, 'build', stage);
 
@@ -135,6 +141,7 @@ export class BackendService extends Subservice {
 
     const {jsBundleFile} = await build({
       serviceDirectory,
+      entryPoint: rootComponent,
       buildDirectory,
       bundleFileNameWithoutExtension,
       bootstrapTemplate,

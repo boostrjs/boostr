@@ -2,7 +2,6 @@
   "name": "{{projectName}}-frontend",
   "version": "1.0.0",
   "private": true,
-  "main": "./src/index.js",
   "dependencies": {
     "@layr/component": "^2.0.0",
     "@layr/component-http-client": "^2.0.0",

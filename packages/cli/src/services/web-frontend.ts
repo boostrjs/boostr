@@ -36,13 +36,13 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {BrowserRootView, BrowserNavigatorView} from '@layr/react-integration';
 
-import componentGetter from '{{entryPoint}}';
+import rootComponentGetter from '{{entryPoint}}';
 
 async function main() {
   let content;
 
   try {
-    const rootComponent = await componentGetter();
+    const rootComponent = await rootComponentGetter();
 
     await rootComponent.initialize();
 
@@ -145,7 +145,20 @@ export class WebFrontendService extends Subservice {
     const serviceDirectory = this.getDirectory();
     const serviceName = this.getName();
     const stage = this.getStage();
-    const {environment, platform, build: buildConfig, html: htmlConfig, hooks} = this.getConfig();
+    const {
+      environment,
+      platform,
+      rootComponent,
+      build: buildConfig = {},
+      html: htmlConfig,
+      hooks
+    } = this.getConfig();
+
+    if (!rootComponent) {
+      this.throwError(
+        `A 'rootComponent' property is required in the configuration (directory: '${serviceDirectory}')`
+      );
+    }
 
     const buildDirectory = join(serviceDirectory, 'build', stage);
 
@@ -161,12 +174,13 @@ export class WebFrontendService extends Subservice {
 
     const {jsBundleFile, cssBundleFile} = await build({
       serviceDirectory,
+      entryPoint: rootComponent,
       buildDirectory,
       bootstrapTemplate,
       serviceName,
       environment,
-      sourceMap: buildConfig?.sourceMap ?? isLocal,
-      minify: buildConfig?.minify ?? !isLocal,
+      sourceMap: buildConfig.sourceMap ?? isLocal,
+      minify: buildConfig.minify ?? !isLocal,
       watch,
       freeze: !isLocal,
       esbuildOptions: {

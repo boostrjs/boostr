@@ -8,6 +8,8 @@ export default ({application, services}) => ({
     BACKEND_URL: services.backend.url
   },
 
+  rootComponent: './src/index.js',
+
   html: {
     language: 'en',
     head: {
