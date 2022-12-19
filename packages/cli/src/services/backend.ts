@@ -1,6 +1,6 @@
 import fsExtra from 'fs-extra';
 import {join, resolve} from 'path';
-import tempy from 'tempy';
+import {temporaryFileTask} from 'tempy';
 
 import {Subservice} from './sub.js';
 import type {Command} from '../command.js';
@@ -334,7 +334,7 @@ export class BackendService extends Subservice {
 
     const {jsBundleFile} = await this.build({forceLocal: true});
 
-    const backgroundMethods = await tempy.file.task(async (outputFile) => {
+    const backgroundMethods = await temporaryFileTask(async (outputFile) => {
       const processController = new ProcessController(
         'find-backend-background-methods',
         [

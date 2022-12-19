@@ -1,7 +1,7 @@
 import {execFileSync} from 'child_process';
 import {readFileSync, writeFileSync} from 'fs';
 import {join, basename, extname} from 'path';
-import tempy from 'tempy';
+import {temporaryDirectoryTask} from 'tempy';
 import tar from 'tar';
 import walkSync from 'walk-sync';
 import kebabCase from 'lodash/kebabCase.js';
@@ -78,7 +78,7 @@ export async function initialize(
 }
 
 async function fetchTemplate(name: string, directory: string) {
-  await tempy.directory.task(async (temporaryDirectory) => {
+  await temporaryDirectoryTask(async (temporaryDirectory) => {
     try {
       const tarballFileName = execFileSync('npm', ['pack', name, '--silent'], {
         cwd: temporaryDirectory

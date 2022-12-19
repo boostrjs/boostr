@@ -9,7 +9,7 @@ import {sleep} from '@layr/utilities';
 import {BaseResource, BaseResourceConfig, ResourceOptions} from '../base.js';
 import {requireGlobalNPMPackage} from '../../npm.js';
 
-const AWS_SDK_PACKAGE_VERSION = '2.1243.0';
+const AWS_SDK_PACKAGE_VERSION = '2.1277.0';
 
 const DEFAULT_ROUTE_53_TTL = 300;
 

@@ -1,7 +1,7 @@
 import {promises as fsAsync} from 'fs';
 import fsExtra from 'fs-extra';
 import {join, sep} from 'path';
-import tempy from 'tempy';
+import {temporaryDirectoryTask} from 'tempy';
 // @ts-ignore
 import zip from 'cross-zip';
 import hasha from 'hasha';
@@ -430,7 +430,7 @@ export class AWSFunctionResource extends AWSBaseResource {
 
       this.logMessage(`Building the ZIP archive...`);
 
-      await tempy.directory.task(async (temporaryDirectory) => {
+      await temporaryDirectoryTask(async (temporaryDirectory) => {
         const codeDirectory = join(temporaryDirectory, 'code');
         const zipArchiveFile = join(temporaryDirectory, 'archive.zip');
 

@@ -6,7 +6,7 @@ import isEmpty from 'lodash/isEmpty.js';
 import {requireGlobalNPMPackage, installNPMPackages, findInstalledNPMPackage} from './npm.js';
 import {logMessage, logError, throwError, resolveVariables, getFileSize} from './utilities.js';
 
-const ESBUILD_PACKAGE_VERSION = '0.15.12';
+const ESBUILD_PACKAGE_VERSION = '0.16.9';
 
 export async function build({
   serviceDirectory,
