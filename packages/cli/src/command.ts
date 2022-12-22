@@ -4,9 +4,7 @@ export type Command = {
   aliases?: string[];
   description?: string;
   examples?: string[];
-  minimumArguments?: number;
-  maximumArguments?: number;
-  useRawArguments?: boolean;
+  arguments?: string[];
   options?: Record<
     string,
     {
@@ -15,6 +13,7 @@ export type Command = {
       description?: string;
     }
   >;
+  useBareDoubleDash?: boolean;
   handler?: (commandArguments: string[], commandOptions: Record<string, any>) => Promise<void>;
 };
 

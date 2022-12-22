@@ -119,18 +119,14 @@ export class ApplicationService extends BaseService {
       examples: ['boostr config', 'boostr frontend config']
     },
 
-    npm: {
-      ...BaseService.commands.npm,
-      description:
-        'Run npm in the root directory of your application (or in the directory of a specified service).',
-      examples: ['boostr npm install eslint --save-dev', 'boostr backend npm install lodash']
-    },
-
     exec: {
       ...BaseService.commands.exec,
       description:
         'Execute any shell command in the root directory of your application (or in the directory of a specified service).',
-      examples: ['boostr execute ls -la', 'boostr frontend execute ls -la']
+      examples: [
+        'boostr exec -- npx prettier --check .',
+        'boostr backend exec -- npm install lodash'
+      ]
     }
   };
 

@@ -12,7 +12,6 @@ import {
   pullGlobalOptions,
   GLOBAL_OPTIONS_HELP_OBJECT
 } from '../argument-parser.js';
-import {runNPM} from '../npm.js';
 import {formatHelp, Sections} from '../help.js';
 import {logMessage, logError, throwError} from '../utilities.js';
 
@@ -185,15 +184,8 @@ export abstract class BaseService {
       }
     },
 
-    npm: {
-      useRawArguments: true,
-      async handler(this: BaseService, args) {
-        await this.runNPM(args);
-      }
-    },
-
     exec: {
-      useRawArguments: true,
+      useBareDoubleDash: true,
       async handler(this: BaseService, args) {
         await this.execute(args);
       }
@@ -234,42 +226,43 @@ export abstract class BaseService {
     }
 
     const {
-      minimumArguments = 0,
-      maximumArguments = 0,
-      useRawArguments = false,
+      arguments: arguments_ = [],
       options: availableCommandOptions = {},
+      useBareDoubleDash = false,
       handler: commandHandler
     } = this.getCommand(nameOrAlias);
 
-    let commandArguments: string[];
-    let commandOptions: Record<string, any>;
+    let {parsedArguments, parsedOptions} = parseRawArguments(rawArguments);
 
-    if (useRawArguments) {
-      commandArguments = [...rawArguments];
-      commandOptions = {};
-    } else {
-      let {parsedArguments, parsedOptions} = parseRawArguments(rawArguments);
-
-      if (parsedArguments.length < minimumArguments) {
-        throwError(`A required argument is missing`);
+    if (!useBareDoubleDash) {
+      if (parsedArguments.length < arguments_.length) {
+        throwError(`A required argument is missing: ${arguments_[parsedArguments.length]}`);
       }
 
-      if (parsedArguments.length > maximumArguments) {
-        throwError(`A specified argument is unexpected: ${parsedArguments[maximumArguments]}`);
+      if (parsedArguments.length > arguments_.length) {
+        throwError(`A specified argument is unexpected: ${parsedArguments[arguments_.length]}`);
       }
-
-      commandArguments = parsedArguments;
-      pullGlobalOptions(parsedOptions);
-      commandOptions = getCommandOptions(parsedOptions, availableCommandOptions);
     }
+
+    const commandArguments = parsedArguments;
+
+    pullGlobalOptions(parsedOptions);
+
+    const commandOptions = getCommandOptions(parsedOptions, availableCommandOptions);
 
     await commandHandler.call(this, commandArguments, commandOptions);
   }
 
   generateCommandHelp(nameOrAlias: string) {
-    const {name, aliases = [], description, options = {}, examples = []} = this.getCommand(
-      nameOrAlias
-    );
+    const {
+      name,
+      aliases = [],
+      description,
+      examples = [],
+      arguments: arguments_ = [],
+      options = {},
+      useBareDoubleDash = false
+    } = this.getCommand(nameOrAlias);
 
     const sections: Sections = {};
 
@@ -283,7 +276,17 @@ export abstract class BaseService {
 
     sections['Usage'] = `boostr ${
       this.constructor.isRoot ? '[<service>]' : this.getName()
-    } ${nameOrAlias} [options]`;
+    } ${nameOrAlias}`;
+
+    for (const argument of arguments_) {
+      sections['Usage'] += ` <${argument}>`;
+    }
+
+    sections['Usage'] += ' [options]';
+
+    if (useBareDoubleDash) {
+      sections['Usage'] += ' -- <command> ...';
+    }
 
     const optionsHelp: Record<string, string> = {};
 
@@ -357,12 +360,6 @@ export abstract class BaseService {
 
   async showConfig() {
     console.log(JSON.stringify(this.getConfig(), undefined, 2));
-  }
-
-  async runNPM(args: string[]) {
-    const {environment} = this.getConfig();
-
-    await runNPM(this.getDirectory(), args, {environment: {...process.env, ...environment}});
   }
 
   async execute(commandAndArguments: string[]) {

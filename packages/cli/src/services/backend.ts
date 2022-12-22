@@ -46,7 +46,7 @@ export class BackendService extends Subservice {
   static examples = [
     'boostr {{serviceName}} start',
     'boostr {{serviceName}} deploy --production',
-    'boostr {{serviceName}} npm install lodash'
+    'boostr {{serviceName}} exec -- npm install lodash'
   ];
 
   // === Commands ===
@@ -58,8 +58,7 @@ export class BackendService extends Subservice {
       ...Subservice.commands.introspect,
       description: 'Introspect the root component and write the result to a JSON file.',
       examples: ['boostr {{serviceName}} introspect introspection.json'],
-      minimumArguments: 1,
-      maximumArguments: 1,
+      arguments: ['outputFile'],
       async handler(this: BackendService, [outputFile]) {
         await this.introspect(outputFile);
       }
@@ -70,8 +69,7 @@ export class BackendService extends Subservice {
       description:
         'Evaluate the specified JavaScript code with the root component exposed globally.',
       examples: ['boostr {{serviceName}} eval "Application.isHealthy()"'],
-      minimumArguments: 1,
-      maximumArguments: 1,
+      arguments: ['codeToEval'],
       async handler(this: BackendService, [code]) {
         await this.eval(code);
       }

@@ -77,8 +77,7 @@ export class DatabaseService extends Subservice {
       ...Subservice.commands.import,
       description: 'Import the specified JSON file to the current database.',
       examples: ['boostr {{serviceName}} import inputFile'],
-      minimumArguments: 1,
-      maximumArguments: 1,
+      arguments: ['inputFile'],
       async handler(this: DatabaseService, [inputFile]) {
         await this.import(inputFile);
       }
@@ -88,8 +87,7 @@ export class DatabaseService extends Subservice {
       ...Subservice.commands.export,
       description: 'Export the current database to a JSON file.',
       examples: ['boostr {{serviceName}} export outputFile'],
-      minimumArguments: 1,
-      maximumArguments: 1,
+      arguments: ['outputFile'],
       async handler(this: DatabaseService, [outputFile]) {
         await this.export(outputFile);
       }

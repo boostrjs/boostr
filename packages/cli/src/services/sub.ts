@@ -183,19 +183,10 @@ export abstract class Subservice extends BaseService {
       examples: ['boostr {{serviceName}} config']
     },
 
-    npm: {
-      ...BaseService.commands.npm,
-      description: 'Run an npm command in the directory of the current service.',
-      examples: [
-        'boostr {{serviceName}} npm install lodash',
-        'boostr {{serviceName}} npm rm underscore'
-      ]
-    },
-
     exec: {
       ...BaseService.commands.exec,
       description: 'Execute any shell command in the directory of the current service.',
-      examples: ['boostr {{serviceName}} execute ls -la']
+      examples: ['boostr {{serviceName}} exec -- npm install lodash']
     }
   };
 

@@ -112,7 +112,7 @@ export class WebFrontendService extends Subservice {
   static examples = [
     'boostr {{serviceName}} deploy --skip=backend',
     'boostr {{serviceName}} freeze',
-    'boostr {{serviceName}} npm install lodash'
+    'boostr {{serviceName}} exec -- npm install lodash'
   ];
 
   // === Commands ===
