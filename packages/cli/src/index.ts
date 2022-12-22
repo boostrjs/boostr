@@ -9,7 +9,7 @@ import {
 import {formatHelp} from './help.js';
 import {programVersion, throwError} from './utilities.js';
 
-const DEFAULT_STAGE = process.env.BOOSTR_STAGE || 'development';
+const DEFAULT_STAGE = 'development';
 
 const CONFIG_NOT_FOUND_HELP = `
 Couldn't find a configuration file.
@@ -27,9 +27,11 @@ export async function runCLI(
 ) {
   let {parsedOptions} = parseRawArguments(rawArguments);
 
-  const {stage = DEFAULT_STAGE, showHelp = false, showVersion = false} = pullGlobalOptions(
-    parsedOptions
-  );
+  const {
+    stage = DEFAULT_STAGE,
+    showHelp = false,
+    showVersion = false
+  } = pullGlobalOptions(parsedOptions);
 
   if (showVersion) {
     console.log(`v${programVersion}`);
