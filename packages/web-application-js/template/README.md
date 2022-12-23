@@ -1,4 +1,4 @@
-# {{projectName}}
+# {{applicationName}}
 
 ## Prerequisites
 

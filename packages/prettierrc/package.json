@@ -1,6 +1,6 @@
 {
   "name": "@boostr/prettierrc",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Default Prettier configuration used by Boostr",
   "keywords": [
     "boostr",

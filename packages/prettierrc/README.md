@@ -10,7 +10,7 @@ npm install @boostr/prettierrc --save-dev
 
 ## Usage
 
-Add the following in the `package.json` file of your project:
+Add the following in the root `package.json` file of your app:
 
 ```json
 {

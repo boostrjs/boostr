@@ -1,5 +1,5 @@
 {
-  "name": "{{projectName}}",
+  "name": "{{applicationName}}",
   "version": "1.0.0",
   "private": true,
   "prettier": "@boostr/prettierrc",

@@ -10,7 +10,7 @@ npm install @boostr/tsconfig --save-dev
 
 ## Usage
 
-At the root of your project, create a `tsconfig.json` file with the following content:
+At the root of your app services, create a `tsconfig.json` file with the following content:
 
 ```json
 {

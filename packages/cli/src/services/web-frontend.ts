@@ -107,7 +107,7 @@ const IMMUTABLE_EXTENSION = '.immutable';
 export class WebFrontendService extends Subservice {
   static type = 'web-frontend';
 
-  static description = 'A web frontend service providing a user interface for your application.';
+  static description = 'A web frontend service providing a user interface for your app.';
 
   static examples = [
     'boostr {{serviceName}} deploy --skip=backend',

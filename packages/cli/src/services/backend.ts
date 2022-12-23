@@ -41,7 +41,7 @@ export class BackendService extends Subservice {
   static type = 'backend';
 
   static description =
-    'A backend service implementing the data model and the business logic of your application.';
+    'A backend service implementing the data model and the business logic of your app.';
 
   static examples = [
     'boostr {{serviceName}} start',

@@ -14,7 +14,7 @@ const DEFAULT_STAGE = 'development';
 const CONFIG_NOT_FOUND_HELP = `
 Couldn't find a configuration file.
 ${formatHelp({
-  'Run the following command to initialize your project': 'boostr initialize --template=<package>',
+  'Run the following command to initialize your app': 'boostr initialize --template=<package>',
 
   'Find out more about the `initialize` command by running': 'boostr initialize --help',
 
@@ -66,7 +66,7 @@ export async function runCLI(
   if (commandName === 'initialize' || commandName === 'init') {
     if (applicationService !== undefined) {
       throwError(
-        `Sorry, but it seems that this project has already been initialized (a configuration file was found in ${applicationService.getDirectory()})`
+        `Sorry, but it seems that this app has already been initialized (a configuration file was found in ${applicationService.getDirectory()})`
       );
     }
 

@@ -22,18 +22,18 @@ const INITIALIZE_HELP = formatHelp({
 
   'Alias': 'init',
 
-  'Description': 'Initialize your project within the current directory.',
+  'Description': 'Initialize your app within the current directory.',
 
   'Usage': 'boostr initialize --template=<package> [options]',
 
   'Options': {
     '--template': 'Specify an npm package name to be used as template.',
-    '--name': 'Specify the name of your project (default: the name of the current directory).'
+    '--name': 'Specify the name of your app (default: the name of the current directory).'
   },
 
   'Examples': [
     'boostr initialize --template=@boostr/web-application-ts',
-    'boostr init --template=@boostr/web-application-js --name=my-project'
+    'boostr init --template=@boostr/web-application-js --name=my-app'
   ],
 
   'Global Options': GLOBAL_OPTIONS_HELP_OBJECT
@@ -61,18 +61,18 @@ export async function initialize(
     );
   }
 
-  let projectName: string;
+  let applicationName: string;
 
   if (name !== undefined) {
-    projectName = name;
+    applicationName = name;
   } else {
-    projectName = kebabCase(basename(directory));
+    applicationName = kebabCase(basename(directory));
   }
 
   logMessage('Fetching template...');
 
   await fetchTemplate(template, directory);
-  await populateVariables(directory, {projectName});
+  await populateVariables(directory, {applicationName});
 
   if (!directoryExists(join(directory, '.git'))) {
     logMessage('Initializing Git directory...');
@@ -112,11 +112,11 @@ async function fetchTemplate(name: string, directory: string) {
   });
 }
 
-async function populateVariables(directory: string, {projectName}: {projectName: string}) {
+async function populateVariables(directory: string, {applicationName}: {applicationName: string}) {
   const randomPort = Math.floor(Math.random() * 9990) + 10000;
 
   const variables = {
-    projectName,
+    applicationName,
     frontendPort: randomPort,
     backendPort: randomPort + 1,
     databasePort: randomPort + 2

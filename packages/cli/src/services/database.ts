@@ -14,7 +14,7 @@ const LOCAL_DATA_DIRECTORY_NAME = 'data';
 export class DatabaseService extends Subservice {
   static type = 'database';
 
-  static description = 'A database service providing some storage capability to your application.';
+  static description = 'A database service providing some storage capability to your app.';
 
   static examples = [
     'boostr {{serviceName}} start',

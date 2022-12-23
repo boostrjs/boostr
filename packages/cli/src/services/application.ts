@@ -7,7 +7,7 @@ export class ApplicationService extends BaseService {
   static type = 'application';
 
   static description =
-    'The root of your application, which is composed of different services. A typical application is composed of a frontend, a backend, and a database.';
+    'The root of your app, which is composed of different services. A typical app is composed of a frontend, a backend, and a database.';
 
   static examples = ['boostr start', 'boostr deploy --production', 'boostr database migrate'];
 
@@ -24,7 +24,7 @@ export class ApplicationService extends BaseService {
 
     if (service === undefined) {
       this.throwError(
-        `Couldn't find a service named '${name}' in the application configuration (directory: '${this.getDirectory()}')`
+        `Couldn't find a service named '${name}' in the app configuration (directory: '${this.getDirectory()}')`
       );
     }
 
@@ -84,13 +84,13 @@ export class ApplicationService extends BaseService {
     test: {
       ...BaseService.commands.test,
       description:
-        'Test all the services of your application (or a specified service) in development mode.',
+        'Test all the services of your app (or a specified service) in development mode.',
       examples: ['boostr test', 'boostr backend test']
     },
 
     start: {
       ...BaseService.commands.start,
-      description: 'Start your application (or a subset of services) in development mode.',
+      description: 'Start your app (or a subset of services) in development mode.',
       examples: ['boostr start', 'boostr backend start']
     },
 
@@ -105,7 +105,7 @@ export class ApplicationService extends BaseService {
 
     deploy: {
       ...BaseService.commands.deploy,
-      description: 'Deploy your application (or a subset of services) to a specific stage.',
+      description: 'Deploy your app (or a subset of services) to a specific stage.',
       examples: [
         'boostr deploy --production',
         'boostr deploy --staging --skip=legacyBackend',
@@ -122,7 +122,7 @@ export class ApplicationService extends BaseService {
     exec: {
       ...BaseService.commands.exec,
       description:
-        'Execute any shell command in the root directory of your application (or in the directory of a specified service).',
+        'Execute any shell command in the root directory of your app (or in the directory of a specified service).',
       examples: [
         'boostr exec -- npx prettier --check .',
         'boostr backend exec -- npm install lodash'
