@@ -1,6 +1,6 @@
 {
   "name": "boostr",
-  "version": "2.0.188",
+  "version": "2.0.189",
   "description": "Build and deploy your Layr apps",
   "keywords": [
     "layr",
@@ -32,7 +32,10 @@
     "build": "dev-tools build:ts-library",
     "prepare": "npm run build",
     "publish:package": "dev-tools publish:package",
-    "update": "dev-tools update:dependencies"
+    "update": "dev-tools update:dependencies",
+    "version:patch": "npm version --no-git-tag-version patch",
+    "version:minor": "npm version --no-git-tag-version minor",
+    "version:major": "npm version --no-git-tag-version major"
   },
   "dependencies": {
     "@layr/aws-integration": "^2.0.95",
