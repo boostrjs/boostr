@@ -2,4 +2,4 @@
 
 Build and deploy your Layr apps.
 
-Check out the [README](../../README.md) file at the root of the repository for details.
+Check out the [README](https://github.com/boostrjs/boostr) file at the root of the repository for details.
