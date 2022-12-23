@@ -1,6 +1,6 @@
 {
   "name": "@boostr/web-application-js",
-  "version": "2.2.0",
+  "version": "2.4.0",
   "description": "A Boostr template for building full-stack web apps in JavaScript",
   "keywords": [
     "boostr",
@@ -15,7 +15,8 @@
   "license": "MIT",
   "repository": "https://github.com/boostrjs/boostr/tree/master/packages/web-application-js",
   "files": [
-    "template"
+    "template",
+    "template/**/.gitignore"
   ],
   "scripts": {
     "version:patch": "npm version --no-git-tag-version patch",

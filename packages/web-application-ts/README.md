@@ -1,10 +1,10 @@
 # @boostr/web-application-ts
 
-A Boostr template for building full-stack web apps in TypeScript.
+A Boostr template for building a Layr app in TypeScript.
 
 ## Usage
 
-At the root of your project, run the following command:
+Create a directory for your project and run the following command inside it:
 
 ```sh
 boostr init --template=@boostr/web-application-ts

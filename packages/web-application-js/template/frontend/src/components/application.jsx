@@ -8,7 +8,7 @@ export const extendApplication = (Base) => {
       return (
         <>
           <this.MainPage.Link>
-            <h1>Boostr Application</h1>
+            <h1>{process.env.APPLICATION_NAME}</h1>
           </this.MainPage.Link>
           {children()}
         </>
@@ -19,7 +19,7 @@ export const extendApplication = (Base) => {
       return useData(
         async () => await this.isHealthy(),
 
-        (isHealthy) => <p>The application is {isHealthy ? 'healthy' : 'unhealthy'}.</p>
+        (isHealthy) => <p>The app is {isHealthy ? 'healthy' : 'unhealthy'}.</p>
       );
     }
 

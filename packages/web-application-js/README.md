@@ -1,10 +1,10 @@
 # @boostr/web-application-js
 
-A Boostr template for building full-stack web apps in JavaScript.
+A Boostr template for building a Layr app in JavaScript.
 
 ## Usage
 
-At the root of your project, run the following command:
+Create a directory for your project and run the following command inside it:
 
 ```sh
 boostr init --template=@boostr/web-application-js
