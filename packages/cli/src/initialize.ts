@@ -9,7 +9,13 @@ import kebabCase from 'lodash/kebabCase.js';
 import {createApplicationServiceFromDirectory} from './services/index.js';
 import {GLOBAL_OPTIONS_HELP_OBJECT} from './argument-parser.js';
 import {formatHelp} from './help.js';
-import {logMessage, throwError, resolveVariables, directoryIsEmpty} from './utilities.js';
+import {
+  logMessage,
+  throwError,
+  resolveVariables,
+  directoryExists,
+  directoryIsEmpty
+} from './utilities.js';
 
 const INITIALIZE_HELP = formatHelp({
   'Command': 'initialize',
@@ -33,7 +39,7 @@ const INITIALIZE_HELP = formatHelp({
   'Global Options': GLOBAL_OPTIONS_HELP_OBJECT
 });
 
-const POPULATABLE_TEMPLATE_FILE_EXTENSIONS = ['.js', '.mjs', '.jsx', '.ts', 'tsx', '.json', '.md'];
+const POPULATABLE_TEMPLATE_FILE_EXTENSIONS = ['.js', '.mjs', '.jsx', '.ts', '.tsx', '.json', '.md'];
 
 export async function initialize(
   directory: string,
@@ -67,6 +73,11 @@ export async function initialize(
 
   await fetchTemplate(template, directory);
   await populateVariables(directory, {projectName});
+
+  if (!directoryExists(join(directory, '.git'))) {
+    logMessage('Initializing Git directory...');
+    await initializeGitDirectory(directory);
+  }
 
   logMessage('Installing npm dependencies...');
 
@@ -127,4 +138,11 @@ async function populateVariables(directory: string, {projectName}: {projectName:
       writeFileSync(file, populatedContent);
     }
   }
+}
+
+async function initializeGitDirectory(directory: string) {
+  execFileSync('git', ['init', '--initial-branch=main'], {
+    cwd: directory,
+    stdio: 'inherit'
+  });
 }

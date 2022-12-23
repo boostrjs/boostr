@@ -52,6 +52,14 @@ export function fileExists(file: string) {
   }
 }
 
+export function directoryExists(directory: string) {
+  try {
+    return statSync(directory).isDirectory();
+  } catch {
+    return false;
+  }
+}
+
 export function getFileSize(file: string) {
   return statSync(file).size;
 }
