@@ -1,19 +1,22 @@
 {
-  "name": "@boostr/web-application-ts",
+  "name": "@boostr/web-app-js",
   "version": "2.4.1",
-  "description": "A Boostr template for building full-stack web apps in TypeScript",
+  "description": "A Boostr template for building full-stack web apps in JavaScript",
   "keywords": [
     "boostr",
     "template",
+    "boilerplate",
     "full-stack",
-    "web-application",
     "web-app",
-    "typescript",
-    "ts"
+    "app",
+    "application",
+    "web",
+    "javascript",
+    "js"
   ],
   "author": "Manuel Vila <hi@mvila.me>",
   "license": "MIT",
-  "repository": "https://github.com/boostrjs/boostr/tree/master/packages/web-application-ts",
+  "repository": "https://github.com/boostrjs/boostr/tree/master/packages/web-app-js",
   "files": [
     "template",
     "template/**/.gitignore"

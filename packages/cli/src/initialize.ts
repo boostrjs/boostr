@@ -32,8 +32,8 @@ const INITIALIZE_HELP = formatHelp({
   },
 
   'Examples': [
-    'boostr initialize --template=@boostr/web-application-ts',
-    'boostr init --template=@boostr/web-application-js --name=my-app'
+    'boostr initialize --template=@boostr/web-app-ts',
+    'boostr init --template=@boostr/web-app-js --name=my-app'
   ],
 
   'Global Options': GLOBAL_OPTIONS_HELP_OBJECT
@@ -57,7 +57,7 @@ export async function initialize(
 
   if (template === undefined) {
     throwError(
-      `Please specify a template with the --template option (example: \`boostr initialize --template=@boostr/web-application-js\`)`
+      `Please specify a template with the --template option (example: \`boostr initialize --template=@boostr/web-app-ts\`)`
     );
   }
 

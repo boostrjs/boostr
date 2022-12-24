@@ -1,4 +1,4 @@
-# @boostr/web-application-ts
+# @boostr/web-app-ts
 
 A Boostr template for building a Layr app in TypeScript.
 
@@ -7,7 +7,7 @@ A Boostr template for building a Layr app in TypeScript.
 Create a directory for your app and run the following command inside it:
 
 ```sh
-boostr init --template=@boostr/web-application-ts
+boostr init --template=@boostr/web-app-ts
 ```
 
 ## License
