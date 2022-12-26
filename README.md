@@ -4,8 +4,6 @@
 	<br>
 </p>
 
-> Build and deploy your Layr apps.
-
 ## Overview
 
 Boostr is a companion tool for [Layr](https://layrjs.com).
@@ -20,12 +18,12 @@ Here are the main features provided by Boostr:
 - Fully managed local development environment:
   - Automatic frontend build and refresh
   - Automatic backend build and restart
-  - Local development database (limited to [MongoDB])(https://www.mongodb.com/) for now)
+  - Local development database (limited to [MongoDB](https://www.mongodb.com/) for now)
 - Configuration management:
   - Environment variables with inheritance and cross-service referencing
   - Multiple stages (e.g., "development", "staging", or "production")
   - Public and private configurations
-- Database migrations (limited to [MongoDB])(https://www.mongodb.com/) for now)
+- Database migrations (limited to [MongoDB](https://www.mongodb.com/) for now)
 - Serverless deployment with a single command (limited to [AWS](https://aws.amazon.com/) for now)
 
 ## Getting Started
@@ -102,7 +100,7 @@ Note that the TCP ports used for each service are randomly set. It ensures that 
 
 ## Basic Commands
 
-Note that all commands accept some [global options](#global-options) and a few commands accept some specific options.
+Note that all commands accept some [global options](#global-options), and a few commands accept some specific options.
 
 ### `boostr initialize <template> [options]`
 
@@ -133,15 +131,15 @@ Here is an example of initializing a web app using TypeScript from an empty dire
 boostr initialize @boostr/web-app-ts
 ```
 
-Note that since we didn't use the `--name` option, the app will be named after the name of the current directory (`my-app`).
+Note that since we didn't use the `--name` option, the app will be named after the name of the current directory, which is `my-app`.
 
-Here is an example of initializing a web app using JavaScript from an empty directory with a different name:
+Here is an example of initializing a web app using JavaScript from an empty directory while specifying the name of the app:
 
 ```sh
-boostr init @boostr/web-app-ts --name=my-awesome-app
+boostr init @boostr/web-app-js --name=my-awesome-app
 ```
 
-Note that we used the `init` alias and the `--name` option to specify the app's name.
+Note that we used the `--name` option to specify the app's name and shorted the command with the `init` alias.
 
 ### `boostr [<service>] start [options]`
 
