@@ -22,7 +22,7 @@ const INITIALIZE_HELP = formatHelp({
 
   'Alias': 'init',
 
-  'Description': 'Initializes your app within the current directory.',
+  'Description': 'Initializes your app within the current directory from the specified template.',
 
   'Usage': 'boostr initialize <template> [options]',
 

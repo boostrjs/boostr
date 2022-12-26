@@ -168,7 +168,7 @@ export abstract class Subservice extends BaseService {
 
     deploy: {
       ...BaseService.commands.deploy,
-      description: 'Deploys your service (and the services it depends on) to a specific stage.',
+      description: 'Deploys your service (and the services it depends on) to the specified stage.',
       examples: [
         'boostr {{serviceName}} deploy --production',
         'boostr {{serviceName}} deploy --staging --skip=legacyBackend'

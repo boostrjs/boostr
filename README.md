@@ -106,7 +106,7 @@ Note that all commands accept some [global options](#global-options), and a few 
 
 _Alias: `boostr init`_
 
-Initializes an app from a template.
+Initializes your app within the current directory from the specified template.
 
 The `<template>` argument specifies the template to use, which should be a published npm package.
 
@@ -121,37 +121,84 @@ A template is simply an npm package. So, the community can publish any new templ
 
 #### Options
 
+In addition to the [global options](#global-options), the `initialize` command accepts the following option:
+
 - `--name`: Specifies the name of your app (defaults to the name of the current directory).
 
 #### Examples
 
-Here is an example of initializing a web app using TypeScript from an empty directory named `my-app`:
-
 ```sh
+# Creates a web app named `my-app` using TypeScript
+mkdir my-app
+cd my-app
 boostr initialize @boostr/web-app-ts
 ```
 
-Note that since we didn't use the `--name` option, the app will be named after the name of the current directory, which is `my-app`.
-
-Here is an example of initializing a web app using JavaScript from an empty directory while specifying the name of the app:
-
 ```sh
+# Creates a web app named `my-awesome-app` using JavaScript
+mkdir my-directory
+cd my-directory
 boostr init @boostr/web-app-js --name=my-awesome-app
 ```
-
-Note that we used the `--name` option to specify the app's name and shorted the command with the `init` alias.
 
 ### `boostr [<service>] start [options]`
 
 Starts your app (or a specified service) in development mode.
 
-TODO
+#### Options
+
+See the [global options](#global-options).
+
+#### Examples
+
+```sh
+# Starts all the services of your app in development mode
+boostr start
+```
+
+```sh
+# Starts the "backend" service (and the services it depends on)
+# in development mode
+boostr backend start
+```
 
 ### `boostr [<service>] deploy [options]`
 
-Deploys your app (or a specified service) to a specific stage.
+Deploys your app (or a specified service) to the specified stage.
 
-TODO
+#### Options
+
+In addition to the [global options](#global-options), the `deploy` command accepts the following option:
+
+- `--skip`: Skips the specified service when deploying. Note that you can repeat this option several times to skip multiple services.
+
+#### Notes
+
+- Currently, only [AWS](https://aws.amazon.com/) is supported as a deployment target.
+- The DNS associated with your domain name must be managed by [Amazon Route 53](https://aws.amazon.com/route53/).
+- The first deployment may take a while because several AWS services have to be set up, but subsequent deployments should be much faster.
+
+#### Examples
+
+```sh
+# Deploys all the services of your app to the "production" stage
+boostr deploy --production
+
+# Does the same thing
+boostr deploy --stage=production
+```
+
+```sh
+# Deploys the "backend" service (and the services it depends on)
+# to the "production" stage
+boostr backend deploy --production
+```
+
+```sh
+# Deploys all the services of your app to the "staging" stage while
+# skipping the "legacyBackend" service
+boostr deploy --staging --skip=legacyBackend
+```
 
 ## Global Options
 

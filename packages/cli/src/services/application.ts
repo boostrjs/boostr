@@ -105,11 +105,11 @@ export class ApplicationService extends BaseService {
 
     deploy: {
       ...BaseService.commands.deploy,
-      description: 'Deploys your app (or a specified service) to a specific stage.',
+      description: 'Deploys your app (or a specified service) to the specified stage.',
       examples: [
         'boostr deploy --production',
-        'boostr deploy --staging --skip=legacyBackend',
-        'boostr frontend deploy --production'
+        'boostr backend deploy --production',
+        'boostr deploy --staging --skip=legacyBackend'
       ]
     },
 
