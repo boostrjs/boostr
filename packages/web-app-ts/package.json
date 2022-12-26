@@ -1,6 +1,6 @@
 {
   "name": "@boostr/web-app-ts",
-  "version": "2.4.1",
+  "version": "2.5.0",
   "description": "A Boostr template for building full-stack web apps in TypeScript",
   "keywords": [
     "boostr",

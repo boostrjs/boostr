@@ -14,7 +14,7 @@ const DEFAULT_STAGE = 'development';
 const CONFIG_NOT_FOUND_HELP = `
 Couldn't find a configuration file.
 ${formatHelp({
-  'Run the following command to initialize your app': 'boostr initialize --template=<package>',
+  'Run the following command to initialize your app': 'boostr initialize <template> [options]',
 
   'Find out more about the `initialize` command by running': 'boostr initialize --help',
 
@@ -70,7 +70,10 @@ export async function runCLI(
       );
     }
 
-    await initialize(currentDirectory, parsedOptions, {stage, showHelp});
+    const templateName = rawArguments[0];
+
+    await initialize(currentDirectory, templateName, parsedOptions, {stage, showHelp});
+
     return;
   }
 

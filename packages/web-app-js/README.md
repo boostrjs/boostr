@@ -7,7 +7,7 @@ A Boostr template for building a Layr app in JavaScript.
 Create a directory for your app and run the following command inside it:
 
 ```sh
-boostr init --template=@boostr/web-app-js
+boostr init @boostr/web-app-js
 ```
 
 ## License

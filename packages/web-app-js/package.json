@@ -1,6 +1,6 @@
 {
   "name": "@boostr/web-app-js",
-  "version": "2.4.1",
+  "version": "2.5.0",
   "description": "A Boostr template for building full-stack web apps in JavaScript",
   "keywords": [
     "boostr",

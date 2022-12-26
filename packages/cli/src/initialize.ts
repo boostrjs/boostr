@@ -22,18 +22,17 @@ const INITIALIZE_HELP = formatHelp({
 
   'Alias': 'init',
 
-  'Description': 'Initialize your app within the current directory.',
+  'Description': 'Initializes your app within the current directory.',
 
-  'Usage': 'boostr initialize --template=<package> [options]',
+  'Usage': 'boostr initialize <template> [options]',
 
   'Options': {
-    '--template': 'Specify an npm package name to be used as template.',
-    '--name': 'Specify the name of your app (default: the name of the current directory).'
+    '--name': 'Specifies the name of your app (default: the name of the current directory).'
   },
 
   'Examples': [
-    'boostr initialize --template=@boostr/web-app-ts',
-    'boostr init --template=@boostr/web-app-js --name=my-app'
+    'boostr initialize @boostr/web-app-ts',
+    'boostr init @boostr/web-app-js --name=my-app'
   ],
 
   'Global Options': GLOBAL_OPTIONS_HELP_OBJECT
@@ -43,7 +42,8 @@ const POPULATABLE_TEMPLATE_FILE_EXTENSIONS = ['.js', '.mjs', '.jsx', '.ts', '.ts
 
 export async function initialize(
   directory: string,
-  {template, name}: {template?: string; name?: string} = {},
+  templateName: string,
+  {name: applicationName}: {name?: string} = {},
   {stage, showHelp = false}: {stage: string; showHelp?: boolean}
 ) {
   if (showHelp) {
@@ -51,27 +51,23 @@ export async function initialize(
     return;
   }
 
+  if (!templateName) {
+    throwError(
+      `Please specify a template name (example: \`boostr initialize @boostr/web-app-ts\`)`
+    );
+  }
+
   if (!directoryIsEmpty(directory, {ignoreDirectoryNames: ['.git', '.DS_Store']})) {
     throwError(`Sorry, the 'initialize' command can only be used within an empty directory`);
   }
 
-  if (template === undefined) {
-    throwError(
-      `Please specify a template with the --template option (example: \`boostr initialize --template=@boostr/web-app-ts\`)`
-    );
-  }
-
-  let applicationName: string;
-
-  if (name !== undefined) {
-    applicationName = name;
-  } else {
+  if (!applicationName) {
     applicationName = kebabCase(basename(directory));
   }
 
   logMessage('Fetching template...');
 
-  await fetchTemplate(template, directory);
+  await fetchTemplate(directory, templateName);
   await populateVariables(directory, {applicationName});
 
   if (!directoryExists(join(directory, '.git'))) {
@@ -88,7 +84,7 @@ export async function initialize(
   logMessage('Run `boostr start` to start the development environment');
 }
 
-async function fetchTemplate(name: string, directory: string) {
+async function fetchTemplate(directory: string, name: string) {
   await temporaryDirectoryTask(async (temporaryDirectory) => {
     try {
       const tarballFileName = execFileSync('npm', ['pack', name, '--silent'], {
