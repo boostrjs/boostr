@@ -134,13 +134,13 @@ export abstract class Subservice extends BaseService {
 
     install: {
       ...BaseService.commands.install,
-      description: 'Install all the npm dependencies of the current service.',
+      description: 'Installs all the npm dependencies used by your service.',
       examples: ['boostr {{serviceName}} install']
     },
 
     update: {
       ...BaseService.commands.update,
-      description: 'Update all the npm dependencies of the current service.',
+      description: 'Updates all the npm dependencies used by your service.',
       examples: ['boostr {{serviceName}} update']
     },
 
@@ -156,21 +156,19 @@ export abstract class Subservice extends BaseService {
 
     test: {
       ...BaseService.commands.test,
-      description: 'Test the current service.',
+      description: 'Tests your service.',
       examples: ['boostr {{serviceName}} test']
     },
 
     start: {
       ...BaseService.commands.start,
-      description:
-        'Start the current service (and the services it depends on) in development mode.',
+      description: 'Starts your service (and the services it depends on) in development mode.',
       examples: ['boostr {{serviceName}} start']
     },
 
     deploy: {
       ...BaseService.commands.deploy,
-      description:
-        'Deploy the current service (and the services it depends on) to a specific stage.',
+      description: 'Deploys your service (and the services it depends on) to a specific stage.',
       examples: [
         'boostr {{serviceName}} deploy --production',
         'boostr {{serviceName}} deploy --staging --skip=legacyBackend'
@@ -179,13 +177,13 @@ export abstract class Subservice extends BaseService {
 
     config: {
       ...BaseService.commands.config,
-      description: 'Show the configuration of the current service.',
+      description: 'Shows your service configuration.',
       examples: ['boostr {{serviceName}} config']
     },
 
     exec: {
       ...BaseService.commands.exec,
-      description: 'Execute any shell command in the directory of the current service.',
+      description: 'Executes any shell command in your service directory.',
       examples: ['boostr {{serviceName}} exec -- npm install lodash']
     }
   };

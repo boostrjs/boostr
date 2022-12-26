@@ -61,13 +61,13 @@ export class ApplicationService extends BaseService {
 
     install: {
       ...BaseService.commands.install,
-      description: 'Install all the npm dependencies.',
+      description: 'Installs all the npm dependencies used in your app.',
       examples: ['boostr install', 'boostr frontend install']
     },
 
     update: {
       ...BaseService.commands.update,
-      description: 'Update all the npm dependencies.',
+      description: 'Updates all the npm dependencies used in your app.',
       examples: ['boostr update', 'boostr frontend update']
     },
 
@@ -84,19 +84,19 @@ export class ApplicationService extends BaseService {
     test: {
       ...BaseService.commands.test,
       description:
-        'Test all the services of your app (or a specified service) in development mode.',
+        'Tests all the services of your app (or a specified service) in development mode.',
       examples: ['boostr test', 'boostr backend test']
     },
 
     start: {
       ...BaseService.commands.start,
-      description: 'Start your app (or a subset of services) in development mode.',
+      description: 'Starts your app (or a a specified service) in development mode.',
       examples: ['boostr start', 'boostr backend start']
     },
 
     migrate: {
       ...BaseService.commands.migrate,
-      description: 'Migrate one or more databases.',
+      description: 'Migrates one or more databases used by your app.',
       async handler(this: ApplicationService) {
         await this.migrate();
       },
@@ -105,7 +105,7 @@ export class ApplicationService extends BaseService {
 
     deploy: {
       ...BaseService.commands.deploy,
-      description: 'Deploy your app (or a subset of services) to a specific stage.',
+      description: 'Deploys your app (or a a specified service) to a specific stage.',
       examples: [
         'boostr deploy --production',
         'boostr deploy --staging --skip=legacyBackend',
@@ -115,14 +115,14 @@ export class ApplicationService extends BaseService {
 
     config: {
       ...BaseService.commands.config,
-      description: 'Show the root (or a specified service) configuration.',
+      description: 'Shows the root (or a specified service) configuration.',
       examples: ['boostr config', 'boostr frontend config']
     },
 
     exec: {
       ...BaseService.commands.exec,
       description:
-        'Execute any shell command in the root directory of your app (or in the directory of a specified service).',
+        'Executes any shell command in the root directory of your app (or in the directory of a specified service).',
       examples: [
         'boostr exec -- npx prettier --check .',
         'boostr backend exec -- npm install lodash'

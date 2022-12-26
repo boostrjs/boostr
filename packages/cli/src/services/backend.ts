@@ -56,7 +56,7 @@ export class BackendService extends Subservice {
 
     introspect: {
       ...Subservice.commands.introspect,
-      description: 'Introspect the root component and write the result to a JSON file.',
+      description: 'Introspects your backend root component and writes the result to a JSON file.',
       examples: ['boostr {{serviceName}} introspect introspection.json'],
       arguments: ['outputFile'],
       async handler(this: BackendService, [outputFile]) {
@@ -67,7 +67,7 @@ export class BackendService extends Subservice {
     eval: {
       ...Subservice.commands.eval,
       description:
-        'Evaluate the specified JavaScript code with the root component exposed globally.',
+        'Evaluates the specified JavaScript code with your backend root component exposed globally.',
       examples: ['boostr {{serviceName}} eval "Application.isHealthy()"'],
       arguments: ['codeToEval'],
       async handler(this: BackendService, [code]) {
@@ -77,7 +77,7 @@ export class BackendService extends Subservice {
 
     repl: {
       ...Subservice.commands.repl,
-      description: 'Start a REPL with the root component exposed globally.',
+      description: 'Starts a REPL with your backend root component exposed globally.',
       examples: ['boostr {{serviceName}} repl'],
       async handler(this: BackendService) {
         await this.startREPL();

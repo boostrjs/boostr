@@ -122,7 +122,7 @@ export class WebFrontendService extends Subservice {
 
     freeze: {
       ...Subservice.commands.freeze,
-      description: 'Freeze all the files that are present in the public directory.',
+      description: 'Freezes all the files that are in your public directory.',
       examples: ['boostr {{serviceName}} freeze'],
       async handler(this: WebFrontendService) {
         await this.freeze();
