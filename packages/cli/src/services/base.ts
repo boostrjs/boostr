@@ -170,7 +170,7 @@ export abstract class BaseService {
       options: {
         skip: {
           type: 'string[]',
-          description: 'Skip a specific service when deploying.'
+          description: 'Skips a specific service when deploying.'
         }
       },
       async handler(this: BaseService, [], {skip: skipServiceNames = []}: {skip?: string[]}) {

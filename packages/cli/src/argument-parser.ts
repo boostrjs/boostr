@@ -3,12 +3,12 @@ import mri from 'mri';
 import {throwError} from './utilities.js';
 
 export const GLOBAL_OPTIONS_HELP_OBJECT = {
-  '--stage': "Select a stage (default: 'development').",
+  '--stage': "Selects a stage (default: 'development').",
   '--development': 'A shorthand for `--stage=development`.',
   '--staging': 'A shorthand for `--stage=staging`.',
   '--production': 'A shorthand for `--stage=production`.',
-  '--version, -v': 'Show the current version.',
-  '--help, -h': 'Show this screen.'
+  '--version, -v': 'Shows the current Boostr version.',
+  '--help, -h': 'Shows this screen.'
 };
 
 const BUILT_IN_STAGES = ['development', 'staging', 'production'];
