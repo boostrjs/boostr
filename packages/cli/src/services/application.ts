@@ -90,7 +90,7 @@ export class ApplicationService extends BaseService {
 
     start: {
       ...BaseService.commands.start,
-      description: 'Starts your app (or a a specified service) in development mode.',
+      description: 'Starts your app (or a specified service) in development mode.',
       examples: ['boostr start', 'boostr backend start']
     },
 
@@ -105,7 +105,7 @@ export class ApplicationService extends BaseService {
 
     deploy: {
       ...BaseService.commands.deploy,
-      description: 'Deploys your app (or a a specified service) to a specific stage.',
+      description: 'Deploys your app (or a specified service) to a specific stage.',
       examples: [
         'boostr deploy --production',
         'boostr deploy --staging --skip=legacyBackend',
