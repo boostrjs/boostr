@@ -98,6 +98,10 @@ TODO
 
 Note that the TCP ports used for each service are randomly set. It ensures that you will not encounter port conflicts while working on several apps simultaneously.
 
+### Stages
+
+TODO
+
 ## Inline Help
 
 You can get some help from the Boostr CLI by using the `--help` option.
@@ -434,7 +438,14 @@ boostr backend exec --stage=production -- npm run myscript
 
 ## Global Options
 
-TODO
+The following options are available for all the commands:
+
+- `--stage`: Selects a stage. See ["Stages"](#stages) for details.
+- `--development`: A shorthand for `--stage=development`.
+- `--staging`: A shorthand for `--stage=staging`.
+- `--production`: A shorthand for `--stage=production`.
+- `--version`, `-v`: Displays the current Boostr version.
+- `--help`, `-h`: Displays inline help. See ["Inline Help"](#inline-help) for details.
 
 ## Contributing
 

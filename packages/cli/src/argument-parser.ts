@@ -7,8 +7,8 @@ export const GLOBAL_OPTIONS_HELP_OBJECT = {
   '--development': 'A shorthand for `--stage=development`.',
   '--staging': 'A shorthand for `--stage=staging`.',
   '--production': 'A shorthand for `--stage=production`.',
-  '--version, -v': 'Shows the current Boostr version.',
-  '--help, -h': 'Shows this screen.'
+  '--version, -v': 'Displays the current Boostr version.',
+  '--help, -h': 'Displays inline help for a specified service or command.'
 };
 
 const BUILT_IN_STAGES = ['development', 'staging', 'production'];
