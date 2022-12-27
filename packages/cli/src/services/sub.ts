@@ -146,11 +146,13 @@ export abstract class Subservice extends BaseService {
 
     check: {
       ...BaseService.commands.check,
+      description: 'Checks the TypeScript code of your service.',
       examples: ['boostr {{serviceName}} check']
     },
 
     build: {
       ...BaseService.commands.build,
+      description: 'Builds runnable artifacts from the source code of your service.',
       examples: ['boostr {{serviceName}} build']
     },
 
@@ -177,14 +179,18 @@ export abstract class Subservice extends BaseService {
 
     config: {
       ...BaseService.commands.config,
-      description: 'Shows your service configuration.',
+      description: 'Displays your service configuration.',
       examples: ['boostr {{serviceName}} config']
     },
 
     exec: {
       ...BaseService.commands.exec,
       description: 'Executes any shell command in your service directory.',
-      examples: ['boostr {{serviceName}} exec -- npm install lodash']
+      examples: [
+        'boostr {{serviceName}} exec -- npm install lodash',
+        'boostr {{serviceName}} exec -- npm version patch --no-git-tag-version',
+        'boostr {{serviceName}} exec --stage=staging -- npm run myscript'
+      ]
     }
   };
 

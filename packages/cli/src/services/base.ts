@@ -127,14 +127,15 @@ export abstract class BaseService {
     },
 
     check: {
-      description: 'Checks your TypeScript code.',
+      description: 'Checks the TypeScript code of your app (or a specified service).',
       async handler(this: BaseService) {
         await this.check();
       }
     },
 
     build: {
-      description: 'Builds runnable artifacts from your source code.',
+      description:
+        'Builds runnable artifacts from the source code of your app (or a specified service).',
       async handler(this: BaseService) {
         await this.build();
       }

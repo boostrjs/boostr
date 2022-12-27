@@ -57,17 +57,15 @@ export class ApplicationService extends BaseService {
   static commands: Record<string, Command> = {
     ...BaseService.commands,
 
-    // TODO: Rewrite all descriptions to take into account the case of a service is specified
-
     install: {
       ...BaseService.commands.install,
-      description: 'Installs all the npm dependencies used in your app.',
+      description: 'Installs all the npm dependencies used in your app (or a specified service).',
       examples: ['boostr install', 'boostr frontend install']
     },
 
     update: {
       ...BaseService.commands.update,
-      description: 'Updates all the npm dependencies used in your app.',
+      description: 'Updates all the npm dependencies used in your app (or a specified service).',
       examples: ['boostr update', 'boostr frontend update']
     },
 
@@ -115,7 +113,7 @@ export class ApplicationService extends BaseService {
 
     config: {
       ...BaseService.commands.config,
-      description: 'Shows the root (or a specified service) configuration.',
+      description: 'Displays the root (or a specified service) configuration.',
       examples: ['boostr config', 'boostr frontend config']
     },
 

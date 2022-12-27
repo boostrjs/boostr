@@ -98,9 +98,9 @@ TODO
 
 Note that the TCP ports used for each service are randomly set. It ensures that you will not encounter port conflicts while working on several apps simultaneously.
 
-## Basic Commands
+## Global Commands
 
-Note that all commands accept some [global options](#global-options), and a few commands accept some specific options.
+Note that all the global commands accept some [global options](#global-options), and a few accept some specific options.
 
 ### `boostr initialize <template> [options]`
 
@@ -141,6 +141,122 @@ cd my-directory
 boostr init @boostr/web-app-js --name=my-awesome-app
 ```
 
+### `boostr [<service>] install [options]`
+
+Installs all the npm dependencies used in your app (or a specified service).
+
+Under the hood, this command runs `npm install`.
+
+#### Options
+
+See the [global options](#global-options).
+
+#### Examples
+
+```sh
+# Installs all the npm dependencies used in your app
+boostr install
+```
+
+```sh
+# Installs all the npm dependencies used in the "frontend" service
+boostr frontend install
+```
+
+### `boostr [<service>] update [options]`
+
+Updates all the npm dependencies used in your app (or a specified service).
+
+Under the hood, this command runs `npm update`.
+
+#### Options
+
+See the [global options](#global-options).
+
+#### Examples
+
+```sh
+# Updates all the npm dependencies used in your app (including Boostr itself)
+boostr update
+```
+
+```sh
+# Updates all the npm dependencies used in the "backend" service
+boostr backend update
+```
+
+### `boostr [<service>] check [options]`
+
+Checks the TypeScript code of your app (or a specified service).
+
+Under the hood, this command runs `tsc --noEmit`.
+
+#### Options
+
+See the [global options](#global-options).
+
+#### Examples
+
+```sh
+# Checks the TypeScript code of your app
+boostr check
+```
+
+```sh
+# Checks the TypeScript code of the "backend" service
+boostr backend check
+```
+
+### `boostr [<service>] build [options]`
+
+Builds runnable artifacts from the source code of your app (or a specified service).
+
+Under the hood, this command runs `tsc --noEmit`.
+
+#### Options
+
+See the [global options](#global-options).
+
+#### Examples
+
+```sh
+# Builds runnable artifacts from the source code of your app
+boostr build
+```
+
+```sh
+# Builds runnable artifacts from the source code of the "frontend" service
+boostr frontend build
+```
+
+```sh
+# Builds runnable artifacts from the source code of your app while using
+# the "production" stage configuration
+boostr build --production
+```
+
+### `boostr [<service>] test [options]`
+
+Tests all the services of your app (or a specified service) in development mode.
+
+Under the hood, this command executes `npm test`.
+
+#### Options
+
+See the [global options](#global-options).
+
+#### Examples
+
+```sh
+# Tests all the services of your app
+boostr test
+```
+
+```sh
+# Tests the "backend" service
+boostr backend test
+```
+
 ### `boostr [<service>] start [options]`
 
 Starts your app (or a specified service) in development mode.
@@ -160,6 +276,33 @@ boostr start
 # Starts the "backend" service (and the services it depends on)
 # in development mode
 boostr backend start
+```
+
+### `boostr [<service>] migrate [options]`
+
+Migrates one or more databases used by your app.
+
+Note that database migrations are limited to [MongoDB](https://www.mongodb.com/) for now.
+
+#### Options
+
+See the [global options](#global-options).
+
+#### Examples
+
+```sh
+# Migrates all the databases used by your app in the "development" environment
+boostr migrate
+```
+
+```sh
+# Migrates all the databases used by your app in the "staging" environment
+boostr migrate --staging
+```
+
+```sh
+# Migrates the "customers" database in the "development" environment
+boostr customers migrate
 ```
 
 ### `boostr [<service>] deploy [options]`
@@ -198,6 +341,67 @@ boostr backend deploy --production
 # Deploys all the services of your app to the "staging" stage while
 # skipping the "legacyBackend" service
 boostr deploy --staging --skip=legacyBackend
+```
+
+### `boostr [<service>] config [options]`
+
+Displays the root (or a specified service) configuration.
+
+Note that the displayed configuration considers all the property references and resolves them according to a specific stage ("development" by default).
+
+#### Options
+
+See the [global options](#global-options).
+
+#### Examples
+
+```sh
+# Displays the root configuration for the "development" environment
+boostr config
+```
+
+```sh
+# Displays the configuration of the "frontend" service for the "development" environment
+boostr frontend config
+```
+
+```sh
+# Displays the configuration of the "backend" service for the "production" environment
+boostr backend config --production
+```
+
+### `boostr [<service>] exec [options] -- <command> ...`
+
+Executes any shell command in the root directory of your app (or in the directory of a specified service).
+
+Note that the configuration environment variables are propagated to the shell command.
+
+#### Options
+
+See the [global options](#global-options).
+
+#### Examples
+
+```sh
+# Executes `npx prettier --check .` in the root directory of your app
+boostr exec -- npx prettier --check .
+```
+
+```sh
+# Executes `npm install lodash` in the directory of the "backend" service
+boostr backend exec -- npm install lodash
+```
+
+```sh
+# Executes `npm version patch --no-git-tag-version` in the directory of
+# the "frontend" service
+boostr frontend exec -- npm version patch --no-git-tag-version
+```
+
+```sh
+# Executes `npm run myscript` in the directory of the "backend" service
+# with the environment variables of the "production" stage
+boostr backend exec --stage=production -- npm run myscript
 ```
 
 ## Global Options
