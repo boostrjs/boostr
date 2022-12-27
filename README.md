@@ -98,6 +98,34 @@ TODO
 
 Note that the TCP ports used for each service are randomly set. It ensures that you will not encounter port conflicts while working on several apps simultaneously.
 
+## Inline Help
+
+You can get some help from the Boostr CLI by using the `--help` option.
+
+Get some general help by running the following:
+
+```sh
+boostr --help
+```
+
+Get some help for a global command (e.g., `start`) by running the following:
+
+```sh
+boostr start --help
+```
+
+Get some help for a specific service (e.g., "frontend") by running the following:
+
+```sh
+boostr frontend --help
+```
+
+Get some help for a command of a specific service (e.g., the `import` command of the "database" service) by running the following:
+
+```sh
+boostr database import --help
+```
+
 ## Global Commands
 
 Note that all the global commands accept some [global options](#global-options), and a few accept some specific options.
