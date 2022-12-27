@@ -98,6 +98,10 @@ TODO
 
 Note that the TCP ports used for each service are randomly set. It ensures that you will not encounter port conflicts while working on several apps simultaneously.
 
+### Services
+
+TODO
+
 ### Stages
 
 TODO
@@ -131,6 +135,8 @@ boostr database import --help
 ```
 
 ## Global Commands
+
+The global commands are available for all services, including the root of your app, which is represented by a service of type "application".
 
 Note that all the global commands accept some [global options](#global-options), and a few accept some specific options.
 
@@ -446,6 +452,22 @@ The following options are available for all the commands:
 - `--production`: A shorthand for `--stage=production`.
 - `--version`, `-v`: Displays the current Boostr version.
 - `--help`, `-h`: Displays inline help. See ["Inline Help"](#inline-help) for details.
+
+## Web Frontend Commands
+
+The web frontend commands are available for all services of type "web-frontend".
+
+### `boostr <web-frontend-service> freeze`
+
+Freezes all the files that are in the `public` directory of your web frontend service.
+
+Freezing a file means that the file is renamed to match the pattern `<name>-<hash>.immutable.<extension>` where `<name>` is the original file name without its extension, `<hash>` is a hash generated from the contents of the file, and `<extension>` is the original file extension.
+
+For example, if you have a file named `favicon.png` in the `public` directory of your "frontend" service, running `boostr frontend freeze` will rename the `favicon.png` file to something like `favicon-3NjLR7w1Mu8UAIqq05vVG3.immutable.png`.
+
+When a browser loads a frozen file, it can permanently store it in its cache thanks to a `Cache-Control` header automatically added when your frontend is deployed.
+
+Note that it is not an issue to run the `freeze` command several times because the command is clever enough to ignore the files that have already been frozen.
 
 ## Contributing
 
