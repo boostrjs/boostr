@@ -77,7 +77,7 @@ export class BackendService extends Subservice {
 
     repl: {
       ...Subservice.commands.repl,
-      description: 'Starts a REPL with your backend root component exposed globally.',
+      description: 'Starts a Node.js REPL with your backend root component exposed globally.',
       examples: ['boostr {{serviceName}} repl'],
       async handler(this: BackendService) {
         await this.startREPL();

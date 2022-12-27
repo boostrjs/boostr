@@ -136,9 +136,7 @@ boostr database import --help
 
 ## Global Commands
 
-The global commands are available for all services, including the root of your app, which is represented by a service of type "application".
-
-Note that all the global commands accept some [global options](#global-options), and a few accept some specific options.
+The global commands are available for all services, including the root of your app, which is represented by a service of type `'application'`.
 
 ### `boostr initialize <template> [options]`
 
@@ -150,8 +148,8 @@ The `<template>` argument specifies the template to use, which should be a publi
 
 Currently, two templates are available:
 
-- **@boostr/web-app-js** for initializing a web app using JavaScript
-- **@boostr/web-app-ts** for initializing a web app using TypeScript
+- `@boostr/web-app-js` for initializing a web app using JavaScript
+- `@boostr/web-app-ts` for initializing a web app using TypeScript
 
 We will publish more templates in the future. For example, some React Native or Electron app templates should soon be available.
 
@@ -455,7 +453,7 @@ The following options are available for all the commands:
 
 ## Web Frontend Commands
 
-The web frontend commands are available for all services of type "web-frontend".
+The web frontend commands are available for all services of type `'web-frontend'`.
 
 ### `boostr <web-frontend-service> freeze`
 
@@ -468,6 +466,65 @@ For example, if you have a file named `favicon.png` in the `public` directory of
 When a browser loads a frozen file, it can permanently store it in its cache thanks to a `Cache-Control` header automatically added when your frontend is deployed.
 
 Note that it is not an issue to run the `freeze` command several times because the command is clever enough to ignore the files that have already been frozen.
+
+## Backend Commands
+
+The backend commands are available for all services of type `'backend'`.
+
+### `boostr <backend-service> eval <codeToEval> [options]`
+
+Evaluates the specified JavaScript code with your backend service root component exposed globally and outputs the result in the terminal.
+
+#### Options
+
+See the [global options](#global-options).
+
+#### Example
+
+If you run the following command with a web app that has just been initialized from the `@boostr/web-app-ts` template:
+
+```sh
+boostr backend eval "Application.isHealthy()"
+```
+
+The terminal should output something like this:
+
+```
+[database] MongoDB server started at mongodb://localhost:10744/
+[backend] Build succeeded (bundle size: 2.06MB)
+[backend] Evaluating code...
+[backend] Result:
+[backend] true
+[database] MongoDB server stopped
+```
+
+### `boostr <backend-service> repl [options]`
+
+Starts a Node.js [REPL](https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop) with your backend root component exposed globally.
+
+#### Options
+
+See the [global options](#global-options).
+
+#### Example
+
+If you run the following command with a web app that has just been initialized from the `@boostr/web-app-ts` template:
+
+```sh
+boostr backend repl
+```
+
+Then, you should be able to execute the following JavaScript code inside the REPL:
+
+```js
+await Application.isHealthy();
+```
+
+And the REPL should output the following result:
+
+```
+true
+```
 
 ## Contributing
 
