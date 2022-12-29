@@ -98,13 +98,13 @@ A Layr app managed by Boostr is usually composed of different services, and each
 
 For example, a minimal web app comprises the following directories and files:
 
-- `boostr.config.mjs`: Application service configuration file (also called "root configuration file").
+- `boostr.config.mjs`: [Application service](#application-service) configuration file (also called "root configuration file").
 - `frontend`:
-  - `boostr.config.mjs`: Web-frontend service configuration file.
+  - `boostr.config.mjs`: [Web-frontend service](#web-frontend-service) configuration file.
 - `backend`:
-  - `boostr.config.mjs`: Backend service configuration file.
+  - `boostr.config.mjs`: [Backend service](#backend-service) configuration file.
 - `database`:
-  - `boostr.config.mjs`: Database service configuration file.
+  - `boostr.config.mjs`: [Database service](#database-service) configuration file.
 
 > **Note:** The name of the directories (e.g., `frontend`, `backend`, `database`) does not matter because they are specified in the root configuration file.
 
@@ -296,10 +296,95 @@ You can customize the AWS configuration of a web frontend by specifying an objec
 
 - `region`: Specifies the AWS region (e.g., `'us-east-1'`) where the web frontend is deployed.
 - `profile`: Specifies an [AWS configuration profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) (e.g., `'my-company'`) used to get your AWS credentials. If not specified, your default AWS configuration profile is used.
-- `accessKeyId`: Allows you to specify your AWS Access Key ID when the `profile` property is not used.
-- `secretAccessKey`: Allows you to specify your AWS Secret Access Key when the `profile` property is not used.
+- `accessKeyId`: Allows you to specify your AWS Access Key ID when the `profile` property is not used or you don't have a default [AWS configuration profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html).
+- `secretAccessKey`: Allows you to specify your AWS Secret Access Key when the `profile` property is not used or you don't have a default [AWS configuration profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html).
 - `cloudFront`:
   - `priceClass`: Specifies the Amazon CloudFront [price class](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PriceClass.html) to use (default: `'PriceClass_100'`).
+
+### Backend Service
+
+A backend service is represented by a configuration file that specifies some properties related to the nature of a backend and some general properties, such as [environment variables](#environment-variables), [stages](#stages), and [service dependencies](#service-dependencies).
+
+Here's an example of a backend service configuration file:
+
+```js
+// backend/boostr.config.mjs
+
+export default ({services}) => ({
+  type: 'backend',
+
+  dependsOn: 'database',
+
+  environment: {
+    FRONTEND_URL: services.frontend.url,
+    BACKEND_URL: services.backend.url,
+    DATABASE_URL: services.database.url
+  },
+
+  rootComponent: './src/index.ts',
+
+  stages: {
+    development: {
+      url: 'http://localhost:10743/',
+      platform: 'local'
+    },
+    staging: {
+      url: 'https://staging.backend.example.com/',
+      platform: 'aws',
+      aws: {
+        region: 'us-east-1',
+        lambda: {
+          memorySize: 1024
+        }
+      }
+    },
+    production: {
+      url: 'https://backend.example.com/',
+      platform: 'aws',
+      aws: {
+        region: 'us-east-1',
+        lambda: {
+          memorySize: 1024
+        }
+      }
+    }
+  }
+});
+```
+
+The object returned by the exported function contains the following properties:
+
+- `type`: Specifies the type of service, which should always be `'backend'` in the case of a backend service.
+- `dependsOn`: Specifies that the `'backend'` service depends on the `'database'` service. See ["Service Dependencies"](#service-dependencies) for details.
+- `environment`: An object allowing you to define some [environment variables](#environment-variables) specific to the `'backend'` service. Note that `'FRONTEND_URL'`, `'BACKEND_URL'`, and `'DATABASE_URL'` are determined according to some service properties fetched from the `services` parameter of the configuration function. See ["Service Property References"](#service-property-references) for a detailed explanation.
+- `rootComponent`: Specifies the file's path implementing the root Layr component of your backend.
+- `stages`:
+  - `development`: An object allowing you to define some properties when the `'development'` [stage](#stages) is used.
+    - We define the `url` property so that the frontend can access the backend locally (see ["Local Development URLs"](#local-development-urls) for details).
+    - We set the value of the `platform` property to `'local'` to indicate that Boostr should use a local server.
+  - `staging` and `production`: An object allowing you to define some properties when the `'staging'` or `'production'` [stage](#stages) is used.
+    - We set the value of the `url` property to an URL where Boostr can deploy the backend (see ["Deployment URLs"](#deployment-urls) for details).
+    - We set the value of the `platform` property to `'aws'` to indicate that Boostr should use [AWS](https://aws.amazon.com/) as a deployment target.
+    - Optionally, we can specify an `aws` object to customize the AWS configuration (see ["Backend AWS Configuration"](#backend-aws-configuration) bellow for details).
+
+#### Backend AWS Configuration
+
+You can customize the AWS configuration of a backend by specifying an object containing the following properties:
+
+- `region`: Specifies the AWS region (e.g., `'us-east-1'`) where the backend is deployed.
+- `profile`: Specifies an [AWS configuration profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) (e.g., `'my-company'`) used to get your AWS credentials. If not specified, your default AWS configuration profile is used.
+- `accessKeyId`: Allows you to specify your AWS Access Key ID when the `profile` property is not used or you don't have a default [AWS configuration profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html).
+- `secretAccessKey`: Allows you to specify your AWS Secret Access Key when the `profile` property is not used or you don't have a default [AWS configuration profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html).
+- `lambda`:
+  - `runtime`: Specifies the AWS Lambda [runtime](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html) to use (default: `'nodejs16.x'`).
+  - `executionRole`: Specifies the [IAM role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html) to use when the [Lambda function](https://aws.amazon.com/lambda/) is executed. If not specified, an automatically created role (named `'boostr-backend-lambda-role-v2'`) will be used, allowing [Amazon CloudWatch Logs](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/WhatIsCloudWatchLogs.html) management and [Lambda function](https://aws.amazon.com/lambda/) invocation.
+  - `memorySize`: Specifies the [amount of memory](https://docs.aws.amazon.com/lambda/latest/operatorguide/computing-power.html) (in megabytes) available to the [Lambda function](https://aws.amazon.com/lambda/) at runtime (default: `128`).
+  - `timeout`: Specifies the maximum time (in seconds) that the [Lambda function](https://aws.amazon.com/lambda/) can run (default: `10`).
+  - `reservedConcurrentExecutions`: Specifies the number of [concurrent executions](https://docs.aws.amazon.com/lambda/latest/dg/configuration-concurrency.html) that are reserved for the [Lambda function](https://aws.amazon.com/lambda/) (default: `0`).
+
+### Database Service
+
+TODO
 
 ### Environment Variables
 
