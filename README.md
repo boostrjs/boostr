@@ -296,8 +296,8 @@ You can customize the AWS configuration of a web frontend by specifying an objec
 
 - `region`: Specifies the AWS region (e.g., `'us-east-1'`) where the web frontend is deployed.
 - `profile`: Specifies an [AWS configuration profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) (e.g., `'my-company'`) used to get your AWS credentials. If not specified, your default AWS configuration profile is used.
-- `accessKeyId`: Allows you to specify your AWS Access Key ID when the `profile` property is not used or you don't have a default [AWS configuration profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html).
-- `secretAccessKey`: Allows you to specify your AWS Secret Access Key when the `profile` property is not used or you don't have a default [AWS configuration profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html).
+- `accessKeyId`: Allows you to specify your AWS Access Key ID when the `profile` property is not used, or you don't have a default [AWS configuration profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html).
+- `secretAccessKey`: Allows you to specify your AWS Secret Access Key when the `profile` property is not used, or you don't have a default [AWS configuration profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html).
 - `cloudFront`:
   - `priceClass`: Specifies the Amazon CloudFront [price class](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PriceClass.html) to use (default: `'PriceClass_100'`).
 
@@ -360,12 +360,12 @@ The object returned by the exported function contains the following properties:
 - `rootComponent`: Specifies the file's path implementing the root Layr component of your backend.
 - `stages`:
   - `development`: An object allowing you to define some properties when the `'development'` [stage](#stages) is used.
-    - We define the `url` property so that the frontend can access the backend locally (see ["Local Development URLs"](#local-development-urls) for details).
+    - We define the `url` property so the frontend can access the backend locally (see ["Local Development URLs"](#local-development-urls) for details).
     - We set the value of the `platform` property to `'local'` to indicate that Boostr should use a local server.
   - `staging` and `production`: An object allowing you to define some properties when the `'staging'` or `'production'` [stage](#stages) is used.
     - We set the value of the `url` property to an URL where Boostr can deploy the backend (see ["Deployment URLs"](#deployment-urls) for details).
     - We set the value of the `platform` property to `'aws'` to indicate that Boostr should use [AWS](https://aws.amazon.com/) as a deployment target.
-    - Optionally, we can specify an `aws` object to customize the AWS configuration (see ["Backend AWS Configuration"](#backend-aws-configuration) bellow for details).
+    - Optionally, we can specify an `aws` object to customize the AWS configuration (see ["Backend AWS Configuration"](#backend-aws-configuration) below for details).
 
 #### Backend AWS Configuration
 
@@ -373,14 +373,14 @@ You can customize the AWS configuration of a backend by specifying an object con
 
 - `region`: Specifies the AWS region (e.g., `'us-east-1'`) where the backend is deployed.
 - `profile`: Specifies an [AWS configuration profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) (e.g., `'my-company'`) used to get your AWS credentials. If not specified, your default AWS configuration profile is used.
-- `accessKeyId`: Allows you to specify your AWS Access Key ID when the `profile` property is not used or you don't have a default [AWS configuration profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html).
-- `secretAccessKey`: Allows you to specify your AWS Secret Access Key when the `profile` property is not used or you don't have a default [AWS configuration profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html).
+- `accessKeyId`: Allows you to specify your AWS Access Key ID when the `profile` property is not used, or you don't have a default [AWS configuration profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html).
+- `secretAccessKey`: Allows you to specify your AWS Secret Access Key when the `profile` property is not used, or you don't have a default [AWS configuration profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html).
 - `lambda`:
   - `runtime`: Specifies the AWS Lambda [runtime](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html) to use (default: `'nodejs16.x'`).
-  - `executionRole`: Specifies the [IAM role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html) to use when the [Lambda function](https://aws.amazon.com/lambda/) is executed. If not specified, an automatically created role (named `'boostr-backend-lambda-role-v2'`) will be used, allowing [Amazon CloudWatch Logs](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/WhatIsCloudWatchLogs.html) management and [Lambda function](https://aws.amazon.com/lambda/) invocation.
+  - `executionRole`: Specifies the [IAM role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html) used when the [Lambda function](https://aws.amazon.com/lambda/) is executed. If not specified, an automatically created role (named `'boostr-backend-lambda-role-v2'`) will be used, allowing [Amazon CloudWatch Logs](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/WhatIsCloudWatchLogs.html) management and [Lambda function](https://aws.amazon.com/lambda/) invocation.
   - `memorySize`: Specifies the [amount of memory](https://docs.aws.amazon.com/lambda/latest/operatorguide/computing-power.html) (in megabytes) available to the [Lambda function](https://aws.amazon.com/lambda/) at runtime (default: `128`).
   - `timeout`: Specifies the maximum time (in seconds) that the [Lambda function](https://aws.amazon.com/lambda/) can run (default: `10`).
-  - `reservedConcurrentExecutions`: Specifies the number of [concurrent executions](https://docs.aws.amazon.com/lambda/latest/dg/configuration-concurrency.html) that are reserved for the [Lambda function](https://aws.amazon.com/lambda/) (default: `0`).
+  - `reservedConcurrentExecutions`: Specifies the number of [concurrent executions](https://docs.aws.amazon.com/lambda/latest/dg/configuration-concurrency.html) reserved for the [Lambda function](https://aws.amazon.com/lambda/) (default: `0`).
 
 ### Database Service
 
