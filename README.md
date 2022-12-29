@@ -84,12 +84,6 @@ Then, run the following command to deploy your app to production:
 boostr deploy --production
 ```
 
-**Notes:**
-
-- Currently, only [AWS](https://aws.amazon.com/) is supported as a deployment target.
-- The DNS associated with your domain name must be managed by [Amazon Route 53](https://aws.amazon.com/route53/).
-- The first deployment may take a while because several AWS services have to be set up, but subsequent deployments should be much faster.
-
 Check out the [`deploy`](#boostr-service-deploy-options) command for details.
 
 ## Configuration Files
@@ -260,7 +254,7 @@ The object returned by the exported function contains the following properties:
 - `stages`:
   - `development`: An object allowing you to define some properties when the `'development'` [stage](#stages) is used.
     - We define the `url` property so you can access the web frontend locally (see ["Local Development URLs"](#local-development-urls) for details).
-    - We set the value of the `platform` property to `'local'` to indicate that Boostr should use a local server.
+    - We set the value of the `platform` property to `'local'` to indicate that Boostr should manage a local frontend server.
   - `staging` and `production`: An object allowing you to define some properties when the `'staging'` or `'production'` [stage](#stages) is used.
     - We set the value of the `url` property to an URL where Boostr can deploy the web frontend (see ["Deployment URLs"](#deployment-urls) for details).
     - We set the value of the `platform` property to `'aws'` to indicate that Boostr should use [AWS](https://aws.amazon.com/) as a deployment target.
@@ -361,7 +355,7 @@ The object returned by the exported function contains the following properties:
 - `stages`:
   - `development`: An object allowing you to define some properties when the `'development'` [stage](#stages) is used.
     - We define the `url` property so the frontend can access the backend locally (see ["Local Development URLs"](#local-development-urls) for details).
-    - We set the value of the `platform` property to `'local'` to indicate that Boostr should use a local server.
+    - We set the value of the `platform` property to `'local'` to indicate that Boostr should manage a local backend server.
   - `staging` and `production`: An object allowing you to define some properties when the `'staging'` or `'production'` [stage](#stages) is used.
     - We set the value of the `url` property to an URL where Boostr can deploy the backend (see ["Deployment URLs"](#deployment-urls) for details).
     - We set the value of the `platform` property to `'aws'` to indicate that Boostr should use [AWS](https://aws.amazon.com/) as a deployment target.
@@ -384,7 +378,51 @@ You can customize the AWS configuration of a backend by specifying an object con
 
 ### Database Service
 
-TODO
+A database service is represented by a configuration file that specifies some properties related to the nature of a database and some general properties, such as [stages](#stages).
+
+Here's an example of a database service configuration file:
+
+```js
+// database/boostr.config.mjs
+
+export default () => ({
+  type: 'database',
+
+  stages: {
+    development: {
+      url: 'mongodb://localhost:10744/dev',
+      platform: 'local'
+    }
+  }
+});
+```
+
+The object returned by the exported function contains the following properties:
+
+- `type`: Specifies the type of service, which should always be `'database'` in the case of a database service.
+- `stages`:
+  - `development`: An object allowing you to define some properties when the `'development'` [stage](#stages) is used.
+    - We define the `url` property so the backend can access the database locally (see ["Local Development URLs"](#local-development-urls) for details).
+    - We set the value of the `platform` property to `'local'` to indicate that Boostr should manage a local database server.
+
+You may wonder where are the URLs of the staging and production databases. Well, the problem is that we cannot put these URLs in `database/boostr.config.mjs` because they may contain sensitive information, such as access credentials.
+
+Thankfully, we can add a [private configuration file](#private-configuration-files) to solve the issue:
+
+```js
+// database/boostr.config.private.mjs
+
+export default () => ({
+  stages: {
+    staging: {
+      url: 'mongodb+srv://user:pass@clusterNane.mongodb.net/exampleStaging?retryWrites=true&w=majority'
+    },
+    production: {
+      url: 'mongodb+srv://user:pass@clusterNane.mongodb.net/exampleProduction?retryWrites=true&w=majority'
+    }
+  }
+});
+```
 
 ### Environment Variables
 
@@ -404,7 +442,9 @@ TODO
 
 ### Local Development URLs
 
-A local development URL looks like `'http://localhost:10742/'`. When you initialize an app with the [`initialize`](#boostr-initialize-template-options) command, the TCP ports (e.g., `'10742'`) used for each service are randomly set. It ensures that you will not encounter port conflicts while working on several apps simultaneously.
+A local development URL looks like `'http://localhost:10742/'` for a web-frontend or backend service and `'mongodb://localhost:10744/dev'` for a database service.
+
+When you initialize an app with the [`initialize`](#boostr-initialize-template-options) command, the TCP ports (e.g., `10742`) used for each service are randomly set. It ensures that you will never encounter port conflicts while working on several apps simultaneously.
 
 ### Deployment URLs
 
@@ -664,6 +704,7 @@ In addition to the [global options](#global-options), the `deploy` command accep
 - Currently, only [AWS](https://aws.amazon.com/) is supported as a deployment target.
 - The DNS associated with your domain name must be managed by [Amazon Route 53](https://aws.amazon.com/route53/).
 - The first deployment may take a while because several AWS services have to be set up, but subsequent deployments should be much faster.
+- Boostr manages the deployment of the web-frontend and backend services, but the database services are not. So, you will have to set up the databases by yourself on some cloud services, such as [MongoDB Atlas](https://www.mongodb.com/atlas/database) or [Amazon DocumentDB](https://aws.amazon.com/documentdb/).
 
 #### Examples
 
