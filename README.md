@@ -426,7 +426,112 @@ export default () => ({
 
 ### Environment Variables
 
-TODO
+#### Defining Environment Variables
+
+Using the `environment` object property, you can define environment variables in any configuration file.
+
+For example, here's how you would define an `APPLICATION_NAME` environment variable in the root configuration:
+
+```js
+// boostr.config.mjs
+
+export default () => ({
+  // ...
+
+  environment: {
+    APPLICATION_NAME: 'Layr App'
+  }
+
+  // ...
+});
+```
+
+Here's how you would define an `APPLICATION_DESCRIPTION` environment variable in a `'web-frontend'` service configuration:
+
+```js
+// frontend/boostr.config.mjs
+
+export default () => ({
+  // ...
+
+  environment: {
+    APPLICATION_DESCRIPTION: 'A Layr app managed by Boostr'
+  }
+
+  // ...
+});
+```
+
+Here's how you would define a `DATABASE_URL` environment variable in a `'backend'` service configuration:
+
+```js
+// backend/boostr.config.mjs
+
+export default ({services}) => ({
+  // ...
+
+  environment: {
+    DATABASE_URL: services.database.url
+  }
+
+  // ...
+});
+```
+
+Note that the value of `'DATABASE_URL'` is determined according to a `'database'` service property fetched from the `services` parameter of the configuration function. See ["Service Property References"](#service-property-references) for a detailed explanation.
+
+#### Global Environment Variables
+
+The environment variables defined in the root configuration are global, and therefore, they are accessible from all the services of your app.
+
+So, in the examples above, the `'web-frontend'` service has access to both `APPLICATION_NAME` and `APPLICATION_DESCRIPTION`, and the `'backend'` service has access to both `APPLICATION_NAME` and `DATABASE_URL`.
+
+#### Accessing Environment Variables
+
+You can access environment variables from your app's code via the `process.env` object.
+
+For example, here's how you would get the value of `APPLICATION_NAME` from your frontend code:
+
+```js
+// frontend/src/components/application.jsx
+
+// ...
+
+class Application extends Base {
+  @view() static HeaderView() {
+    return <h1>{process.env.APPLICATION_NAME}</h1>;
+  }
+}
+```
+
+And here's how you would get the value of `DATABASE_URL` from your backend code:
+
+```js
+// backend/src/index.ts
+
+// ...
+
+const store = new MongoDBStore(process.env.DATABASE_URL);
+```
+
+Environment variables are also accessible when you run commands, such as [`test`](#boostr-service-test-options), [`eval`](#boostr-backend-service-eval-codetoeval-options), or [`repl`](#boostr-backend-service-repl-options).
+
+For example, if you run the following command:
+
+```sh
+boostr backend eval process.env.APPLICATION_NAME
+```
+
+The terminal should output something like this:
+
+```
+[database] MongoDB server started at mongodb://localhost:14128/
+[backend] Build succeeded (bundle size: 2.06MB)
+[backend] Evaluating code...
+[backend] Result:
+[backend] "Layr App"
+[database] MongoDB server stopped
+```
 
 ### Stages
 
