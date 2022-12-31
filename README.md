@@ -484,7 +484,7 @@ Note that the value of `'DATABASE_URL'` is determined according to a `'database'
 
 The environment variables defined in the root configuration are global, and therefore, they are accessible from all the services of your app.
 
-So, in the examples above, the `'web-frontend'` service has access to both `APPLICATION_NAME` and `APPLICATION_DESCRIPTION`, and the `'backend'` service has access to both `APPLICATION_NAME` and `DATABASE_URL`.
+So, in the examples above, the `'web-frontend'` service has access to `APPLICATION_NAME` in addition to `APPLICATION_DESCRIPTION`, and the `'backend'` service has access to `APPLICATION_NAME` in addition to `DATABASE_URL`.
 
 #### Accessing Environment Variables
 
