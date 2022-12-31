@@ -1,5 +1,5 @@
 {
-  "name": "web-app-js",
+  "name": "my-awesome-app",
   "version": "1.0.0",
   "private": true,
   "prettier": "@boostr/prettierrc",

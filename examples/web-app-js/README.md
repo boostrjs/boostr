@@ -1,4 +1,4 @@
-# web-app-js
+# my-awesome-app
 
 ## Prerequisites
 
@@ -36,7 +36,7 @@ Start the development environment with the following command:
 boostr start
 ```
 
-The web app should be available at http://localhost:14126.
+The web app should be available at http://localhost:13293.
 
 ## Staging
 
