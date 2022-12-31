@@ -70,7 +70,7 @@ export async function initialize(
   await fetchTemplate(directory, templateName);
   await populateVariables(directory, {applicationName});
 
-  if (!directoryExists(join(directory, '.git'))) {
+  if (!(await hasGitDirectory(directory))) {
     logMessage('Initializing Git directory...');
     await initializeGitDirectory(directory);
   }
@@ -141,4 +141,22 @@ async function initializeGitDirectory(directory: string) {
     cwd: directory,
     stdio: 'inherit'
   });
+}
+
+async function hasGitDirectory(directory: string) {
+  while (true) {
+    if (directoryExists(join(directory, '.git'))) {
+      return true;
+    }
+
+    const parentDirectory = join(directory, '..');
+
+    if (parentDirectory === directory) {
+      break;
+    }
+
+    directory = parentDirectory;
+  }
+
+  return false;
 }
