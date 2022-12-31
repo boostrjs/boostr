@@ -6,7 +6,7 @@ import type {Application as BackendApplication} from '../../../backend/src/compo
 
 export const extendApplication = (Base: typeof BackendApplication) => {
   class Application extends Routable(Base) {
-    ['constructor']!: typeof Application;
+    declare ['constructor']: typeof Application;
 
     @layout('/') static MainLayout({children}: {children: () => any}) {
       return (
