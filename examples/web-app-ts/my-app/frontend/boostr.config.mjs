@@ -26,7 +26,7 @@ export default ({services}) => ({
 
   stages: {
     development: {
-      url: 'http://localhost:18464/',
+      url: 'http://localhost:19091/',
       platform: 'local'
     },
     staging: {

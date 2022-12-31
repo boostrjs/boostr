@@ -1,4 +1,4 @@
-# web-app-ts
+# my-app
 
 ## Prerequisites
 
@@ -36,7 +36,7 @@ Start the development environment with the following command:
 boostr start
 ```
 
-The web app should be available at http://localhost:18464.
+The web app should be available at http://localhost:19091.
 
 ## Staging
 
