@@ -623,12 +623,16 @@ cd my-app
 boostr initialize @boostr/web-app-ts
 ```
 
+> **Note:** You can check out the outcome of the previous commands in the [Boostr repository](./examples/web-app-ts).
+
 ```sh
 # Creates a web app named `my-awesome-app` using JavaScript
 mkdir my-directory
 cd my-directory
 boostr init @boostr/web-app-js --name=my-awesome-app
 ```
+
+> **Note:** You can check out the outcome of the previous commands in the [Boostr repository](./examples/web-app-js).
 
 ### `boostr [<service>] install [options]`
 
