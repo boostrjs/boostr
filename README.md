@@ -663,7 +663,80 @@ export default () => ({
 
 ### Service Property References
 
-TODO
+Using the `services` parameter of a configuration function, the services of your Layr app can reference each other.
+
+This feature allows you to configure your app in a way that is 100% [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself).
+
+For example, let's take two configuration files:
+
+```js
+// frontend/boostr.config.mjs
+
+export default ({services}) => ({
+  type: 'web-frontend',
+
+  environment: {
+    BACKEND_URL: services.backend.url
+  },
+
+  // ...
+
+  stages: {
+    development: {
+      url: 'http://localhost:10742/',
+      platform: 'local'
+    }
+  }
+});
+```
+
+```js
+// backend/boostr.config.mjs
+
+export default ({services}) => ({
+  type: 'backend',
+
+  environment: {
+    FRONTEND_URL: services.frontend.url
+  },
+
+  // ...
+
+  stages: {
+    development: {
+      url: 'http://localhost:10743/',
+      platform: 'local'
+    }
+  }
+});
+```
+
+In the `'web-frontend'` service, the value of the `'BACKEND_URL'` environment variable is fetched from the `'backend'` service, which is accessible thanks to the `services` parameter of the configuration function.
+
+You can see the same mechanism used in the `'backend'` service. The value of the `'FRONTEND_URL'` environment variable is fetched from the `'web-frontend'` service.
+
+Note that a service can even reference itself. For example, if, for some reason, you need a `'web-frontend'` service to be aware of its own URL through an environment variable, you can do so with the following configuration file:
+
+```js
+// frontend/boostr.config.mjs
+
+export default ({services}) => ({
+  type: 'web-frontend',
+
+  environment: {
+    FRONTEND_URL: services.frontend.url
+  },
+
+  // ...
+
+  stages: {
+    development: {
+      url: 'http://localhost:10742/',
+      platform: 'local'
+    }
+  }
+});
+```
 
 ### Local Development URLs
 
