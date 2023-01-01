@@ -619,7 +619,47 @@ boostr deploy --production
 
 ### Service Dependencies
 
-TODO
+Using the `dependsOn` property, you can specify dependencies between the services of your Layr app.
+
+So, for example, your can specify that a `'web-frontend'` service depends on a `'backend'` service, which itself depends on a `'database'` service.
+
+When you start your app with the [`start`](#boostr-service-start-options) command, Boostr analyses the dependencies between your services and ensures that each dependency starts before each dependent.
+
+So, in the example above, the services will start in the following order:
+
+1. `'database'` service
+2. `'backend'` service
+3. `'web-frontend'` service
+
+The same logic applies to other commands, such as the [`deploy`](#boostr-service-deploy-options) command.
+
+Here's an example showing how to specify a dependency between a `'web-frontend'` service and a `'backend'` service:
+
+```js
+// frontend/boostr.config.mjs
+
+export default () => ({
+  type: 'web-frontend',
+
+  dependsOn: 'backend'
+
+  // ...
+});
+```
+
+And here's an example showing how to specify a dependency between a `'backend'` service and a `'database'` service:
+
+```js
+// backend/boostr.config.mjs
+
+export default () => ({
+  type: 'backend',
+
+  dependsOn: 'database'
+
+  // ...
+});
+```
 
 ### Service Property References
 
