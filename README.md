@@ -667,7 +667,20 @@ Using the `services` parameter of a configuration function, the services of your
 
 This feature allows you to configure your app in a way that is 100% [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself).
 
-For example, let's take two configuration files:
+For example, let's take some configuration files:
+
+```js
+// boostr.config.mjs
+
+export default () => ({
+  type: 'application',
+
+  services: {
+    frontend: './frontend',
+    backend: './backend'
+  }
+});
+```
 
 ```js
 // frontend/boostr.config.mjs
@@ -711,9 +724,9 @@ export default ({services}) => ({
 });
 ```
 
-In the `'web-frontend'` service, the value of the `'BACKEND_URL'` environment variable is fetched from the `'backend'` service, which is accessible thanks to the `services` parameter of the configuration function.
+In the `'web-frontend'` service, the value of the `'BACKEND_URL'` environment variable is fetched from the `'backend'` service (incidentally named `'backend'` in the root configuration), which is accessible thanks to the `services` parameter of the configuration function.
 
-You can see the same mechanism used in the `'backend'` service. The value of the `'FRONTEND_URL'` environment variable is fetched from the `'web-frontend'` service.
+You can see the same mechanism used in the `'backend'` service. The value of the `'FRONTEND_URL'` environment variable is fetched from the `'web-frontend'` service (simply named `'frontend'` in the root configuration).
 
 Note that a service can even reference itself. For example, if, for some reason, you need a `'web-frontend'` service to be aware of its own URL through an environment variable, you can do so with the following configuration file:
 
