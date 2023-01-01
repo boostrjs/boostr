@@ -142,7 +142,7 @@ export default () => ({
 
   environment: {
     APPLICATION_NAME: 'Layr App',
-    APPLICATION_DESCRIPTION: 'A Layr app managed by Boostr'
+    APPLICATION_DESCRIPTION: 'A Layr app managed by Boostr.'
   },
 
   stages: {
@@ -455,7 +455,7 @@ export default () => ({
   // ...
 
   environment: {
-    APPLICATION_DESCRIPTION: 'A Layr app managed by Boostr'
+    APPLICATION_DESCRIPTION: 'A Layr app managed by Boostr.'
   }
 
   // ...
@@ -535,7 +535,87 @@ The terminal should output something like this:
 
 ### Stages
 
-TODO
+Generally, a Layr app managed by Boostr uses several stages, allowing you to define (or redefine) some configuration properties according to each stage.
+
+For example, a typical app has the following stages:
+
+- `'development'`: A stage used when you run your app in development mode on your local machine.
+- `'staging'`: A stage used when you deploy your app to your staging hosting environment.
+- `'production'`: A stage used when you deploy your app to production.
+
+> **Note**: You can define as many stages as you want and name them according to your preferences. However, if you use unconventional stage names, you won't be able to use a shorthand option, such as `--staging` or `--production`, to [select a stage](#selecting-stages).
+
+#### Defining Stages
+
+Using the `stages` property, you can define stages in any configuration file.
+
+The `stages` property should be an object composed of:
+
+- Keys that represent the name of your stages.
+- Values that allow you to define (or redefine) any configuration property according to each stage.
+
+Here's an example of a root configuration file using the `stages` property to change the value of the global `APPLICATION_NAME` environment variable for the `'development'` and `'staging'` stages:
+
+```js
+// boostr.config.mjs
+
+export default () => ({
+  // ...
+
+  environment: {
+    APPLICATION_NAME: 'Layr App',
+    APPLICATION_DESCRIPTION: 'A Layr app managed by Boostr.'
+  },
+
+  stages: {
+    development: {
+      environment: {
+        APPLICATION_NAME: 'Layr App (development)'
+      }
+    },
+    staging: {
+      environment: {
+        APPLICATION_NAME: 'Layr App (staging)'
+      }
+    }
+  }
+});
+```
+
+Note that in the example above:
+
+- Since `APPLICATION_NAME` is not specified in a `'production`' stage, its value will be `'Layr App'` when the app is deployed to the `'production'` stage.
+- Since `APPLICATION_DESCRIPTION` is not specified in any stage, its value will always be `'A Layr app managed by Boostr.'`.
+
+#### Selecting Stages
+
+When you run a Boostr command, you can use the `--stage` option to select a stage.
+
+Alternatively, you can use one of the following shorthand options:
+
+- `--development`: A shorthand for `--stage=development`.
+- `--staging`: A shorthand for `--stage=staging`.
+- `--production`: A shorthand for `--stage=production`.
+
+Note that the default stage is `'development'`, which will be used if you don't select a stage.
+
+**Examples:**
+
+```sh
+# Starts the app while using the 'development' stage
+boostr start --stage=development
+
+# Since 'development' is the default stage, the following is equivalent
+boostr start
+```
+
+```sh
+# Deploys the app while using the 'production' stage
+boostr deploy --stage=production
+
+# Does the same thing by using the shorthand option
+boostr deploy --production
+```
 
 ### Service Dependencies
 
