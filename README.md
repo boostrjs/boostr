@@ -14,14 +14,14 @@ In a nutshell, Boostr takes care of everything you need to build and deploy a La
 
 Here are the main features provided by Boostr:
 
-- App templates so you can start a new app with a single command
+- App templates so you can bootstrap an app with a single command
 - Fully managed local development environment:
   - Automatic frontend build and refresh
   - Automatic backend build and restart
   - Local development database (limited to [MongoDB](https://www.mongodb.com/) for now)
 - Configuration management:
-  - Environment variables with inheritance and cross-service referencing
-  - Multiple stages (e.g., `'development'`, `'staging'`, or `'production'`)
+  - Environment variables with inheritance and cross-service references
+  - Multiple stages (e.g., `'development'`, `'staging'`, and `'production'`)
   - Public and private configurations
 - Database migrations (limited to [MongoDB](https://www.mongodb.com/) for now)
 - Serverless deployment with a single command (limited to [AWS](https://aws.amazon.com/) for now)
@@ -34,13 +34,13 @@ Here are the main features provided by Boostr:
 npm install --global boostr
 ```
 
-> **Note:** Installing an NPM package globally is usually not recommended. But it's not a problem in this case because each app managed by Boostr uses a local Boostr package which is automatically installed. So the global Boostr package can be seen as a shortcut to the local Boostr packages installed in your apps, and, therefore, you can have different apps using different versions of Boostr.
+> **Note**: Installing an NPM package globally is usually not recommended. But it's not a problem in this case because each app managed by Boostr uses a local Boostr package which is automatically installed. So the global Boostr package can be seen as a shortcut to the local Boostr packages installed in your apps, and, therefore, you can have different apps using different versions of Boostr.
 
 ### Creating a Layr App
 
-Boostr provides an `initialize` command to initialize an app from a template.
+Boostr provides an `initialize` command to bootstrap an app from a template.
 
-For example, you can create a Layr web app using TypeScript with the following commands:
+For example, you can bootstrap a Layr web app using TypeScript with the following commands:
 
 ```sh
 mkdir my-app
@@ -52,7 +52,7 @@ Check out the [`initialize`](#boostr-initialize-template-options) command for de
 
 ### Starting a Layr App
 
-Start your app in development mode with the following command:
+You can start your app in development mode with the following command:
 
 ```sh
 boostr start
@@ -68,7 +68,7 @@ In the case of a web app, the terminal should output something like this:
 [frontend] Single-page application server started at http://localhost:18158/
 ```
 
-The last line corresponding to the frontend service should provide an URL you can open in a browser to display your app.
+The last line should provide an URL you can open in a browser to display your app.
 
 Check out the [`start`](#boostr-service-start-options) command for details.
 
@@ -90,7 +90,7 @@ Check out the [`deploy`](#boostr-service-deploy-options) command for details.
 
 A Layr app managed by Boostr is usually composed of different services, and each service is associated with a configuration file named `boostr.config.mjs`.
 
-For example, a minimal web app comprises the following directories and files:
+For example, a typical web app comprises the following directories and files:
 
 - `boostr.config.mjs`: [Application service](#application-service) configuration file (also called "root configuration file").
 - `frontend`:
@@ -100,11 +100,11 @@ For example, a minimal web app comprises the following directories and files:
 - `database`:
   - `boostr.config.mjs`: [Database service](#database-service) configuration file.
 
-> **Note:** The name of the directories (e.g., `frontend`, `backend`, `database`) does not matter because they are specified in the root configuration file.
+> **Note**: The name of the directories (e.g., `frontend`, `backend`, `database`) are specified in the root configuration file, so they can be anything you want.
 
 Any configuration file is a JavaScript ESM module exporting a function (as `default` export) which should return a plain object representing the configuration.
 
-Here's an example of a minimal root configuration file:
+Here's an example of a simple root configuration file:
 
 ```js
 export default () => ({
@@ -118,13 +118,13 @@ export default () => ({
 });
 ```
 
-The `type` property specifies a string containing the type of the service and is required for each configuration file. In the case of a root configuration file, the value of `type` should be `'application`'.
+The `type` property specifies a string representing the type of the service and is required for each configuration file. In the case of a root configuration file, the value of `type` should be `'application`'.
 
-The `services` property specifies an object allowing to match the name of the services used by the app with the name of the directories containing these services.
+The `services` property specifies an object allowing to match the name of the services used by the app with the path of the directories containing these services.
 
 ### Application Service
 
-The application service (also called "root service") is represented by a configuration file that specifies all the services used by your app and some general properties such as [environment variables](#environment-variables) and [stages](#stages).
+The application service (also called "root service") is represented by a configuration file that specifies all the services used by your app and some general properties such as [environment](#environment-variables) and [stages](#stages).
 
 Here's an example of an application service configuration file:
 
@@ -164,9 +164,9 @@ The object returned by the exported function contains the following properties:
 
 - `type`: Specifies the type of service, which should always be `'application'` in the case of an application service.
 - `services`:
-  - `frontend`: Specifies the directory of a web-frontend service simply named `'frontend'`.
-  - `backend`: Specifies the directory of a backend service incidentally named `'backend'`.
-  - `database`: Specifies the directory of a database service incidentally named `'database'`.
+  - `frontend`: Specifies the directory's path (`./frontend`) of a web-frontend service simply named `'frontend'`.
+  - `backend`: Specifies the directory's path (`./backend`) of a backend service incidentally named `'backend'`.
+  - `database`: Specifies the directory's path (`./database`) of a database service incidentally named `'database'`.
 - `environment`: An object allowing you to define some global [environment variables](#environment-variables).
 - `stages`:
   - `staging`: An object allowing you to define some properties when the `'staging'` [stage](#stages) is used.
@@ -174,7 +174,7 @@ The object returned by the exported function contains the following properties:
 
 ### Web-Frontend Service
 
-A web-frontend service is represented by a configuration file that specifies some properties related to the nature of a web frontend and some general properties, such as [environment variables](#environment-variables), [stages](#stages), and [service dependencies](#service-dependencies).
+A web-frontend service is represented by a configuration file that specifies some properties related to the nature of a web frontend and some general properties, such as [environment](#environment-variables), [stages](#stages), and [dependsOn](#service-dependencies).
 
 Here's an example of a web-frontend service configuration file:
 
@@ -297,7 +297,7 @@ You can customize the AWS configuration of a web frontend by specifying an objec
 
 ### Backend Service
 
-A backend service is represented by a configuration file that specifies some properties related to the nature of a backend and some general properties, such as [environment variables](#environment-variables), [stages](#stages), and [service dependencies](#service-dependencies).
+A backend service is represented by a configuration file that specifies some properties related to the nature of a backend and some general properties, such as [environment](#environment-variables), [stages](#stages), and [dependsOn](#service-dependencies).
 
 Here's an example of a backend service configuration file:
 
@@ -446,7 +446,7 @@ export default () => ({
 });
 ```
 
-Here's how you would define an `APPLICATION_DESCRIPTION` environment variable in a `'web-frontend'` service configuration:
+Ahd here's how you would define an `APPLICATION_DESCRIPTION` environment variable in a web-frontend service configuration:
 
 ```js
 // frontend/boostr.config.mjs
@@ -462,7 +462,7 @@ export default () => ({
 });
 ```
 
-Here's how you would define a `DATABASE_URL` environment variable in a `'backend'` service configuration:
+And finally, here's how you would define a `DATABASE_URL` environment variable in a backend service configuration:
 
 ```js
 // backend/boostr.config.mjs
@@ -484,7 +484,7 @@ Note that the value of `'DATABASE_URL'` is determined according to a `'database'
 
 The environment variables defined in the root configuration are global, and therefore, they are accessible from all the services of your app.
 
-So, in the examples above, the `'web-frontend'` service has access to `APPLICATION_NAME` in addition to `APPLICATION_DESCRIPTION`, and the `'backend'` service has access to `APPLICATION_NAME` in addition to `DATABASE_URL`.
+So, in the examples above, the web-frontend service has access to `APPLICATION_NAME` in addition to `APPLICATION_DESCRIPTION`, and the backend service has access to `APPLICATION_NAME` in addition to `DATABASE_URL`.
 
 #### Accessing Environment Variables
 
@@ -597,7 +597,7 @@ Alternatively, you can use one of the following shorthand options:
 - `--staging`: A shorthand for `--stage=staging`.
 - `--production`: A shorthand for `--stage=production`.
 
-Note that the default stage is `'development'`, which will be used if you don't select a stage.
+> **Note**: The default stage is `'development'`, which will be used if you don't explicitly select another stage.
 
 **Examples:**
 
@@ -621,19 +621,19 @@ boostr deploy --production
 
 Using the `dependsOn` property, you can specify dependencies between the services of your Layr app.
 
-So, for example, you can specify that a `'web-frontend'` service depends on a `'backend'` service, which itself depends on a `'database'` service.
+So, for example, you can specify that a web-frontend service depends on a backend service, which itself depends on a database service.
 
 When you start your app with the [`start`](#boostr-service-start-options) command, Boostr analyses the dependencies between your services and ensures that each dependency starts before each dependent.
 
 So, in the example above, the services will start in the following order:
 
-1. `'database'` service
-2. `'backend'` service
-3. `'web-frontend'` service
+1. Database service
+2. Backend service
+3. Web-frontend service
 
 The same logic applies to other commands, such as the [`deploy`](#boostr-service-deploy-options) command.
 
-Here's an example showing how to specify a dependency between a `'web-frontend'` service and a `'backend'` service:
+Here's an example showing how to specify a dependency between a web-frontend service and a backend service:
 
 ```js
 // frontend/boostr.config.mjs
@@ -647,7 +647,7 @@ export default () => ({
 });
 ```
 
-And here's an example showing how to specify a dependency between a `'backend'` service and a `'database'` service:
+And here's an example showing how to specify a dependency between a backend service and a database service:
 
 ```js
 // backend/boostr.config.mjs
@@ -724,11 +724,11 @@ export default ({services}) => ({
 });
 ```
 
-In the `'web-frontend'` service, the value of the `'BACKEND_URL'` environment variable is fetched from the `'backend'` service (incidentally named `'backend'` in the root configuration), which is accessible thanks to the `services` parameter of the configuration function.
+In the web-frontend service, the value of the `'BACKEND_URL'` environment variable is fetched from the backend service (incidentally named `'backend'` in the root configuration), which is accessible thanks to the `services` parameter of the configuration function.
 
-You can see the same mechanism used in the `'backend'` service. The value of the `'FRONTEND_URL'` environment variable is fetched from the `'web-frontend'` service (simply named `'frontend'` in the root configuration).
+You can see the same mechanism used in the backend service. The value of the `'FRONTEND_URL'` environment variable is fetched from the web-frontend service (simply named `'frontend'` in the root configuration).
 
-Note that a service can even reference itself. For example, if, for some reason, you need a `'web-frontend'` service to be aware of its own URL through an environment variable, you can do so with the following configuration file:
+Note that a service can even reference itself. For example, if, for some reason, you need a web-frontend service to be aware of its own URL through an environment variable, you can do so with the following configuration file:
 
 ```js
 // frontend/boostr.config.mjs
@@ -775,7 +775,7 @@ Private configuration files are automatically excluded from Git thanks to a line
 
 When Boostr evaluates your app's configuration, it reads both public and private configuration files and deeply merges them.
 
-Note that private configurations precede public configurations, so a property found in a private configuration can override a property of the same name found in a public configuration.
+> **Note**: Private configurations precede public configurations, so a property found in a private configuration can override a property of the same name found in a public configuration.
 
 ### Example
 
@@ -783,7 +783,7 @@ Let's say your app implements an authentication mechanism using a [JWT library](
 
 JWT relies on a secret that should be accessible from your backend. So, in your backend directory, you could specify this secret in a private configuration file next to your public configuration file.
 
-Here's what your public configuration file could look like:
+Here's what your public configuration file would look like:
 
 ```js
 // backend/boostr.config.mjs
@@ -808,7 +808,7 @@ export default () => ({
 });
 ```
 
-And here's what your private configuration file could look like:
+And here's what your private configuration file would look like:
 
 ```js
 // backend/boostr.config.private.mjs
@@ -974,7 +974,7 @@ boostr backend check
 
 Builds runnable artifacts from the source code of your app (or a specified service).
 
-Under the hood, this command runs `tsc --noEmit`.
+> **Note**: This command is automatically executed when you run some other commands, such as [`start`](#boostr-service-start-options) or [`deploy`](#boostr-service-deploy-options). So, unless you want to check out the built runnable artifacts for debugging purposes, you should not have to use the `build` command explicitly.
 
 #### Options
 
@@ -1002,7 +1002,7 @@ boostr build --production
 
 Tests all the services of your app (or a specified service) in development mode.
 
-Under the hood, this command executes `npm test`.
+Under the hood, this command runs `npm test`.
 
 #### Options
 
@@ -1045,7 +1045,7 @@ boostr backend start
 
 Migrates one or more databases used by your app.
 
-Note that database migrations are limited to [MongoDB](https://www.mongodb.com/) for now.
+> **Note**: Database migrations are limited to [MongoDB](https://www.mongodb.com/) for now.
 
 #### Options
 
@@ -1070,7 +1070,7 @@ boostr customers migrate
 
 ### `boostr [<service>] deploy [options]`
 
-Deploys your app (or a specified service) to the specified stage.
+Deploys your app (or a specified service) to a specific [stage](#stages).
 
 #### Options
 
@@ -1081,18 +1081,26 @@ In addition to the [global options](#global-options), the `deploy` command accep
 #### Notes
 
 - Currently, only [AWS](https://aws.amazon.com/) is supported as a deployment target.
-- The DNS associated with your domain name must be managed by [Amazon Route 53](https://aws.amazon.com/route53/).
+- The DNS associated with your base domain name must be managed by [Amazon Route 53](https://aws.amazon.com/route53/).
 - The first deployment may take a while because several AWS services have to be set up, but subsequent deployments should be much faster.
 - Boostr manages the deployment of the web-frontend and backend services, but the database services are not. So, you will have to set up the databases by yourself on some cloud services, such as [MongoDB Atlas](https://www.mongodb.com/atlas/database) or [Amazon DocumentDB](https://aws.amazon.com/documentdb/).
 
 #### Examples
 
 ```sh
-# Deploys all the services of your app to the 'production' stage
-boostr deploy --production
+# Deploys all the services of your app to the 'staging' stage
+boostr deploy --stage=staging
 
-# Does the same thing
+# Does the same thing by using the shorthand option
+boostr deploy --staging
+```
+
+```sh
+# Deploys all the services of your app to the 'production' stage
 boostr deploy --stage=production
+
+# Does the same thing by using the shorthand option
+boostr deploy --production
 ```
 
 ```sh
@@ -1111,7 +1119,7 @@ boostr deploy --staging --skip=legacyBackend
 
 Displays the root (or a specified service) configuration.
 
-Note that the displayed configuration considers all the property references and resolves them according to a specific stage (`'development'` by default).
+> **Note**: The displayed configuration considers all the [property references](#service-property-references) and resolves them according to a specific [stage](#stages) (`'development'` by default).
 
 #### Options
 
@@ -1138,7 +1146,7 @@ boostr backend config --production
 
 Executes any shell command in the root directory of your app (or in the directory of a specified service).
 
-Note that the configuration environment variables are propagated to the shell command.
+> **Note**: The [environment variables](#environment-variables) specified in your configuration are accessible from the executed shell command.
 
 #### Options
 
@@ -1168,24 +1176,13 @@ boostr frontend exec -- npm version patch --no-git-tag-version
 boostr backend exec --stage=production -- npm run myscript
 ```
 
-## Global Options
-
-The following options are available for all the commands:
-
-- `--stage`: Selects a stage. See ["Stages"](#stages) for details.
-- `--development`: A shorthand for `--stage=development`.
-- `--staging`: A shorthand for `--stage=staging`.
-- `--production`: A shorthand for `--stage=production`.
-- `--version`, `-v`: Displays the current Boostr version.
-- `--help`, `-h`: Displays inline help. See ["Inline Help"](#inline-help) for details.
-
 ## Web-Frontend Commands
 
 The web-frontend commands are available for all services of type `'web-frontend'`.
 
 ### `boostr <web-frontend-service> freeze`
 
-Freezes all the files that are in the `public` directory of your web-frontend service.
+Freezes all the files in your web-frontend service's `public` directory.
 
 Freezing a file means that the file is renamed to match the pattern `<name>-<hash>.immutable.<extension>` where `<name>` is the original file name without its extension, `<hash>` is a hash generated from the contents of the file, and `<extension>` is the original file extension.
 
@@ -1193,13 +1190,13 @@ For example, if you have a file named `favicon.png` in the `public` directory of
 
 When a browser loads a frozen file, it can permanently store it in its cache thanks to a `Cache-Control` header automatically added when your frontend is deployed.
 
-Note that it is not an issue to run the `freeze` command several times because the command is clever enough to ignore the files that have already been frozen.
+> **Note**: It is not an issue to run the `freeze` command several times because the command is clever enough to ignore the files that have already been frozen.
 
 ## Backend Commands
 
 The backend commands are available for all services of type `'backend'`.
 
-### `boostr <backend-service> eval <codeToEval> [options]`
+### `boostr <backend-service> eval "<codeToEval>" [options]`
 
 Evaluates the specified JavaScript code with your backend service root component exposed globally and outputs the result in the terminal.
 
@@ -1253,6 +1250,17 @@ And the REPL should output the following result:
 ```
 true
 ```
+
+## Global Options
+
+The following options are available for most commands:
+
+- `--stage`: Selects a stage. See ["Stages"](#stages) for details.
+- `--development`: A shorthand for `--stage=development`.
+- `--staging`: A shorthand for `--stage=staging`.
+- `--production`: A shorthand for `--stage=production`.
+- `--help`, `-h`: Displays inline help. See ["Inline Help"](#inline-help) for details.
+- `--version`, `-v`: Displays the current Boostr version.
 
 ## Contributing
 
