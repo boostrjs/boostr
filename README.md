@@ -763,7 +763,71 @@ A deployment URL (e.g., `'https://example.com/'` or `'https://staging.example.co
 
 ## Private Configuration Files
 
-TODO
+Most apps use secrets that must remain private and never be included in your Git repositories (even if these repositories are private).
+
+Your app configuration files should be included in your Git repositories and, therefore, cannot contain any secrets.
+
+So how could you configure secrets without exposing them?
+
+Boostr supports private configuration files that work like any configuration file but should be named `boostr.config.private.mjs` and stored next to your public configuration files named `boostr.config.mjs`.
+
+Private configuration files are automatically excluded from Git thanks to a line (e.g., `*.private.*`) in a `.gitignore` file at the root of your repositories.
+
+When Boostr evaluates your app's configuration, it reads both public and private configuration files and deeply merges them.
+
+Note that private configurations precede public configurations, so a property found in a private configuration can override a property of the same name found in a public configuration.
+
+### Example
+
+Let's say your app implements an authentication mechanism using a [JWT library](https://jwt.io/libraries?language=Node.js) to sign and verify users' access tokens.
+
+JWT relies on a secret that should be accessible from your backend. So, in your backend directory, you could specify this secret in a private configuration file next to your public configuration file.
+
+Here's what your public configuration file could look like:
+
+```js
+// backend/boostr.config.mjs
+
+export default () => ({
+  type: 'backend',
+
+  environment: {
+    EMAIL_ADDRESS: 'hello@example.com'
+  },
+
+  // ...
+
+  stages: {
+    development: {
+      // ...
+    },
+    production: {
+      // ...
+    }
+  }
+});
+```
+
+And here's what your private configuration file could look like:
+
+```js
+// backend/boostr.config.private.mjs
+
+export default () => ({
+  stages: {
+    development: {
+      environment: {
+        JWT_SECRET: '26d9c27e799aba1b047ec16450a51418...'
+      }
+    },
+    production: {
+      environment: {
+        JWT_SECRET: '537df3079d44e066bf0195433863ec34...'
+      }
+    }
+  }
+});
+```
 
 ## Inline Help
 
