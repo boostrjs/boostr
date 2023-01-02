@@ -28,6 +28,12 @@ Here are the main features provided by Boostr:
 
 ## Getting Started
 
+### Prerequisites
+
+- You use a Mac with a recent version of macOS. Everything should work fine on Linux, but we haven't tested it yet. It may work on Windows, but we haven't tested it and don't plan to provide support for now.
+- You have [Node.js](https://nodejs.org/) v16 or newer installed.
+- You use [Visual Studio Code](https://code.visualstudio.com/) IDE. Nothing prevents you from using another IDE, but you will not take profit from the [VS Code configuration](.vscode/README.md) included in the supported [app templates](#boostr-initialize-template-options), and you will have to set up your IDE to get a similar configuration.
+
 ### Installation
 
 ```sh
