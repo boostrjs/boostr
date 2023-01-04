@@ -74,7 +74,12 @@ In the case of a web app, the terminal should output something like this:
 [frontend] Single-page application server started at http://localhost:18158/
 ```
 
-The last line should provide an URL you can open in a browser to display your app.
+> **Notes**:
+>
+> - The TCP ports used for each [local development URL](#local-development-urls) were randomly set when the `initialize` command was executed to create your app in the [previous section](#creating-a-layr-app). So, it's normal if they are different for your app.
+> - Don't be freaked out by the size of the generated bundles in development mode. When you deploy your apps, the generated bundles are a lot smaller.
+
+The last line in the terminal output should include an URL you can open in a browser to display your app.
 
 Check out the [`start`](#boostr-service-start-options) command for details.
 
