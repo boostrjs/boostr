@@ -32,7 +32,6 @@ Here are the main features provided by Boostr:
 
 - You use a Mac with a recent version of macOS. Everything should work fine on Linux, but we haven't tested it yet. It may work on Windows, but we haven't tested it and don't plan to provide support for now.
 - You have [Node.js](https://nodejs.org/) v16 or newer installed.
-- You use [Visual Studio Code](https://code.visualstudio.com/) IDE. Nothing prevents you from using another IDE, but you will not take profit from the [VS Code configuration](.vscode/README.md) included in the supported [app templates](#boostr-initialize-template-options), and you will have to set up your IDE to get a similar configuration.
 
 ### Installation
 
@@ -53,6 +52,10 @@ mkdir my-app
 cd my-app
 boostr initialize @boostr/web-app-ts
 ```
+
+Then, you can open the `my-app` directory in your favorite [IDE](https://en.wikipedia.org/wiki/Integrated_development_environment) to explore the initial codebase.
+
+> **Note**: You can use any IDE you want, but if you use [Visual Studio Code](https://code.visualstudio.com/), you can profit from the VS Code configuration included in the [supported app templates](#boostr-initialize-template-options). Otherwise, you may have to set up your IDE to get a suitable configuration.
 
 Check out the [`initialize`](#boostr-initialize-template-options) command for details.
 
