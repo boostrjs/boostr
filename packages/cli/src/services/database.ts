@@ -7,7 +7,7 @@ import type {Command} from '../command.js';
 import {BackendService} from './backend.js';
 import {requireGlobalNPMPackage} from '../npm.js';
 
-const MONGODB_MEMORY_SERVER_GLOBAL_PACKAGE_VERSION = '8.10.2';
+const MONGODB_MEMORY_SERVER_GLOBAL_PACKAGE_VERSION = '8.11.0';
 
 const LOCAL_DATA_DIRECTORY_NAME = 'data';
 
