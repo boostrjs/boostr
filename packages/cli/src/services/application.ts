@@ -66,7 +66,12 @@ export class ApplicationService extends BaseService {
     update: {
       ...BaseService.commands.update,
       description: 'Updates all the npm dependencies used in your app (or a specified service).',
-      examples: ['boostr update', 'boostr frontend update']
+      examples: [
+        'boostr update',
+        'boostr update --save',
+        'boostr frontend update',
+        'boostr frontend update --save'
+      ]
     },
 
     check: {
@@ -136,11 +141,11 @@ export class ApplicationService extends BaseService {
     }
   }
 
-  async update() {
-    await super.update();
+  async update({save = false}: {save?: boolean} = {}) {
+    await super.update({save});
 
     for (const service of this.getServices()) {
-      await service.update();
+      await service.update({save});
     }
   }
 

@@ -30,6 +30,10 @@ export function getCommandOptions(
 
     for (const [name, {type, aliases = []}] of Object.entries(availableCommandOptions)) {
       if (parsedName === name || aliases.includes(parsedName)) {
+        if (type === 'boolean' && typeof value !== 'boolean') {
+          throwError(`A value should not be specified for the ${formattedName} flag`);
+        }
+
         if (type === 'string' && typeof value !== 'string') {
           throwError(`A string value should be specified for the ${formattedName} option`);
         }

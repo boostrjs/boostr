@@ -121,8 +121,14 @@ export abstract class BaseService {
     },
 
     update: {
-      async handler(this: BaseService) {
-        await this.update();
+      options: {
+        save: {
+          type: 'boolean',
+          description: 'Save updated npm dependencies to package.json files.'
+        }
+      },
+      async handler(this: BaseService, [], {save = false}: {save?: boolean}) {
+        await this.update({save});
       }
     },
 
@@ -317,8 +323,8 @@ export abstract class BaseService {
     await runNPMInstallIfThereIsAPackage(this.getDirectory(), {serviceName: this.getName()});
   }
 
-  async update() {
-    await runNPMUpdateIfThereIsAPackage(this.getDirectory(), {serviceName: this.getName()});
+  async update({save = false}: {save?: boolean} = {}) {
+    await runNPMUpdateIfThereIsAPackage(this.getDirectory(), {serviceName: this.getName(), save});
   }
 
   async check(..._: any[]): Promise<any> {}

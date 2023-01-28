@@ -141,7 +141,7 @@ export abstract class Subservice extends BaseService {
     update: {
       ...BaseService.commands.update,
       description: 'Updates all the npm dependencies used by your service.',
-      examples: ['boostr {{serviceName}} update']
+      examples: ['boostr {{serviceName}} update', 'boostr {{serviceName}} update --save']
     },
 
     check: {

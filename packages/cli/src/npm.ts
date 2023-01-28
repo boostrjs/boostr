@@ -91,7 +91,7 @@ export async function runNPMInstallIfThereIsAPackage(
 
 export async function runNPMUpdateIfThereIsAPackage(
   directory: string,
-  {serviceName}: {serviceName?: string} = {}
+  {serviceName, save = false}: {serviceName?: string; save?: boolean} = {}
 ) {
   const packageFile = join(directory, 'package.json');
 
@@ -101,7 +101,13 @@ export async function runNPMUpdateIfThereIsAPackage(
 
   logMessage('Updating npm dependencies...', {serviceName});
 
-  await runNPM(directory, ['update']);
+  const args = ['update'];
+
+  if (save) {
+    args.push('--save');
+  }
+
+  await runNPM(directory, args);
 }
 
 export async function runNPMTestIfThereIsAPackage(
