@@ -32,8 +32,8 @@ const HTML_TEMPLATE = `<!DOCTYPE html>
 `;
 
 const BOOTSTRAP_TEMPLATE = `
-import {createElement} from 'react';
-import {createRoot} from 'react-dom/client';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import {BrowserRootView, BrowserNavigatorView} from '@layr/react-integration';
 
 import rootComponentGetter from '{{entryPoint}}';
@@ -46,18 +46,18 @@ async function main() {
 
     await rootComponent.initialize();
 
-    content = createElement(
+    content = React.createElement(
       BrowserRootView,
       undefined,
-      createElement(BrowserNavigatorView, {rootComponent})
+      React.createElement(BrowserNavigatorView, {rootComponent})
     );
   } catch (err) {
     console.error(err);
 
-    content = createElement('pre', undefined, err.stack);
+    content = React.createElement('pre', undefined, err.stack);
   }
 
-  createRoot(document.getElementById('root')).render(content);
+  ReactDOM.render(content, document.getElementById('root'));
 }
 
 main().catch((error) => {
