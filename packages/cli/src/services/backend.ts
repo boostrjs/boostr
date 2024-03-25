@@ -15,17 +15,18 @@ const BOOTSTRAP_TEMPLATE_LOCAL = `export {default} from '{{entryPoint}}';`;
 const BOOTSTRAP_TEMPLATE_AWS_LAMBDA = `
 import {createAWSLambdaHandler, createAWSLambdaExecutionQueueSender} from '@layr/aws-integration';
 import {ExecutionQueue} from '@layr/execution-queue';
-import AWS from 'aws-sdk';
+import {LambdaClient, InvokeCommand} from "@aws-sdk/client-lambda";
 
 import componentGetter from '{{entryPoint}}';
 
 export const handler = createAWSLambdaHandler(async function () {
   const rootComponent = await componentGetter();
 
-  const lambdaClient = new AWS.Lambda({apiVersion: '2015-03-31'});
+  const lambdaClient = new LambdaClient();
 
   const executionQueueSender = createAWSLambdaExecutionQueueSender({
     lambdaClient,
+    InvokeCommandClass: InvokeCommand,
     functionName: '{{lambdaFunctionName}}'
   });
 
@@ -132,7 +133,7 @@ export class BackendService extends Subservice {
       bootstrapTemplate = BOOTSTRAP_TEMPLATE_AWS_LAMBDA;
       const {hostname} = this.parseConfigURL();
       bootstrapVariables = {lambdaFunctionName: domainNameToLambdaFunctionName(hostname)};
-      builtInExternal = ['aws-sdk'];
+      builtInExternal = ['aws-sdk', '@aws-sdk/*'];
     } else {
       this.throwError(`Couldn't create a build configuration for the '${platform}' platform`);
     }
