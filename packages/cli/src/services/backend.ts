@@ -296,6 +296,14 @@ export class BackendService extends Subservice {
 
     const {buildDirectory} = await this.build();
 
+    // Remove the AWS_REGION environment variable from the environment because
+    // it cannot be passed to the Lambda function
+    const resourceEnvironment = config.environment
+      ? Object.fromEntries(
+          Object.entries<string>(config.environment).filter(([name]) => name !== 'AWS_REGION')
+        )
+      : undefined;
+
     const resource = new AWSFunctionResource(
       {
         domainName: hostname,
@@ -304,7 +312,7 @@ export class BackendService extends Subservice {
         accessKeyId: config.aws?.accessKeyId,
         secretAccessKey: config.aws?.secretAccessKey,
         directory: buildDirectory,
-        environment: config.environment,
+        environment: resourceEnvironment,
         backgroundMethods,
         lambda: {
           runtime: config.aws?.lambda?.runtime,
