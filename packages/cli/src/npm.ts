@@ -44,13 +44,23 @@ export async function installNPMPackages(directory: string, packages: Record<str
 }
 
 export function findInstalledNPMPackage(directory: string, packageName: string) {
-  const packageDirectory = join(directory, 'node_modules', ...packageName.split('/'));
+  while (true) {
+    const packageDirectory = join(directory, 'node_modules', ...packageName.split('/'));
 
-  if (!existsSync(packageDirectory)) {
-    return undefined;
+    if (existsSync(packageDirectory)) {
+      return loadNPMPackage(packageDirectory);
+    }
+
+    const parentDirectory = join(directory, '..');
+
+    if (parentDirectory === directory) {
+      break;
+    }
+
+    directory = parentDirectory;
   }
 
-  return loadNPMPackage(packageDirectory);
+  return undefined;
 }
 
 export async function runNPM(
