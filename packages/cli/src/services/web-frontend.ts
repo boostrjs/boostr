@@ -54,10 +54,14 @@ async function main() {
   } catch (err) {
     console.error(err);
 
-    content = createElement('pre', undefined, err.stack);
+    if (err.code !== 'UNSUPPORTED_BROWSER') {
+      content = createElement('pre', undefined, err.stack);
+    }
   }
 
-  createRoot(document.getElementById('root')).render(content);
+  if (content) {
+    createRoot(document.getElementById('root')).render(content);
+  }
 }
 
 main().catch((error) => {
