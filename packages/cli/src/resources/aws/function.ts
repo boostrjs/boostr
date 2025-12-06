@@ -16,6 +16,7 @@ import {BackgroundMethod} from '../../component.js';
 import {ensureMaximumStringLength} from '../../utilities.js';
 
 const DEFAULT_LAMBDA_RUNTIME = 'nodejs16.x';
+const DEFAULT_LAMBDA_ARCHITECTURE = 'x86_64';
 const DEFAULT_LAMBDA_EXECUTION_ROLE = 'boostr-backend-lambda-role-v2';
 const DEFAULT_LAMBDA_MEMORY_SIZE = 128;
 const DEFAULT_LAMBDA_TIMEOUT = 10;
@@ -60,6 +61,7 @@ export type AWSFunctionResourceConfig = AWSBaseResourceConfig & {
   backgroundMethods?: BackgroundMethod[];
   lambda?: {
     runtime?: string;
+    architecture?: string;
     executionRole?: string;
     memorySize?: number;
     timeout?: number;
@@ -87,6 +89,7 @@ export class AWSFunctionResource extends AWSBaseResource {
       backgroundMethods = [],
       lambda: {
         runtime = DEFAULT_LAMBDA_RUNTIME,
+        architecture = DEFAULT_LAMBDA_ARCHITECTURE,
         executionRole = DEFAULT_LAMBDA_EXECUTION_ROLE,
         memorySize = DEFAULT_LAMBDA_MEMORY_SIZE,
         timeout,
@@ -137,6 +140,7 @@ export class AWSFunctionResource extends AWSBaseResource {
       backgroundMethods,
       lambda: {
         runtime,
+        architecture,
         executionRole,
         memorySize,
         timeout,
@@ -196,6 +200,7 @@ export class AWSFunctionResource extends AWSBaseResource {
     arn: string;
     executionRole?: string;
     runtime?: string;
+    architecture?: string;
     memorySize?: number;
     timeout?: number;
     reservedConcurrentExecutions?: number;
@@ -221,6 +226,7 @@ export class AWSFunctionResource extends AWSBaseResource {
           arn: config.FunctionArn!,
           executionRole: config.Role!.split('/')[1],
           runtime: config.Runtime!,
+          architecture: config.Architectures![0]!,
           memorySize: config.MemorySize!,
           timeout: config.Timeout!,
           reservedConcurrentExecutions: result.Concurrency?.ReservedConcurrentExecutions,
@@ -259,6 +265,7 @@ export class AWSFunctionResource extends AWSBaseResource {
             FunctionName: this.getLambdaName(),
             Handler: 'handler.handler',
             Runtime: config.lambda.runtime,
+            Architectures: [config.lambda.architecture],
             Role: role.arn,
             MemorySize: config.lambda.memorySize,
             Timeout: config.lambda.timeout,
@@ -393,14 +400,24 @@ export class AWSFunctionResource extends AWSBaseResource {
   }
 
   async checkIfLambdaFunctionCodeHasChanged() {
+    const config = this.getConfig();
     const lambdaFunction = (await this.getLambdaFunction())!;
     const zipArchive = await this.getZipArchive();
     const zipArchiveSHA256 = hasha(zipArchive, {encoding: 'base64', algorithm: 'sha256'});
 
-    return lambdaFunction.codeSHA256 !== zipArchiveSHA256;
+    if (lambdaFunction.codeSHA256 !== zipArchiveSHA256) {
+      return true;
+    }
+
+    if (config.lambda.architecture !== lambdaFunction.architecture) {
+      return true;
+    }
+
+    return false;
   }
 
   async updateLambdaFunctionCode() {
+    const config = this.getConfig();
     const lambda = this.getLambdaClient();
     const zipArchive = await this.getZipArchive();
 
@@ -409,7 +426,8 @@ export class AWSFunctionResource extends AWSBaseResource {
     await lambda
       .updateFunctionCode({
         FunctionName: this.getLambdaName(),
-        ZipFile: zipArchive
+        ZipFile: zipArchive,
+        Architectures: [config.lambda.architecture]
       })
       .promise();
 

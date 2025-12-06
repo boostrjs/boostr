@@ -385,6 +385,7 @@ You can customize the AWS configuration of a backend by specifying an object con
 - `secretAccessKey`: Allows you to specify your AWS Secret Access Key when the `profile` property is not used, or you don't have a default [AWS configuration profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html).
 - `lambda`:
   - `runtime`: Specifies the AWS Lambda [runtime](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html) to use (default: `'nodejs16.x'`).
+  - `architecture`: Specifies the AWS Lambda [architecture](https://docs.aws.amazon.com/lambda/latest/dg/foundation-arch.html) to use (default: `'x86_64'`).
   - `executionRole`: Specifies the [IAM role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html) used when the [Lambda function](https://aws.amazon.com/lambda/) is executed. If not specified, an automatically created role (named `'boostr-backend-lambda-role-v2'`) will be used, allowing [Amazon CloudWatch Logs](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/WhatIsCloudWatchLogs.html) management and [Lambda function](https://aws.amazon.com/lambda/) invocation.
   - `memorySize`: Specifies the [amount of memory](https://docs.aws.amazon.com/lambda/latest/operatorguide/computing-power.html) (in megabytes) available to the [Lambda function](https://aws.amazon.com/lambda/) at runtime (default: `128`).
   - `timeout`: Specifies the maximum time (in seconds) that the [Lambda function](https://aws.amazon.com/lambda/) can run (default: `10`).

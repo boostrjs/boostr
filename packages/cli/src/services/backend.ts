@@ -316,6 +316,7 @@ export class BackendService extends Subservice {
         backgroundMethods,
         lambda: {
           runtime: config.aws?.lambda?.runtime,
+          architecture: config.aws?.lambda?.architecture,
           executionRole: config.aws?.lambda?.executionRole,
           memorySize: config.aws?.lambda?.memorySize,
           timeout: config.aws?.lambda?.timeout,
