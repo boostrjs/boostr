@@ -1,12 +1,13 @@
-import type {build as buildFunction, BuildOptions, BuildResult} from 'esbuild';
+import type * as esbuild from 'esbuild';
 import {join} from 'path';
 import bytes from 'bytes';
 import isEmpty from 'lodash/isEmpty.js';
+import invariant from 'tiny-invariant';
 
 import {requireGlobalNPMPackage, installNPMPackages, findInstalledNPMPackage} from './npm.js';
 import {logMessage, logError, throwError, resolveVariables, getFileSize} from './utilities.js';
 
-const ESBUILD_PACKAGE_VERSION = '0.16.15';
+const ESBUILD_PACKAGE_VERSION = '0.27.1';
 
 export async function build({
   serviceDirectory,
@@ -41,7 +42,7 @@ export async function build({
   freeze?: boolean;
   installExternalDependencies?: boolean;
   watch?: {afterRebuild?: () => void} | boolean;
-  esbuildOptions?: BuildOptions;
+  esbuildOptions?: esbuild.BuildOptions;
 }) {
   if (freeze && watch) {
     throw Error("You cannot use both 'freeze' and 'watch'");
@@ -59,7 +60,7 @@ export async function build({
     definedIdentifiers[`process.env.${name}`] = `"${value}"`;
   }
 
-  const {build}: {build: typeof buildFunction} = await requireGlobalNPMPackage(
+  const {context}: {context: typeof esbuild.context} = await requireGlobalNPMPackage(
     'esbuild',
     ESBUILD_PACKAGE_VERSION,
     {serviceName}
@@ -67,10 +68,55 @@ export async function build({
 
   let jsBundleFile: string;
   let cssBundleFile: string | undefined;
-  let result: BuildResult;
+  let result: esbuild.BuildResult;
+
+  const userPlugins: esbuild.Plugin[] = esbuildOptions?.plugins ?? [];
+  const watchPlugins: esbuild.Plugin[] = [];
+
+  let initialBuildPromise: Promise<esbuild.BuildResult> | undefined;
+
+  if (watch !== false) {
+    initialBuildPromise = new Promise<esbuild.BuildResult>((resolve, reject) => {
+      watchPlugins.push({
+        name: 'watch-logger',
+        setup(build) {
+          let isInitialBuild = true;
+
+          build.onEnd((buildResult) => {
+            if (isInitialBuild) {
+              isInitialBuild = false;
+
+              if (buildResult.errors.length > 0) {
+                reject(buildResult.errors[0]);
+              } else {
+                resolve(buildResult);
+              }
+
+              return;
+            }
+
+            if (buildResult.errors.length > 0) {
+              logError('Rebuild failed', {serviceName});
+              return;
+            }
+
+            logMessage(`Rebuild succeeded (bundle size: ${bytes(getFileSize(jsBundleFile))})`, {
+              serviceName
+            });
+
+            if (typeof watch === 'object' && watch.afterRebuild !== undefined) {
+              watch.afterRebuild();
+            }
+          });
+        }
+      });
+    });
+  }
+
+  let ctx: esbuild.BuildContext | undefined;
 
   try {
-    result = await build({
+    ctx = await context({
       absWorkingDir: serviceDirectory,
       outdir: buildDirectory,
       stdin: {
@@ -88,8 +134,9 @@ export async function build({
       external: [...external, ...builtInExternal],
       metafile: true,
       loader: {
-        '.js': 'ts', // Use TS loader for .js files to enable support for decorators
-        '.jsx': 'tsx',
+        // The following lines has been commented out to avoid an issue with esbuild 0.20+
+        // '.js': 'ts', // Use TS loader for .js files to enable support for decorators
+        // '.jsx': 'tsx',
         '.png': 'file',
         '.jpeg': 'file',
         '.jpg': 'file',
@@ -103,26 +150,23 @@ export async function build({
         minify: true,
         keepNames: true
       }),
-      ...(watch !== false && {
-        watch: {
-          onRebuild: (error) => {
-            if (error) {
-              logError('Rebuild failed', {serviceName});
-            } else {
-              logMessage(`Rebuild succeeded (bundle size: ${bytes(getFileSize(jsBundleFile))})`, {
-                serviceName
-              });
-
-              if (typeof watch === 'object' && watch.afterRebuild !== undefined) {
-                watch.afterRebuild();
-              }
-            }
-          }
-        }
-      }),
-      ...esbuildOptions
+      ...esbuildOptions,
+      plugins: [...userPlugins, ...watchPlugins]
     });
+
+    if (watch === false) {
+      result = await ctx.rebuild();
+      await ctx.dispose();
+    } else {
+      invariant(initialBuildPromise);
+      ctx.watch();
+      result = await initialBuildPromise;
+    }
   } catch {
+    if (ctx) {
+      await ctx.dispose();
+    }
+
     throwError('Build failed', {serviceName});
   }
 
@@ -159,7 +203,7 @@ export async function build({
 }
 
 function determineFileBundlesFromBuildResult(
-  result: BuildResult,
+  result: esbuild.BuildResult,
   {serviceDirectory, serviceName}: {serviceDirectory: string; serviceName?: string}
 ) {
   let jsBundleFile: string | undefined;
