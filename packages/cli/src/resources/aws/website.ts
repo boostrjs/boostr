@@ -21,7 +21,7 @@ const IMMUTABLE_FILES_MAX_AGE = 3153600000; // 100 years
 const CLOUDFRONT_CACHING_MIN_TTL = 0;
 const CLOUDFRONT_CACHING_DEFAULT_TTL = 86400; // 1 day
 const CLOUDFRONT_CACHING_MAX_TTL = 3153600000; // 100 years
-const CLOUDFRONT_ERROR_CACHING_MIN_TTL = 86400; // 1 day
+const CLOUDFRONT_ERROR_CACHING_MIN_TTL = 0;
 const CLOUDFRONT_DISTRIBUTION_CUSTOM_ERROR_RESPONSES = {
   Quantity: 1,
   Items: [
@@ -276,6 +276,8 @@ export class AWSWebsiteResource extends AWSBaseResource {
 
       if (isImmutable) {
         params.CacheControl = `max-age=${IMMUTABLE_FILES_MAX_AGE}`;
+      } else {
+        params.CacheControl = 'no-cache';
       }
 
       await s3.putObject(params).promise();
