@@ -6,12 +6,12 @@ Boostr is a CLI companion tool for the **Layr** framework (`layrjs.com`). It han
 
 ## Repository Structure
 
-**Monorepo** (no workspace manager - plain npm). Root `package.json` is private, version 2.0.0.
+**Monorepo** (no workspace manager - plain npm). Root `package.json` is private.
 
 ```
 boostr/
 ├── packages/
-│   ├── cli/             # Main CLI tool (npm: "boostr", v2.1.7)
+│   ├── cli/             # Main CLI tool (npm: "boostr")
 │   ├── prettierrc/      # Shared Prettier config (@boostr/prettierrc)
 │   ├── tsconfig/        # Shared TypeScript config (@boostr/tsconfig)
 │   ├── web-app-ts/      # TypeScript web app template (@boostr/web-app-ts)
@@ -198,96 +198,3 @@ boostr [service] <cmd> # Run command on specific service
 - **Process isolation**: long-running tasks (backend, REPL, migrations) run in forked processes
 - **Config as code**: ES module configs allow dynamic, stage-aware configuration with cross-service references
 - **Bootstrap injection**: esbuild bundles get platform-specific wrapper code injected at build time
-
-## "next" Branch Changes (vs main)
-
-The `next` branch (from `upstream/boostrjs/boostr`) introduces **9 commits** bumping the CLI from v2.1.7 to v3.1.3. These are modernization and AWS improvements. Files changed: 8 (+167, -53).
-
-### Version Bump
-
-- CLI version: `2.1.7` -> `3.1.3` (major version bump)
-- Publish tag changed to `--tag=next` (npm pre-release channel)
-
-### 1. React 18 Migration (`web-frontend.ts`)
-
-Restores the React 18 switch that was reverted on main:
-
-- `import React from 'react'` -> `import {createElement} from 'react'` (named import)
-- `import ReactDOM from 'react-dom'` -> `import {createRoot} from 'react-dom/client'` (new API)
-- `ReactDOM.render(content, document.getElementById('root'))` -> `createRoot(document.getElementById('root')!).render(content)`
-- Error fallback also uses `createRoot` instead of `ReactDOM.render`
-
-### 2. esbuild Upgrade & Builder Refactor (`builder.ts`)
-
-Upgrade from esbuild `0.16.15` -> `0.27.1` with major API changes:
-
-- **Context API**: Replaces `build()` with `context()` + `ctx.rebuild()` / `ctx.watch()` / `ctx.dispose()`
-- **Watch mode rewrite**: Old `watch` option in BuildOptions replaced by plugin-based approach:
-  - Creates `onEnd` plugin to handle rebuild notifications
-  - Uses `initialBuildPromise` pattern to capture first build result
-  - Calls `ctx.watch()` for subsequent rebuilds, `ctx.dispose()` when not watching
-- **Import style**: `import type {build} from 'esbuild'` -> `import type * as esbuild from 'esbuild'` (namespace import)
-- **Loader change**: Commented out `.js -> ts` and `.jsx -> tsx` loaders (incompatible with esbuild 0.20+)
-- **New dependency**: `tiny-invariant` added for assertions
-
-### 3. AWS SDK v3 Migration (`backend.ts`)
-
-- Lambda bootstrap template: `import AWS from 'aws-sdk'` -> `import {LambdaClient, InvokeCommand} from "@aws-sdk/client-lambda"`
-- `new AWS.Lambda({apiVersion: '2015-03-31'})` -> `new LambdaClient()`
-- `lambdaClient.invoke({...}).promise()` -> `lambdaClient.send(new InvokeCommand({...}))`
-- Built-in externals updated: `['aws-sdk']` -> `['aws-sdk', '@aws-sdk/*']`
-- New devDependency: `@aws-sdk/client-lambda` (for types)
-- `@layr/aws-integration`: `^2.0.101` -> `^3.0.1`
-
-### 4. Lambda Architecture Support (`function.ts`, `backend.ts`, `README.md`)
-
-New `architecture` config option for AWS Lambda:
-
-- Default: `'x86_64'`
-- Passed to `Architectures` array in Lambda create/update calls
-- Included in `hasCodeChanges()` check
-- Documented in README under `aws.lambda` config section
-
-### 5. AWS_REGION Environment Variable Fix (`backend.ts`)
-
-- Filters out `AWS_REGION` from environment variables passed to Lambda (AWS reserves it)
-- Uses `Object.fromEntries(Object.entries(...).filter(...))`
-
-### 6. S3 Bucket Creation Fix (`website.ts`)
-
-- Removes deprecated `ACL: 'public-read'` from bucket creation and object uploads
-- Adds explicit `putPublicAccessBlock` + `putBucketPolicy` calls (new AWS S3 requirements)
-- Bucket policy grants `s3:GetObject` to everyone via JSON policy document
-
-### 7. CloudFront Caching Adjustment (`website.ts`)
-
-- Error caching TTL: `86400` (1 day) -> `0` (no caching of errors)
-- Non-immutable files get `CacheControl: 'no-cache'` header
-- Removes unnecessary type assertion parens: `(x as unknown) as Y` -> `x as unknown as Y`
-
-### 8. Improved `findInstalledNPMPackage()` (`npm.ts`)
-
-- Now walks up the directory tree looking for `node_modules/<package>` (like Node.js resolution)
-- Previous: only checked immediate `node_modules/` directory
-- Loop terminates at filesystem root
-
-### 9. Improved Error Handling (`web-frontend.ts`)
-
-- Error fallback in frontend bootstrap now uses React 18 `createRoot` API consistently
-
-### Dependency Changes Summary
-
-| Package                  | main     | next           |
-| ------------------------ | -------- | -------------- |
-| `esbuild`                | ^0.16.15 | ^0.27.1        |
-| `@layr/aws-integration`  | ^2.0.101 | ^3.0.1         |
-| `@aws-sdk/client-lambda` | -        | ^3.540.0 (dev) |
-| `tiny-invariant`         | -        | ^1.3.3         |
-| `@mvila/dev-tools`       | ^1.3.1   | ^1.3.2         |
-
-### Breaking Changes / Risks
-
-- **esbuild loader removal**: `.js`/`.jsx` files no longer force-loaded as TS/TSX - projects relying on decorators in `.js` files may break
-- **React 18**: `ReactDOM.render` removed - apps must be React 18 compatible
-- **AWS SDK v3**: Lambda invocation uses new SDK - `@layr/aws-integration` v3 required
-- **S3 ACL removal**: Relies on bucket policies instead of ACLs (newer AWS default)
