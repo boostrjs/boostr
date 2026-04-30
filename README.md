@@ -419,7 +419,7 @@ The object returned by the exported function contains the following properties:
   - `development`: An object allowing you to define some properties when the `'development'` [stage](#stages) is used.
     - We define the `url` property so the backend can access the database locally (see ["Local Development URLs"](#local-development-urls) for details).
     - We set the value of the `platform` property to `'local'` to indicate that Boostr should manage a local database server.
-    - Optionally, you can set `ephemeral` to `true` to start the local database with an in-memory storage engine instead of persisting data to a `data/` directory. This is useful for test stages where data doesn't need to survive between runs. For example:
+    - Optionally, you can set `isEphemeral` to `true` to start the local database with an in-memory storage engine instead of persisting data to a `data/` directory. This is useful for test stages where data doesn't need to survive between runs.
 
 ```js
 // database/boostr.config.mjs
@@ -430,9 +430,13 @@ export default () => ({
   stages: {
     development: {
       url: 'mongodb://localhost:10744/dev',
-      platform: 'local',
-      ephemeral: true
+      platform: 'local'
     }
+    // test: {
+    //   url: 'mongodb://localhost:10745/test',
+    //   platform: 'local',
+    //   isEphemeral: true
+    // }
   }
 });
 ```

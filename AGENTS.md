@@ -116,7 +116,7 @@ Factory in `src/services/index.ts` creates services from `boostr.config.mjs` typ
 
 ### Ephemeral Database & mongodb-memory-server Version Chain
 
-The `ephemeral: true` database config option uses `storageEngine: 'ephemeralForTest'`.
+The `isEphemeral: true` database config option uses `storageEngine: 'ephemeralForTest'`.
 This engine was removed from MongoDB in 7.0.0. The dependency chain is:
 
 ```
@@ -132,7 +132,7 @@ If that version constant is bumped:
 - **To 10.x**: default binary is 7.0.14+ -> `ephemeralForTest` silently becomes `wiredTiger`
 - **To 11.x**: default binary is 8.2.x -> same silent fallback
 
-The fallback is graceful: mongodb-memory-server uses a tmpdir (cleaned on `.stop()`), so `ephemeral: true` still means "no persistent data/ dir in the project". The difference is only the engine under the hood (wiredTiger + tmpdir vs true RAM-only).
+The fallback is graceful: mongodb-memory-server uses a tmpdir (cleaned on `.stop()`), so `isEphemeral: true` still means "no persistent data/ dir in the project". The difference is only the engine under the hood (wiredTiger + tmpdir vs true RAM-only).
 
 ## Template Packages
 

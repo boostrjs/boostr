@@ -111,7 +111,7 @@ export class DatabaseService extends Subservice {
 
     const databaseName = pathname.slice(1);
 
-    const ephemeral = config.ephemeral === true;
+    const isEphemeral = config.isEphemeral === true;
 
     const {MongoMemoryServer} = await requireGlobalNPMPackage(
       'mongodb-memory-server-global',
@@ -119,13 +119,13 @@ export class DatabaseService extends Subservice {
       {serviceName}
     );
 
-    if (ephemeral) {
+    if (isEphemeral) {
       // 'ephemeralForTest' is a native MongoDB engine that keeps data in RAM only (no disk).
       // It was removed in MongoDB 7.0. mongodb-memory-server >= 9.0.0-beta.2 detects this
       // and silently falls back to 'wiredTiger' with a temp directory (cleaned up on stop).
       // With the current pinned version (8.11.0, which downloads mongod 5.0.x), the engine
       // works natively. If MONGODB_MEMORY_SERVER_GLOBAL_PACKAGE_VERSION is bumped to >= 10.x,
-      // the behavior of ephemeral: true still holds (no project-level data/ dir, cleanup on
+      // the behavior of isEphemeral: true still holds (no project-level data/ dir, cleanup on
       // stop) but via wiredTiger + tmpdir rather than a true in-memory engine.
       this._localServer = (await MongoMemoryServer.create({
         instance: {
