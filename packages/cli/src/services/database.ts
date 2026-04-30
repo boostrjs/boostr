@@ -111,9 +111,7 @@ export class DatabaseService extends Subservice {
 
     const databaseName = pathname.slice(1);
 
-    const dataDirectory = join(directory, LOCAL_DATA_DIRECTORY_NAME);
-
-    fsExtra.ensureDirSync(dataDirectory);
+    const ephemeral = config.ephemeral === true;
 
     const {MongoMemoryServer} = await requireGlobalNPMPackage(
       'mongodb-memory-server-global',
@@ -121,14 +119,35 @@ export class DatabaseService extends Subservice {
       {serviceName}
     );
 
-    this._localServer = (await MongoMemoryServer.create({
-      instance: {
-        port,
-        dbName: databaseName,
-        dbPath: dataDirectory,
-        storageEngine: 'wiredTiger'
-      }
-    })) as MongoMemoryServer;
+    if (ephemeral) {
+      // 'ephemeralForTest' is a native MongoDB engine that keeps data in RAM only (no disk).
+      // It was removed in MongoDB 7.0. mongodb-memory-server >= 9.0.0-beta.2 detects this
+      // and silently falls back to 'wiredTiger' with a temp directory (cleaned up on stop).
+      // With the current pinned version (8.11.0, which downloads mongod 5.0.x), the engine
+      // works natively. If MONGODB_MEMORY_SERVER_GLOBAL_PACKAGE_VERSION is bumped to >= 10.x,
+      // the behavior of ephemeral: true still holds (no project-level data/ dir, cleanup on
+      // stop) but via wiredTiger + tmpdir rather than a true in-memory engine.
+      this._localServer = (await MongoMemoryServer.create({
+        instance: {
+          port,
+          dbName: databaseName,
+          storageEngine: 'ephemeralForTest'
+        }
+      })) as MongoMemoryServer;
+    } else {
+      const dataDirectory = join(directory, LOCAL_DATA_DIRECTORY_NAME);
+
+      fsExtra.ensureDirSync(dataDirectory);
+
+      this._localServer = (await MongoMemoryServer.create({
+        instance: {
+          port,
+          dbName: databaseName,
+          dbPath: dataDirectory,
+          storageEngine: 'wiredTiger'
+        }
+      })) as MongoMemoryServer;
+    }
 
     let connectionString = this._localServer.getUri();
 
