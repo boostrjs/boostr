@@ -5,13 +5,14 @@ import {throwError} from './utilities.js';
 export const GLOBAL_OPTIONS_HELP_OBJECT = {
   '--stage': "Selects a stage (default: 'development').",
   '--development': 'A shorthand for `--stage=development`.',
+  '--test': 'A shorthand for `--stage=test`.',
   '--staging': 'A shorthand for `--stage=staging`.',
   '--production': 'A shorthand for `--stage=production`.',
   '--version, -v': 'Displays the current Boostr version.',
   '--help, -h': 'Displays inline help for a specified service or command.'
 };
 
-const BUILT_IN_STAGES = ['development', 'staging', 'production'];
+const BUILT_IN_STAGES = ['development', 'test', 'staging', 'production'];
 
 export function parseRawArguments(rawArguments: string[]) {
   const {_: parsedArguments, ...parsedOptions} = mri(rawArguments);

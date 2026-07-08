@@ -32,8 +32,8 @@ boostr/
 ### Argument Parsing
 
 - Uses `mri` (lightweight parser) in `src/argument-parser.ts`
-- Global options: `--stage <name>`, `--development`, `--staging`, `--production`, `--version`, `--help`
-- Built-in stages: development (default), staging, production
+- Global options: `--stage <name>`, `--development`, `--test`, `--staging`, `--production`, `--version`, `--help`
+- Built-in stages: development (default), test, staging, production
 
 ### Command System (`src/command.ts`)
 
