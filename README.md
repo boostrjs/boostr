@@ -576,7 +576,7 @@ Generally, a Layr app managed by Boostr uses several stages, allowing you to def
 For example, a typical app has the following stages:
 
 - `'development'`: A stage used when you run your app in development mode on your local machine.
-- `'test'`: A stage used when you test your on your local machine.
+- `'test'`: A stage used when you test your app on your local machine.
 - `'staging'`: A stage used when you deploy your app to your staging hosting environment.
 - `'production'`: A stage used when you deploy your app to production.
 
