@@ -5,7 +5,7 @@ import {execFileSync} from 'child_process';
 import {installGlobalNPMPackage} from './npm.js';
 import {logMessage, throwError} from './utilities.js';
 
-const TYPESCRIPT_PACKAGE_VERSION = '4.8.4';
+const TYPESCRIPT_PACKAGE_VERSION = '6.0.3';
 
 export async function check({
   serviceDirectory,
